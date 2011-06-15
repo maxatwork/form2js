@@ -33,36 +33,40 @@
 	 * @param rootNode {Element|String} root form element (or it's id)
 	 * @param delimiter {String} structure parts delimiter defaults to '.'
 	 * @param skipEmpty {Boolean} should skip empty text values, defaults to true
+	 * @param nodeCallback {Function} custom function to get node value
 	 */
-	window.form2object = function(rootNode, delimiter, skipEmpty)
+	window.form2object = function(rootNode, delimiter, skipEmpty, nodeCallback)
 	{
 		if (typeof skipEmpty == 'undefined' || skipEmpty == null) skipEmpty = true;
 		if (typeof delimiter == 'undefined' || delimiter == null) delimiter = '.';
 		rootNode = typeof rootNode == 'string' ? document.getElementById(rootNode) : rootNode;
 
-		var formValues = getFormValues(rootNode);
-		var result = {};
-		var arrays = {};
+		var formValues = getFormValues(rootNode, nodeCallback),
+			result = {},
+			arrays = {};
 
 		for (var i = 0; i < formValues.length; i++)
 		{
 			var value = formValues[i].value;
+
 			if (skipEmpty && value === '') continue;
 
-			var name = formValues[i].name;
-			var nameParts = name.split(delimiter);
+			var name = formValues[i].name,
+				nameParts = name.split(delimiter),
+				currResult = result,
+				arrNameFull = '';
 
-			var currResult = result;
 
 			for (var j = 0; j < nameParts.length; j++)
 			{
-				var namePart = nameParts[j];
-
-				var arrName;
+				var arrName,
+					arrIdx,
+					namePart = nameParts[j];
 
 				if (namePart.indexOf('[]') > -1 && j == nameParts.length - 1)
 				{
 					arrName = namePart.substr(0, namePart.indexOf('['));
+					arrNameFull += arrName;
 
 					if (!currResult[arrName]) currResult[arrName] = [];
 					currResult[arrName].push(value);
@@ -72,7 +76,10 @@
 					if (namePart.indexOf('[') > -1)
 					{
 						arrName = namePart.substr(0, namePart.indexOf('['));
-						var arrIdx = namePart.replace(/^[a-z]+\[|\]$/gi, '');
+						arrIdx = namePart.replace(/^[a-z]+\[|\]$/gi, '');
+
+						/* Unique array name */
+						arrNameFull += arrName + arrIdx;
 
 						/*
 						 * Because arrIdx in field name can be not zero-based and step can be
@@ -81,26 +88,29 @@
 						 * added array element
 						 */
 
-						if (!arrays[arrName]) arrays[arrName] = {};
+						if (!arrays[arrNameFull]) arrays[arrNameFull] = {};
 						if (!currResult[arrName]) currResult[arrName] = [];
 
 						if (j == nameParts.length - 1)
 						{
 							currResult[arrName].push(value);
+							arrays[arrNameFull][arrIdx] = currResult[arrName][currResult[arrName].length - 1];
 						}
 						else
 						{
-							if (!arrays[arrName][arrIdx])
+							if (!arrays[arrNameFull][arrIdx])
 							{
 								currResult[arrName].push({});
-								arrays[arrName][arrIdx] = currResult[arrName][currResult[arrName].length - 1];
+								arrays[arrNameFull][arrIdx] = currResult[arrName][currResult[arrName].length - 1];
 							}
 						}
 
-						currResult = arrays[arrName][arrIdx];
+						currResult = arrays[arrNameFull][arrIdx];
 					}
 					else
 					{
+						arrNameFull += namePart;
+
 						if (j < nameParts.length - 1) /* Not the last part of name - means object */
 						{
 							if (!currResult[namePart]) currResult[namePart] = {};
@@ -118,21 +128,27 @@
 		return result;
 	};
 
-	function getFormValues(rootNode)
+	function getFormValues(rootNode, nodeCallback)
 	{
 		var result = [];
 		var currentNode = rootNode.firstChild;
 
 		while (currentNode)
 		{
-			if (currentNode.nodeName.match(/INPUT|SELECT|TEXTAREA/i))
+			var callbackResult = nodeCallback && nodeCallback(currentNode);
+
+			if (callbackResult && callbackResult.name)
+			{
+				result.push(callbackResult);
+			}
+			else if (currentNode.nodeName.match(/INPUT|SELECT|TEXTAREA/i))
 			{
 				var fieldValue = getFieldValue(currentNode);
 				if (fieldValue !== null) result.push({ name: currentNode.name, value: fieldValue});
 			}
 			else
 			{
-				var subresult = getFormValues(currentNode);
+				var subresult = getFormValues(currentNode, nodeCallback);
 				result = result.concat(subresult);
 			}
 

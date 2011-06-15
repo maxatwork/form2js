@@ -73,23 +73,28 @@
 	<dl>
 		<dt>Give us your five friends' names and emails</dt>
 		<dd>
-			<label>Email <input type="text" name="person.friends[0].email" /></label>
+			<label>Email0 <input type="text" name="person.friends[0].emails[0].email" value="test1" /></label>
+			<label>Email1 <input type="text" name="person.friends[0].emails[1].email" value="test2" /></label>
 			<label>Name <input type="text" name="person.friends[0].name"/></label>
 		</dd>
 		<dd>
-			<label>Email <input type="text" name="person.friends[1].email" /></label>
+			<label>Email0 <input type="text" name="person.friends[1].emails[0].email" value="test3" /></label>
+			<label>Email1 <input type="text" name="person.friends[1].emails[1].email" value="test4" /></label>
 			<label>Name <input type="text" name="person.friends[1].name"/></label>
 		</dd>
 		<dd>
-			<label>Email <input type="text" name="person.friends[2].email" /></label>
+			<label>Email0 <input type="text" name="person.friends[2].emails[0].email" value="test5" /></label>
+			<label>Email1 <input type="text" name="person.friends[2].emails[1].email" value="test6" /></label>
 			<label>Name <input type="text" name="person.friends[2].name"/></label>
 		</dd>
 		<dd>
-			<label>Email <input type="text" name="person.friends[3].email" /></label>
+			<label>Email0 <input type="text" name="person.friends[3].emails[0].email" value="test7" /></label>
+			<label>Email1 <input type="text" name="person.friends[3].emails[1].email" value="test8" /></label>
 			<label>Name <input type="text" name="person.friends[3].name"/></label>
 		</dd>
 		<dd>
-			<label>Email <input type="text" name="person.friends[4].email" /></label>
+			<label>Email0 <input type="text" name="person.friends[4].emails[0].email" value="test9" /></label>
+			<label>Email1 <input type="text" name="person.friends[4].emails[1].email" value="test0" /></label>
 			<label>Name <input type="text" name="person.friends[4].name"/></label>
 		</dd>
 	</dl>
@@ -171,6 +176,13 @@
 	</dl>
 
 	<dl>
+		<dt>Custom callback test:</dt>
+		<dd>
+			<div id="person.callbackTest">test test test</div>
+		</dd>
+	</dl>
+
+	<dl>
 		<dt></dt>
 		<dd><input type="submit" /></dd>
 	</dl>
@@ -184,7 +196,15 @@
 <script type="text/javascript">
 	function test()
 	{
-		var formData = form2object('testForm');
+		var formData = form2object('testForm', '.', true,
+				function(node)
+				{
+					if (node.id && node.id.match(/callbackTest/))
+					{
+						return { name: node.id, value: node.innerHTML };
+					}
+				});
+
 		document.getElementById('testArea').innerHTML = JSON.stringify(formData, null, '\t');
 	}
 </script>
