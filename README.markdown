@@ -77,7 +77,7 @@ becomes
         }
     }
 
-##Why not to use jQuery .serializeArray() and similar functions in other frameworks instead?
+##Why not to use jQuery .serializeArray() or similar functions in other frameworks instead?
 .serializeArray() works a bit different. It makes this structure from markup in previous example:
 
     [
