@@ -3,8 +3,6 @@ _Convenient way to collect form data into JavaScript object._
 
 Example: http://form2js.googlecode.com/hg/example/test.html
 
-It's highly recommended to use latest version from repository instead of archives in "Downloads" section.
-
 If you have any questions/suggestions or find out something weird or illogical - feel free to post an issue.
 
 ## Details
