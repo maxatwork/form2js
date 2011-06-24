@@ -1,7 +1,7 @@
 # form2js
 _Convenient way to collect form data into JavaScript object._
 
-[Example]: http://form2js.googlecode.com/hg/example/test.html
+Example: http://form2js.googlecode.com/hg/example/test.html
 
 It's highly recommended to use latest version from repository instead of archives in "Downloads" section.
 
