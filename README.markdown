@@ -14,9 +14,12 @@ This is **not** a serialization library. Library used in example for JSON serial
 All this library doing is collecting form data and putting it in javascript object (obviously you can get JSON/XML/etc string by serializing it, but it's not an only purpose).
 
 ## Usage
+    form2object(rootNode, delimiter, skipEmpty, nodeCallback)
+
+Values of all inputs under the _rootNode_ will be collected into one object (skipping empty inputs if _skipEmpty_ not false).
 
 ### Objects/nested objects
-Structure of resulting object defined in "name" attribute, delimiter is "." (dot) by default, but can be changed.
+Structure of resulting object defined in "name" attribute, _delimiter_ is "." (dot) by default, but can be changed.
 
     <input type="text" name="person.name.first" value="John" />
     <input type="text" name="person.name.last" value="Doe" />
