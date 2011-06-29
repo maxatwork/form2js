@@ -188,7 +188,11 @@
 	</dl>
 </form>
 
-<input name="selector" value="#testForm">
+<dl>
+	<dt><label for="selector">Form selector</label></dt>
+	<dd><input id="selector" name="selector" value="#testForm"></dd>
+</dl>
+
 
 <h2>mode: first</h2>
 <pre><code id="testAreaFirst">
@@ -208,7 +212,7 @@
 		function test(evt){
 			evt.preventDefault();
 
-			var selector = $('input[name=selector]').val(),
+			var selector = $('#selector').val(),
 				formDataFirst = $(selector).toObject({mode: 'first'}),
 				formDataAll = $(selector).toObject({mode: 'all'});
 			
