@@ -202,6 +202,10 @@
 <pre><code id="testAreaAll">
 </code></pre>
 
+<h2>mode: combine</h2>
+<pre><code id="testAreaCombine">
+</code></pre>
+
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.1.min.js"></script>
 <script type="text/javascript" src="../src/form2object.js"></script>
 <script type="text/javascript" src="../src/jquery.toObject.js"></script>
@@ -214,10 +218,12 @@
 
 			var selector = $('#selector').val(),
 				formDataFirst = $(selector).toObject({mode: 'first'}),
-				formDataAll = $(selector).toObject({mode: 'all'});
-			
+				formDataAll = $(selector).toObject({mode: 'all'}),
+				formDataCombine = $(selector).toObject({mode: 'combine'});
+
 			$('#testAreaFirst').html(JSON.stringify(formDataFirst, null, '\t'));
 			$('#testAreaAll').html(JSON.stringify(formDataAll, null, '\t'));
+			$('#testAreaCombine').html(JSON.stringify(formDataCombine, null, '\t'));
 		}
 
 		$(function(){

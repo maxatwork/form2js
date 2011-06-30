@@ -36,6 +36,9 @@
 				});
 				return result;
 				break;
+			case 'combine':
+				return form2object(Array.prototype.slice.call(this), settings.delimiter, settings.skipEmpty, settings.nodeCallback);
+				break;
 		}
 	}
 
