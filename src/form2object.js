@@ -30,7 +30,7 @@
 	 * Returns form values represented as Javascript object
 	 * "name" attribute defines structure of resulting object
 	 *
-	 * @param rootNode {Element|String} root form element (or it's id)
+	 * @param rootNode {Element|String} root form element (or it's id) or array of root elements
 	 * @param delimiter {String} structure parts delimiter defaults to '.'
 	 * @param skipEmpty {Boolean} should skip empty text values, defaults to true
 	 * @param nodeCallback {Function} custom function to get node value
@@ -39,11 +39,27 @@
 	{
 		if (typeof skipEmpty == 'undefined' || skipEmpty == null) skipEmpty = true;
 		if (typeof delimiter == 'undefined' || delimiter == null) delimiter = '.';
+
 		rootNode = typeof rootNode == 'string' ? document.getElementById(rootNode) : rootNode;
 
-		var formValues = getFormValues(rootNode, nodeCallback),
+		var formValues = [],
 			result = {},
-			arrays = {};
+			arrays = {},
+			currNode,
+			i = 0;
+
+		/* If rootNode is array - combine values */
+		if (rootNode.constructor == Array || rootNode.constructor == NodeList)
+		{
+			while(currNode = rootNode[i++])
+			{
+				formValues = formValues.concat(getFormValues(currNode, nodeCallback));
+			}
+		}
+		else
+		{
+			formValues = getFormValues(rootNode, nodeCallback);
+		}
 
 		for (var i = 0; i < formValues.length; i++)
 		{
