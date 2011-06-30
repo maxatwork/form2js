@@ -5,6 +5,8 @@ Example: http://form2js.googlecode.com/hg/example/test.html
 
 If you have any questions/suggestions or find out something weird or illogical - feel free to post an issue.
 
+Because everythins is better with jQuery, jQuery plugin added, check out jquery.toObject.js =)
+
 ## Details
 
 Structure of resulting object defined by "name" attribute of form fields. See examples below.
