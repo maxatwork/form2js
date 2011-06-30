@@ -49,7 +49,7 @@
 			i = 0;
 
 		/* If rootNode is array - combine values */
-		if (rootNode.length)
+		if (rootNode.constructor == Array || rootNode.constructor == NodeList)
 		{
 			while(currNode = rootNode[i++])
 			{
