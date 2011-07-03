@@ -43,8 +43,6 @@
 		rootNode = typeof rootNode == 'string' ? document.getElementById(rootNode) : rootNode;
 
 		var formValues = [],
-			result = {},
-			arrays = {},
 			currNode,
 			i = 0;
 
@@ -61,17 +59,32 @@
 			formValues = getFormValues(rootNode, nodeCallback);
 		}
 
-		for (var i = 0; i < formValues.length; i++)
+		return processNameValues(formValues, skipEmpty, delimiter);
+	};
+
+	/**
+	 * Processes collection of { name: 'name', value: 'value' } objects.
+	 * @param nameValues
+	 * @param skipEmpty if true skips elements with value == '' or value == null
+	 * @param delimiter
+	 */
+	function processNameValues(nameValues, skipEmpty, delimiter)
+	{
+		var result = {},
+			arrays = {},
+			i = 0,
+			value;
+
+		for (i = 0; i < nameValues.length; i++)
 		{
-			var value = formValues[i].value;
+			value = nameValues[i].value;
 
 			if (skipEmpty && value === '') continue;
 
-			var name = formValues[i].name,
+			var name = nameValues[i].name,
 				nameParts = name.split(delimiter),
 				currResult = result,
 				arrNameFull = '';
-
 
 			for (var j = 0; j < nameParts.length; j++)
 			{
@@ -142,7 +155,7 @@
 		}
 
 		return result;
-	};
+	}
 
 	function getFormValues(rootNode, nodeCallback)
 	{
