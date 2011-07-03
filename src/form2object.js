@@ -72,8 +72,16 @@
 	{
 		var result = {},
 			arrays = {},
-			i = 0,
-			value;
+			i, j, k,
+			value,
+			nameParts,
+			currResult,
+			arrNameFull,
+			arrName,
+			arrIdx,
+			namePart,
+			name,
+			_nameParts;
 
 		for (i = 0; i < nameValues.length; i++)
 		{
@@ -81,16 +89,40 @@
 
 			if (skipEmpty && value === '') continue;
 
-			var name = nameValues[i].name,
-				nameParts = name.split(delimiter),
-				currResult = result,
-				arrNameFull = '';
+			name = nameValues[i].name;
+			_nameParts = name.split(delimiter);
+			nameParts = [];
+			currResult = result;
+			arrNameFull = '';
 
-			for (var j = 0; j < nameParts.length; j++)
+			for(j = 0; j < _nameParts.length; j++)
 			{
-				var arrName,
-					arrIdx,
-					namePart = nameParts[j];
+				namePart = _nameParts[j].split('][');
+				if (namePart.length > 1)
+				{
+					for(k = 0; k < namePart.length; k++)
+					{
+						if (k == 0)
+						{
+							namePart[k] = namePart[k] + ']';
+						}
+						else if (k == namePart.length - 1)
+						{
+							namePart[k] = '[' + namePart[k];
+						}
+						else
+						{
+							namePart[k] = '[' + namePart[k] + ']';
+						}
+					}
+				}
+
+				nameParts = nameParts.concat(namePart);
+			}
+
+			for (j = 0; j < nameParts.length; j++)
+			{
+				namePart = nameParts[j];
 
 				if (namePart.indexOf('[]') > -1 && j == nameParts.length - 1)
 				{
@@ -100,55 +132,62 @@
 					if (!currResult[arrName]) currResult[arrName] = [];
 					currResult[arrName].push(value);
 				}
-				else
+				else if (namePart.indexOf('[') > -1)
 				{
-					if (namePart.indexOf('[') > -1)
+					arrName = namePart.substr(0, namePart.indexOf('['));
+					arrIdx = namePart.replace(/(^([a-z]+)?\[)|(\]$)/gi, '');
+
+					/* Unique array name */
+					arrNameFull += '_' + arrName + '_' + arrIdx;
+
+					/*
+					 * Because arrIdx in field name can be not zero-based and step can be
+					 * other than 1, we can't use them in target array directly.
+					 * Instead we're making a hash where key is arrIdx and value is a reference to
+					 * added array element
+					 */
+
+					if (!arrays[arrNameFull]) arrays[arrNameFull] = {};
+					if (arrName != '' && !currResult[arrName]) currResult[arrName] = [];
+
+					if (j == nameParts.length - 1)
 					{
-						arrName = namePart.substr(0, namePart.indexOf('['));
-						arrIdx = namePart.replace(/^[a-z]+\[|\]$/gi, '');
-
-						/* Unique array name */
-						arrNameFull += arrName + arrIdx;
-
-						/*
-						 * Because arrIdx in field name can be not zero-based and step can be
-						 * other than 1, we can't use them in target array directly.
-						 * Instead we're making a hash where key is arrIdx and value is a reference to
-						 * added array element
-						 */
-
-						if (!arrays[arrNameFull]) arrays[arrNameFull] = {};
-						if (!currResult[arrName]) currResult[arrName] = [];
-
-						if (j == nameParts.length - 1)
+						if (arrName == '')
+						{
+							currResult.push(value);
+							arrays[arrNameFull][arrIdx] = currResult[currResult.length - 1];
+						}
+						else
 						{
 							currResult[arrName].push(value);
 							arrays[arrNameFull][arrIdx] = currResult[arrName][currResult[arrName].length - 1];
 						}
-						else
-						{
-							if (!arrays[arrNameFull][arrIdx])
-							{
-								currResult[arrName].push({});
-								arrays[arrNameFull][arrIdx] = currResult[arrName][currResult[arrName].length - 1];
-							}
-						}
-
-						currResult = arrays[arrNameFull][arrIdx];
 					}
 					else
 					{
-						arrNameFull += namePart;
+						if (!arrays[arrNameFull][arrIdx])
+						{
+							if ((/^[a-z]+\[?/i).test(nameParts[j+1])) currResult[arrName].push({});
+							else currResult[arrName].push([]);
+							
+							arrays[arrNameFull][arrIdx] = currResult[arrName][currResult[arrName].length - 1];
+						}
+					}
 
-						if (j < nameParts.length - 1) /* Not the last part of name - means object */
-						{
-							if (!currResult[namePart]) currResult[namePart] = {};
-							currResult = currResult[namePart];
-						}
-						else
-						{
-							currResult[namePart] = value;
-						}
+					currResult = arrays[arrNameFull][arrIdx];
+				}
+				else
+				{
+					arrNameFull += namePart;
+
+					if (j < nameParts.length - 1) /* Not the last part of name - means object */
+					{
+						if (!currResult[namePart]) currResult[namePart] = {};
+						currResult = currResult[namePart];
+					}
+					else
+					{
+						currResult[namePart] = value;
 					}
 				}
 			}
