@@ -35,10 +35,12 @@
 	 * @param skipEmpty {Boolean} should skip empty text values, defaults to true
 	 * @param nodeCallback {Function} custom function to get node value
 	 */
-	window.form2object = function(rootNode, delimiter, skipEmpty, nodeCallback)
+	window.form2object = function(rootNode, delimiter, skipEmpty, nodeCallback, rails)
 	{
 		if (typeof skipEmpty == 'undefined' || skipEmpty == null) skipEmpty = true;
-		if (typeof delimiter == 'undefined' || delimiter == null) delimiter = '.';
+		if (typeof rails == 'undefined' || rails == null) rails = false;
+        if (rails && !delimiter) delimiter = null;
+		if (typeof delimiter == 'undefined') delimiter = '.';
 
 		rootNode = typeof rootNode == 'string' ? document.getElementById(rootNode) : rootNode;
 
@@ -68,13 +70,49 @@
 			if (skipEmpty && value === '') continue;
 
 			var name = formValues[i].name,
-				nameParts = name.split(delimiter),
+				nameParts = delimiter ? name.split(delimiter) : name,
 				currResult = result,
 				arrNameFull = '';
 
 
 			for (var j = 0; j < nameParts.length; j++)
 			{
+              if(rails){
+				var arrName,
+					key,
+					namePart = nameParts[j];
+
+				if (namePart.indexOf('[]') > -1 && j == nameParts.length - 1)
+				{
+					arrName = namePart.substr(0, namePart.indexOf('['));
+					arrNameFull += arrName;
+
+					if (!currResult[arrName]) currResult[arrName] = [];
+					currResult[arrName].push(value);
+				}
+				else
+				{
+					if (namePart.indexOf('[') > -1)
+					{
+						objName = namePart.substr(0, namePart.indexOf('['));
+						key = namePart.replace(/^[a-z]+\[|\]$/gi, '');
+
+						if (!currResult[objName]) currResult[objName] = {};
+                        currResult[objName][key] = value;
+                    } else {
+                        if (j < nameParts.length - 1) /* Not the last part of name - means object */
+                        {
+                            if (!currResult[namePart]) currResult[namePart] = {};
+                            currResult = currResult[namePart];
+                        }
+                        else
+                        {
+                            currResult[namePart] = value;
+                        }
+                    }
+                }
+
+              } else {
 				var arrName,
 					arrIdx,
 					namePart = nameParts[j];
@@ -138,6 +176,7 @@
 						}
 					}
 				}
+              }
 			}
 		}
 
