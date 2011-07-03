@@ -72,7 +72,7 @@
 	{
 		var result = {},
 			arrays = {},
-			i, j, k,
+			i, j, k, l,
 			value,
 			nameParts,
 			currResult,
@@ -114,10 +114,22 @@
 						{
 							namePart[k] = '[' + namePart[k] + ']';
 						}
+
+						arrIdx = namePart[k].match(/([a-z_]+)?\[([a-z_][a-z0-9]+?)\]/i);
+						if (arrIdx)
+						{
+							for(l = 1; l < arrIdx.length; l++)
+							{
+								if (arrIdx[l]) nameParts.push(arrIdx[l]);
+							}
+						}
+						else{
+							nameParts.push(namePart[k]);
+						}
 					}
 				}
-
-				nameParts = nameParts.concat(namePart);
+				else
+					nameParts = nameParts.concat(namePart);
 			}
 
 			for (j = 0; j < nameParts.length; j++)
@@ -135,7 +147,7 @@
 				else if (namePart.indexOf('[') > -1)
 				{
 					arrName = namePart.substr(0, namePart.indexOf('['));
-					arrIdx = namePart.replace(/(^([a-z]+)?\[)|(\]$)/gi, '');
+					arrIdx = namePart.replace(/(^([a-z_]+)?\[)|(\]$)/gi, '');
 
 					/* Unique array name */
 					arrNameFull += '_' + arrName + '_' + arrIdx;
@@ -167,9 +179,9 @@
 					{
 						if (!arrays[arrNameFull][arrIdx])
 						{
-							if ((/^[a-z]+\[?/i).test(nameParts[j+1])) currResult[arrName].push({});
+							if ((/^[a-z_]+\[?/i).test(nameParts[j+1])) currResult[arrName].push({});
 							else currResult[arrName].push([]);
-							
+
 							arrays[arrNameFull][arrIdx] = currResult[arrName][currResult[arrName].length - 1];
 						}
 					}
