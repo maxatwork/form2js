@@ -82,15 +82,36 @@ becomes
         }
     }
 
-## Why not to use jQuery .serializeArray() or similar functions in other frameworks instead?
-.serializeArray() works a bit different. It makes this structure from markup in previous example:
+### Ruby-style notation
 
-    [
-        { "person.friends[0].email" : "agent.smith@example.com" },
-        { "person.friends[0].name" : "Smith Agent" },
-        { "person.friends[1].email" : "n3o@example.com" },
-        { "person.friends[1].name" : "Thomas A. Anderson" }
-    ]
+If array index starts with [a-zA-Z_], it will be treated as field of object.
+
+    <dl>
+        <dt>Ruby-style test</dt>
+        <dd>
+            <label>ruby[field1][foo]<input type="text" name="ruby[field1][foo]" value="baz" /></label>
+            <label>ruby[field1][bar]<input type="text" name="ruby[field1][bar]" value="qux" /></label>
+        </dd>
+        <dd>
+            <label>ruby[field2][foo]<input type="text" name="ruby[field2][foo]" value="baz" /></label>
+            <label>ruby[field2][bar]<input type="text" name="ruby[field2][bar]" value="qux" /></label>
+        </dd>
+    </dl>
+
+will give us
+
+    {
+        "ruby": {
+            "field1": {
+                "foo": "baz",
+                "bar": "qux"
+            },
+            "field2": {
+                "foo": "baz",
+                "bar": "qux"
+            }
+        }
+    }
 
 ### Custom fields
 You can implement custom nodeCallback function (passed as 4th parameter to form2object()) to extract custom data:
@@ -154,3 +175,14 @@ using _processDate()_ callback _formData_ will contain
     		"dateOfBirth": "2011-01-12"
     	}
     }
+
+
+## Why not to use jQuery .serializeArray() or similar functions in other frameworks instead?
+.serializeArray() works a bit different. It makes this structure from markup in "Arrays of objects/nested objects" example:
+
+    [
+        { "person.friends[0].email" : "agent.smith@example.com" },
+        { "person.friends[0].name" : "Smith Agent" },
+        { "person.friends[1].email" : "n3o@example.com" },
+        { "person.friends[1].name" : "Thomas A. Anderson" }
+    ]
