@@ -84,7 +84,7 @@ becomes
 
 ### Ruby-style notation
 
-If array index starts with [a-z_], it will be treated as field of object.
+If array index starts with [a-zA-Z_], it will be treated as field of object.
 
     <dl>
         <dt>Ruby-style test</dt>
