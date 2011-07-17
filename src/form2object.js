@@ -210,12 +210,13 @@
 
 	function getFormValues(rootNode, nodeCallback)
 	{
-		var result = [];
-		var currentNode = rootNode.firstChild;
+		var result = [],
+			currentNode = rootNode.firstChild,
+			callbackResult, fieldValue, subresult;
 
 		while (currentNode)
 		{
-			var callbackResult = nodeCallback && nodeCallback(currentNode);
+			callbackResult = nodeCallback && nodeCallback(currentNode);
 
 			if (callbackResult && callbackResult.name)
 			{
@@ -223,12 +224,12 @@
 			}
 			else if (currentNode.nodeName.match(/INPUT|SELECT|TEXTAREA/i))
 			{
-				var fieldValue = getFieldValue(currentNode);
+				fieldValue = getFieldValue(currentNode);
 				if (fieldValue !== null) result.push({ name: currentNode.name, value: fieldValue});
 			}
 			else
 			{
-				var subresult = getFormValues(currentNode, nodeCallback);
+				subresult = getFormValues(currentNode, nodeCallback);
 				result = result.concat(subresult);
 			}
 
@@ -275,11 +276,13 @@
 
 	function getSelectedOptionValue(selectNode)
 	{
-		var multiple = selectNode.multiple;
+		var multiple = selectNode.multiple,
+			result = [],
+			options;
+
 		if (!multiple) return selectNode.value;
 
-		var result = [];
-		for (var options = selectNode.getElementsByTagName("option"), i = 0, l = options.length; i < l; i++)
+		for (options = selectNode.getElementsByTagName("option"), i = 0, l = options.length; i < l; i++)
 		{
 			if (options[i].selected) result.push(options[i].value);
 		}
