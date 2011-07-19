@@ -208,7 +208,13 @@
 		return result;
 	}
 
-	function getFormValues(rootNode, nodeCallback)
+    function getFormValues(rootNode, nodeCallback)
+    {
+        var result = extractNodeValues(rootNode, nodeCallback);
+        return result.length > 0 ? result : getSubFormValues(rootNode, nodeCallback);
+    }
+
+    function getSubFormValues(rootNode, nodeCallback)
 	{
 		var result = [],
 			currentNode = rootNode.firstChild,
@@ -216,28 +222,34 @@
 
 		while (currentNode)
 		{
-			callbackResult = nodeCallback && nodeCallback(currentNode);
-
-			if (callbackResult && callbackResult.name)
-			{
-				result.push(callbackResult);
-			}
-			else if (currentNode.nodeName.match(/INPUT|SELECT|TEXTAREA/i))
-			{
-				fieldValue = getFieldValue(currentNode);
-				if (fieldValue !== null) result.push({ name: currentNode.name, value: fieldValue});
-			}
-			else
-			{
-				subresult = getFormValues(currentNode, nodeCallback);
-				result = result.concat(subresult);
-			}
-
+			result = result.concat(extractNodeValues(currentNode, nodeCallback));
 			currentNode = currentNode.nextSibling;
 		}
 
 		return result;
 	}
+
+    function extractNodeValues(node, nodeCallback) {
+        var callbackResult, fieldValue, result = [];
+
+        callbackResult = nodeCallback && nodeCallback(node);
+
+        if (callbackResult && callbackResult.name) {
+            result = [callbackResult];
+        }
+        else if (node.nodeName.match(/INPUT|SELECT|TEXTAREA/i)) {
+            fieldValue = getFieldValue(node);
+
+            if (fieldValue !== null)
+                result = [ { name: node.name, value: fieldValue} ];
+        }
+        else{
+            result = getSubFormValues(node, nodeCallback);
+        }
+
+        return result;
+    }
+
 
 	function getFieldValue(fieldNode)
 	{
