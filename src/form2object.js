@@ -237,11 +237,17 @@
         if (callbackResult && callbackResult.name) {
             result = [callbackResult];
         }
-        else if (node.nodeName.match(/INPUT|SELECT|TEXTAREA/i)) {
+        else if (node.nodeName.match(/INPUT|TEXTAREA/i)) {
             fieldValue = getFieldValue(node);
 
             if (fieldValue !== null)
                 result = [ { name: node.name, value: fieldValue} ];
+        }
+        else if (node.nodeName.match(/SELECT/i)) {
+	        fieldValue = getFieldValue(node);
+	        
+	        if (fieldValue !== null)
+	            result = [ { name: node.name.replace(/\[\]$/, ''), value: fieldValue } ];
         }
         else{
             result = getSubFormValues(node, nodeCallback);
