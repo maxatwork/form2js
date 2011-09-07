@@ -71,6 +71,23 @@
 	</dl>
 
 	<dl>
+		<dt>Multiple select (ZendForm syntax)</dt>
+		<dd>
+			<select name="person.colorsZend[]" multiple="multiple">
+				<optgroup label="Warm">
+					<option value="green">Green</option>
+					<option value="orange">Orange</option>
+					<option value="red">Red</option>
+				</optgroup>
+				<optgroup label="Cold">
+					<option value="blue">blue</option>
+					<option value="purple">purple</option>
+				</optgroup>
+			</select>
+		</dd>
+	</dl>
+
+	<dl>
 		<dt>Give us your five friends' names and emails</dt>
 		<dd>
 			<label>Email0 <input type="text" name="person.friends[0].emails[0].email" value="test1" /></label>
@@ -96,6 +113,23 @@
 			<label>Email0 <input type="text" name="person.friends[4].emails[0].email" value="test9" /></label>
 			<label>Email1 <input type="text" name="person.friends[4].emails[1].email" value="test0" /></label>
 			<label>Name <input type="text" name="person.friends[4].name"/></label>
+		</dd>
+	</dl>
+
+	<dl>
+		<dt>Multiple select inside an array (ZendForm syntax)</dt>
+		<dd>
+			<select name="person.friends[4].colorsZend[]" multiple="multiple">
+				<optgroup label="Warm">
+					<option value="green">Green</option>
+					<option value="orange">Orange</option>
+					<option value="red">Red</option>
+				</optgroup>
+				<optgroup label="Cold">
+					<option value="blue">blue</option>
+					<option value="purple">purple</option>
+				</optgroup>
+			</select>
 		</dd>
 	</dl>
 
