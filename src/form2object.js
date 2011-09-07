@@ -47,7 +47,7 @@
 			i = 0;
 
 		/* If rootNode is array - combine values */
-		if (rootNode.constructor == Array || rootNode.constructor == NodeList)
+		if (rootNode.constructor == Array || (typeof NodeList != "undefined" && rootNode.constructor == NodeList))
 		{
 			while(currNode = rootNode[i++])
 			{
