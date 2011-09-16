@@ -241,13 +241,19 @@
             fieldValue = getFieldValue(node);
 
             if (fieldValue !== null)
-                result = [ { name: node.name, value: fieldValue} ];
+            	var nodeName = node.name
+            	if (nodeName == '')
+            		nodeName = node.id
+                result = [ { name: nodeName, value: fieldValue} ];
         }
         else if (node.nodeName.match(/SELECT/i)) {
 	        fieldValue = getFieldValue(node);
-	        
+
 	        if (fieldValue !== null)
-	            result = [ { name: node.name.replace(/\[\]$/, ''), value: fieldValue } ];
+            	var nodeName = node.name
+            	if (nodeName == '')
+            		nodeName = node.id
+	            result = [ { name: nodeName.replace(/\[\]$/, ''), value: fieldValue } ];
         }
         else{
             result = getSubFormValues(node, nodeCallback);
