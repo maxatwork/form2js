@@ -24,7 +24,7 @@
  * Time: 19:02:33
  */
 
-(function()
+(function(global)
 {
 	/**
 	 * Returns form values represented as Javascript object
@@ -35,7 +35,7 @@
 	 * @param skipEmpty {Boolean} should skip empty text values, defaults to true
 	 * @param nodeCallback {Function} custom function to get node value
 	 */
-	window.form2object = function(rootNode, delimiter, skipEmpty, nodeCallback)
+	global.form2object = function(rootNode, delimiter, skipEmpty, nodeCallback)
 	{
 		if (typeof skipEmpty == 'undefined' || skipEmpty == null) skipEmpty = true;
 		if (typeof delimiter == 'undefined' || delimiter == null) delimiter = '.';
@@ -259,6 +259,8 @@
 
 	function getFieldValue(fieldNode)
 	{
+		if (fieldNode.disabled) return null;
+		
 		switch (fieldNode.nodeName) {
 			case 'INPUT':
 			case 'TEXTAREA':
@@ -315,4 +317,4 @@
 	 */
 	window.form2json = window.form2object;
 
-})();
+})(this);
