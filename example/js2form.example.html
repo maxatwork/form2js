@@ -1,0 +1,79 @@
+<!doctype html>
+
+<!--[if lt IE 7 ]> <html lang="ru" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="ru" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="ru" class="no-js ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="ru" class="no-js ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html lang="ru" class="no-js"> <!--<![endif]-->
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	</head>
+
+	<body>
+		<form id="testForm">
+			<dl>
+				<dt><label>First name</label></dt>
+				<dd><input type="text" name="person.name.first" value="John"></dd>
+			</dl>
+			<dl>
+				<dt><label>Last name</label></dt>
+				<dd><input type="text" name="person.name.last" value="Doe"></dd>
+			</dl>
+			<dl>
+				<dt><label>First name</label></dt>
+				<dd><input type="text" name="neo.name.first" value="Thomas"></dd>
+			</dl>
+			<dl>
+				<dt><label>Last name</label></dt>
+				<dd><input type="text" name="neo.name.last" value="Anderson"></dd>
+			</dl>
+			<dl>
+				<dt><label>Emails</label></dt>
+				<dd><input type="text" name="neo.Emails[]" value="email1@example.com"></dd>
+				<dd><input type="text" name="neo.Emails[]" value="email2@example.com"></dd>
+				<dd><input type="text" name="neo.Emails[]" value="email3@example.com"></dd>
+				<dd><input type="text" name="neo.Emails[]" value="email4@example.com"></dd>
+				<dd><input type="text" name="neo.Emails[]" value="email5@example.com"></dd>
+				<dd><input type="text" name="neo.Emails[]" value="email6@example.com"></dd>
+			</dl>
+			<dl>
+				<dt><label>Addresses[0]</label></dt>
+				<dd><input type="text" name="neo.Addresses[0].Zip" value="12345"></dd>
+				<dd><input type="text" name="neo.Addresses[0].City" value="NY"></dd>
+				<dd><input type="text" name="neo.Addresses[0].Street" value="Boardwalk"></dd>
+			</dl>
+			<dl>
+				<dt><label>Addresses[0]</label></dt>
+				<dd><input type="text" name="neo.Addresses[1].Zip" value="65432"></dd>
+				<dd><input type="text" name="neo.Addresses[1].City" value="LA"></dd>
+				<dd><input type="text" name="neo.Addresses[1].Street" value="Under the bridge"></dd>
+			</dl>
+			<button type="button" onclick="getJson()">Get JSON</button>
+			<button type="reset">Reset form</button>
+		</form>
+
+		<div>
+			<textarea id="src" cols="100" rows="20"></textarea>
+		</div>
+		<button type="button" onclick="populateForm()">Populate form</button>
+
+		<script type="text/javascript" src="../src/form2js.js"></script>
+		<script type="text/javascript" src="../src/js2form.js"></script>
+		<script type="text/javascript" src="json2.js"></script>
+		<script type="text/javascript">
+			function getJson()
+			{
+				document.getElementById('src').value = JSON.stringify(form2js(document.getElementById('testForm')));
+			}
+
+			function populateForm()
+			{
+				var data = document.getElementById('src').value;
+				data = JSON.parse(data);
+				js2form(document.getElementById('testForm'), data);
+			}
+		</script>
+	</body>
+</html>
