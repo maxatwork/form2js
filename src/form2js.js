@@ -25,7 +25,7 @@
  */
 
 
-var form2object = (function()
+var form2js = (function()
 {
 	"use strict";
 

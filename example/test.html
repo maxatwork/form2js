@@ -276,12 +276,12 @@
 <pre><code id="testArea">
 </code></pre>
 
-<script type="text/javascript" src="../src/form2object.js"></script>
+<script type="text/javascript" src="../src/form2js.js"></script>
 <script type="text/javascript" src="json2.js"></script>
 <script type="text/javascript">
 	function test()
 	{
-		var formData = form2object('testForm', '.', true,
+		var formData = form2js('testForm', '.', true,
 				function(node)
 				{
 					if (node.id && node.id.match(/callbackTest/))

@@ -39,7 +39,7 @@
 		<pre><code id="testArea">
 		</code></pre>
 
-		<script type="text/javascript" src="../src/form2object.js"></script>
+		<script type="text/javascript" src="../src/form2js.js"></script>
 		<script type="text/javascript" src="json2.js"></script>
 		<script type="text/javascript">
 			function processDate(node)
@@ -70,7 +70,7 @@
 
 			function getFormData()
 			{
-				var formData = form2object('dateTest', '.', true, processDate);
+				var formData = form2js('dateTest', '.', true, processDate);
 				document.getElementById('testArea').innerHTML = JSON.stringify(formData, null, '\t');
 			}
 		</script>

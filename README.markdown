@@ -7,21 +7,23 @@ If you have any questions/suggestions or find out something weird or illogical -
 
 Because everythins is better with jQuery, jQuery plugin added, check out jquery.toObject.js =)
 
+**Warning!** form2object.js and form2object function renamed to form2js.js and form2js respectively. Old names are in v1.0 tag.
+
 ## Details
 
-Structure of resulting object defined by "name" attribute of form fields. See examples below.
+Structure of resulting object defined by _name_ attribute of form fields. See examples below.
 
 This is **not** a serialization library. Library used in example for JSON serialization is http://www.json.org/js.html 
 
 All this library doing is collecting form data and putting it in javascript object (obviously you can get JSON/XML/etc string by serializing it, but it's not an only purpose).
 
 ## Usage
-    form2object(rootNode, delimiter, skipEmpty, nodeCallback)
+    form2js(rootNode, delimiter, skipEmpty, nodeCallback, useIdIfEmptyName)
 
 Values of all inputs under the _rootNode_ will be collected into one object (skipping empty inputs if _skipEmpty_ not false).
 
 ### Objects/nested objects
-Structure of resulting object defined in "name" attribute, _delimiter_ is "." (dot) by default, but can be changed.
+Structure of resulting object defined in _name_ attributes of form fields (or _id_ if _name_ is empty and _useIdIfEmptyName_ parameter set to _true_), _delimiter_ is "." (dot) by default, but can be changed.
 
     <input type="text" name="person.name.first" value="John" />
     <input type="text" name="person.name.last" value="Doe" />
