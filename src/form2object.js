@@ -90,6 +90,8 @@
 			if (skipEmpty && value === '') continue;
 
 			name = nameValues[i].name;
+			if (typeof name === 'undefined') continue;
+
 			_nameParts = name.split(delimiter);
 			nameParts = [];
 			currResult = result;
