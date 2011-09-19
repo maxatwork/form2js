@@ -24,8 +24,11 @@
  * Time: 19:02:33
  */
 
-(function(global)
+
+var form2object = (function()
 {
+	"use strict";
+
 	/**
 	 * Returns form values represented as Javascript object
 	 * "name" attribute defines structure of resulting object
@@ -36,7 +39,7 @@
 	 * @param nodeCallback {Function} custom function to get node value
 	 * @param useIdIfEmptyName {Boolean} if true value of id attribute of field will be used if name of field is empty
 	 */
-	global.form2object = function(rootNode, delimiter, skipEmpty, nodeCallback, useIdIfEmptyName)
+	function form2js(rootNode, delimiter, skipEmpty, nodeCallback, useIdIfEmptyName)
 	{
 		if (typeof skipEmpty == 'undefined' || skipEmpty == null) skipEmpty = true;
 		if (typeof delimiter == 'undefined' || delimiter == null) delimiter = '.';
@@ -62,7 +65,7 @@
 		}
 
 		return processNameValues(formValues, skipEmpty, delimiter);
-	};
+	}
 
 	/**
 	 * Processes collection of { name: 'name', value: 'value' } objects.
@@ -219,9 +222,8 @@
     function getSubFormValues(rootNode, nodeCallback, useIdIfEmptyName)
 	{
 		var result = [],
-			currentNode = rootNode.firstChild,
-			callbackResult, fieldValue, subresult;
-
+			currentNode = rootNode.firstChild;
+		
 		while (currentNode)
 		{
 			result = result.concat(extractNodeValues(currentNode, nodeCallback, useIdIfEmptyName));
@@ -303,7 +305,8 @@
 	{
 		var multiple = selectNode.multiple,
 			result = [],
-			options;
+			options,
+			i, l;
 
 		if (!multiple) return selectNode.value;
 
@@ -315,11 +318,6 @@
 		return result;
 	}
 
-	/**
-	 * @deprecated Use form2object() instead
-	 * @param rootNode
-	 * @param delimiter
-	 */
-	window.form2json = window.form2object;
+	return form2js;
 
-})(this);
+})();
