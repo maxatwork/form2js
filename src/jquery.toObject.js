@@ -17,7 +17,8 @@
 				mode: 'first', // what to convert: 'all' or 'first' matched node
 				delimiter: ".",
 				skipEmpty: true,
-				nodeCallback: null
+				nodeCallback: null,
+				useIdIfEmptyName: false
 			};
 
 		if (options)
@@ -28,16 +29,16 @@
 		switch(settings.mode)
 		{
 			case 'first':
-				return form2object(this.get(0), settings.delimiter, settings.skipEmpty, settings.nodeCallback);
+				return form2object(this.get(0), settings.delimiter, settings.skipEmpty, settings.nodeCallback, settings.useIdIfEmptyName);
 				break;
 			case 'all':
 				this.each(function(){
-					result.push(form2object(this, settings.delimiter, settings.skipEmpty, settings.nodeCallback));
+					result.push(form2object(this, settings.delimiter, settings.skipEmpty, settings.nodeCallback, settings.useIdIfEmptyName));
 				});
 				return result;
 				break;
 			case 'combine':
-				return form2object(Array.prototype.slice.call(this), settings.delimiter, settings.skipEmpty, settings.nodeCallback);
+				return form2object(Array.prototype.slice.call(this), settings.delimiter, settings.skipEmpty, settings.nodeCallback, settings.useIdIfEmptyName);
 				break;
 		}
 	}

@@ -34,11 +34,13 @@
 	 * @param delimiter {String} structure parts delimiter defaults to '.'
 	 * @param skipEmpty {Boolean} should skip empty text values, defaults to true
 	 * @param nodeCallback {Function} custom function to get node value
+	 * @param useIdIfEmptyName {Boolean} if true value of id attribute of field will be used if name of field is empty
 	 */
-	global.form2object = function(rootNode, delimiter, skipEmpty, nodeCallback)
+	global.form2object = function(rootNode, delimiter, skipEmpty, nodeCallback, useIdIfEmptyName)
 	{
 		if (typeof skipEmpty == 'undefined' || skipEmpty == null) skipEmpty = true;
 		if (typeof delimiter == 'undefined' || delimiter == null) delimiter = '.';
+		if (arguments.length < 5) useIdIfEmptyName = false;
 
 		rootNode = typeof rootNode == 'string' ? document.getElementById(rootNode) : rootNode;
 
@@ -51,12 +53,12 @@
 		{
 			while(currNode = rootNode[i++])
 			{
-				formValues = formValues.concat(getFormValues(currNode, nodeCallback));
+				formValues = formValues.concat(getFormValues(currNode, nodeCallback, useIdIfEmptyName));
 			}
 		}
 		else
 		{
-			formValues = getFormValues(rootNode, nodeCallback);
+			formValues = getFormValues(rootNode, nodeCallback, useIdIfEmptyName);
 		}
 
 		return processNameValues(formValues, skipEmpty, delimiter);
@@ -87,7 +89,7 @@
 		{
 			value = nameValues[i].value;
 
-			if (skipEmpty && value === '') continue;
+			if (skipEmpty && (value === '' || value === null)) continue;
 
 			name = nameValues[i].name;
 			_nameParts = name.split(delimiter);
@@ -208,13 +210,13 @@
 		return result;
 	}
 
-    function getFormValues(rootNode, nodeCallback)
+    function getFormValues(rootNode, nodeCallback, useIdIfEmptyName)
     {
-        var result = extractNodeValues(rootNode, nodeCallback);
-        return result.length > 0 ? result : getSubFormValues(rootNode, nodeCallback);
+        var result = extractNodeValues(rootNode, nodeCallback, useIdIfEmptyName);
+        return result.length > 0 ? result : getSubFormValues(rootNode, nodeCallback, useIdIfEmptyName);
     }
 
-    function getSubFormValues(rootNode, nodeCallback)
+    function getSubFormValues(rootNode, nodeCallback, useIdIfEmptyName)
 	{
 		var result = [],
 			currentNode = rootNode.firstChild,
@@ -222,45 +224,42 @@
 
 		while (currentNode)
 		{
-			result = result.concat(extractNodeValues(currentNode, nodeCallback));
+			result = result.concat(extractNodeValues(currentNode, nodeCallback, useIdIfEmptyName));
 			currentNode = currentNode.nextSibling;
 		}
 
 		return result;
 	}
 
-    function extractNodeValues(node, nodeCallback) {
-        var callbackResult, fieldValue, result = [];
+    function extractNodeValues(node, nodeCallback, useIdIfEmptyName) {
+        var callbackResult, fieldValue, result, fieldName = getFieldName(node, useIdIfEmptyName);
 
         callbackResult = nodeCallback && nodeCallback(node);
 
         if (callbackResult && callbackResult.name) {
             result = [callbackResult];
         }
-        else if (node.nodeName.match(/INPUT|TEXTAREA/i)) {
+        else if (fieldName != '' && node.nodeName.match(/INPUT|TEXTAREA/i)) {
             fieldValue = getFieldValue(node);
-
-            if (fieldValue !== null)
-            	var nodeName = node.name
-            	if (nodeName == '')
-            		nodeName = node.id
-                result = [ { name: nodeName, value: fieldValue} ];
+			result = [ { name: fieldName, value: fieldValue} ];
         }
-        else if (node.nodeName.match(/SELECT/i)) {
+        else if (fieldName != '' && node.nodeName.match(/SELECT/i)) {
 	        fieldValue = getFieldValue(node);
-
-	        if (fieldValue !== null)
-            	var nodeName = node.name
-            	if (nodeName == '')
-            		nodeName = node.id
-	            result = [ { name: nodeName.replace(/\[\]$/, ''), value: fieldValue } ];
+	        result = [ { name: fieldName.replace(/\[\]$/, ''), value: fieldValue } ];
         }
-        else{
-            result = getSubFormValues(node, nodeCallback);
+        else {
+            result = getSubFormValues(node, nodeCallback, useIdIfEmptyName);
         }
 
         return result;
     }
+
+	function getFieldName(node, useIdIfEmptyName)
+	{
+		if (node.name && node.name != '') return node.name;
+		else if (useIdIfEmptyName && node.id && node.id != '') return node.id;
+		else return '';
+	}
 
 
 	function getFieldValue(fieldNode)

@@ -12,8 +12,28 @@
 
 <form id="testForm" action="javascript:test()">
 	<dl>
-		<dt><label for="nameFirst">Disabled field:</label></dt>
-		<dd><input id="nameFirst" disabled="disabled" type="text" name="person.name.firstDisabled" value="test" /></dd>
+		<dt><label for="person.nameFirstDisabled">Disabled field:</label></dt>
+		<dd><input id="person.nameFirstDisabled" disabled="disabled" type="text" name="person.name.firstDisabled" value="test" /></dd>
+	</dl>
+
+	<dl>
+		<dt><label for="person.nameFirstEmptyName">Field with empty name:</label></dt>
+		<dd><input id="person.nameFirstEmptyName" type="text" name="" value="testEmptyName" /></dd>
+	</dl>
+
+	<dl>
+		<dt><label for="person.nameFirstMissingName">Field with missing name:</label></dt>
+		<dd><input id="person.nameFirstMissingName" type="text" value="testMissingName" /></dd>
+	</dl>
+
+	<dl>
+		<dt><label>Field with empty name missing id:</label></dt>
+		<dd><input type="text" name="" value="testEmptyNameMissingId" /></dd>
+	</dl>
+
+	<dl>
+		<dt><label>Field with missing name missing id:</label></dt>
+		<dd><input type="text" value="testMissingNameMissingId" /></dd>
 	</dl>
 
 	<dl>
