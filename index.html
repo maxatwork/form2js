@@ -15,7 +15,7 @@
 
 			#container {
 				margin: 0 auto;
-				width: 700px;
+				width: 950px;
 			}
 
 			h1 {
@@ -38,7 +38,7 @@
 			}
 
 			h3 {
-				text-align: center;
+				text-align: left;
 				color: #000000;
 			}
 
@@ -58,8 +58,8 @@
 			}
 
 			pre {
-				background: #000;
-				color: #fff;
+				background: #333;
+				color: #ccc;
 				padding: 15px;
 			}
 
@@ -91,49 +91,236 @@
 					<img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
 			</div>
 
-			<h1><a href="http://github.com/maxatwork/form2js">form2js</a>
-				<span class="small">by <a href="http://github.com/maxatwork">maxatwork</a></span></h1>
+			<h1>
+				<a href="http://github.com/maxatwork/form2js">form2js</a>
+				<span class="small">by <a href="http://github.com/maxatwork">Maxim Vasiliev</a></span>
+			</h1>
 
 			<div class="description">
 				Javascript library for collecting form data
 			</div>
 
-			<p>Structure of resulting object defined by "name" attribute of form fields.
-			</p>
+			<p>Example: <a href="http://form2js.googlecode.com/hg/example/test.html">http://form2js.googlecode.com/hg/example/test.html</a></p>
+			
+			<p>If you have any questions/suggestions or find out something weird or illogical - feel free to post an issue.</p>
+			<p>Because everything is better with jQuery, jQuery plugin added, check out jquery.toObject.js =)</p>
+
+			<h4>Details</h4>
+			<p>Structure of resulting object defined by "name" attribute of form fields. See examples below.</p>
+			<p>This is <strong>not</strong> a serialization library. Library used in example for JSON serialization
+				is <a href="http://www.json.org/js.html">http://www.json.org/js.html</a></p>
+			<p>All this library doing is collecting form data and putting it in javascript object (obviously you
+				can get JSON/XML/etc string by serializing it, but it's not an only purpose).</p>
+
+			<h3>Usage</h3>
+			<pre><code>form2object(rootNode, delimiter, skipEmpty, nodeCallback)</code></pre>
+
+			<p>Values of all inputs under the <em>rootNode</em> will be collected into one object (skipping empty
+				inputs if <em>skipEmpty</em> not false).</p>
+
+			<h4>Objects/nested objects</h4>
+			<p>Structure of resulting object defined in "name" attribute, <em>delimiter</em> is "." (dot) by default,
+				but can be changed.</p>
+
+<pre><code>&lt;input type="text" name="person.name.first" value="John" /&gt;
+&lt;input type="text" name="person.name.last" value="Doe" /&gt;
+</code></pre>
+			<p>becomes</p>
+<pre><code>{
+    "person" :
+    {
+        "name" :
+        {
+            "first" : "John",
+            "last" : "Doe"
+        }
+    }
+}
+</code></pre>
+
+			<h4>Arrays</h4>
+
+			<p>Several fields with the same name with brackets defines array of values.</p>
+
+<pre><code>&lt;label&gt;&lt;input type="checkbox" name="person.favFood[]" value="steak" checked="checked" /&gt; Steak&lt;/label&gt;
+&lt;label&gt;&lt;input type="checkbox" name="person.favFood[]" value="pizza"/&gt; Pizza&lt;/label&gt;
+&lt;label&gt;&lt;input type="checkbox" name="person.favFood[]" value="chicken" checked="checked" /&gt; Chicken&lt;/label&gt;
+</code></pre>
+
+			<p>becomes</p>
+
+<pre><code>{
+    "person" :
+    {
+        "favFood" : [ "steak", "chicken" ]
+    }
+}
+</code></pre>
+
+			<h4>Arrays of objects/nested objects</h4>
+
+			<p>Same index means same item in resulting array. Index doesn't specify order (order of appearance in
+				document will be used).</p>
+
+<pre><code>&lt;dl&gt;
+    &lt;dt&gt;Give us your five friends' names and emails&lt;/dt&gt;
+    &lt;dd&gt;
+        &lt;label&gt;Email &lt;input type="text" name="person.friends[0].email" value="agent.smith@example.com" /&gt;&lt;/label&gt;
+        &lt;label&gt;Name &lt;input type="text" name="person.friends[0].name" value="Smith Agent"/&gt;&lt;/label&gt;
+    &lt;/dd&gt;
+    &lt;dd&gt;
+        &lt;label&gt;Email &lt;input type="text" name="person.friends[1].email" value="n3o@example.com" /&gt;&lt;/label&gt;
+        &lt;label&gt;Name &lt;input type="text" name="person.friends[1].name" value="Thomas A. Anderson" /&gt;&lt;/label&gt;
+    &lt;/dd&gt;
+&lt;/dl&gt;
+</code></pre>
+
+			<p>becomes</p>
+
+<pre><code>{
+    "person" :
+    {
+        "friends" : [
+            { "email" : "agent.smith@example.com", "name" : "Smith Agent" },
+            { "email" : "n3o@example.com", "name" : "Thomas A. Anderson" }
+        ]
+    }
+}
+</code></pre>
+
+			<h4>Ruby-style notation</h4>
+
+			<p>If array index starts with [a-zA-Z_], it will be treated as field of object.</p>
+
+<pre><code>&lt;dl&gt;
+    &lt;dt&gt;Ruby-style test&lt;/dt&gt;
+    &lt;dd&gt;
+        &lt;label&gt;ruby[field1][foo]&lt;input type="text" name="ruby[field1][foo]" value="baz" /&gt;&lt;/label&gt;
+        &lt;label&gt;ruby[field1][bar]&lt;input type="text" name="ruby[field1][bar]" value="qux" /&gt;&lt;/label&gt;
+    &lt;/dd&gt;
+    &lt;dd&gt;
+        &lt;label&gt;ruby[field2][foo]&lt;input type="text" name="ruby[field2][foo]" value="baz" /&gt;&lt;/label&gt;
+        &lt;label&gt;ruby[field2][bar]&lt;input type="text" name="ruby[field2][bar]" value="qux" /&gt;&lt;/label&gt;
+    &lt;/dd&gt;
+&lt;/dl&gt;
+</code></pre>
+
+			<p>will give us</p>
+
+<pre><code>{
+    "ruby": {
+        "field1": {
+            "foo": "baz",
+            "bar": "qux"
+        },
+        "field2": {
+            "foo": "baz",
+            "bar": "qux"
+        }
+    }
+}
+</code></pre>
+
+			<h4>Custom fields</h4>
+
+			<p>You can implement custom nodeCallback function (passed as 4th parameter to form2object()) to extract custom data:</p>
+
+<pre><code>&lt;dl id="dateTest"&gt;
+    &lt;dt&gt;Date of birth:&lt;/dt&gt;
+    &lt;dd data-name="person.dateOfBirth" class="datefield"&gt;
+        &lt;select name="person.dateOfBirth.month"&gt;
+            &lt;option value="01"&gt;January&lt;/option&gt;
+            &lt;option value="02"&gt;February&lt;/option&gt;
+            &lt;option value="03"&gt;March&lt;/option&gt;
+            &lt;option value="04"&gt;April&lt;/option&gt;
+            &lt;option value="05"&gt;May&lt;/option&gt;
+            &lt;option value="06"&gt;June&lt;/option&gt;
+            &lt;option value="07"&gt;July&lt;/option&gt;
+            &lt;option value="08"&gt;August&lt;/option&gt;
+            &lt;option value="09"&gt;September&lt;/option&gt;
+            &lt;option value="10"&gt;October&lt;/option&gt;
+            &lt;option value="11"&gt;November&lt;/option&gt;
+            &lt;option value="12"&gt;December&lt;/option&gt;
+        &lt;/select&gt;
+        &lt;input type="text" name="person.dateOfBirth.day" value="1" /&gt;
+        &lt;input type="text" name="person.dateOfBirth.year" value="2011" /&gt;
+    &lt;/dd&gt;
+&lt;/dl&gt;
+
+&lt;script type="text/javascript"&gt;
+    function processDate(node)
+    {
+        var dataName = node.getAttribute ? node.getAttribute('data-name') : '',
+            dayNode,
+            monthNode,
+            yearNode,
+            day,
+            year,
+            month;
+
+        if (dataName &amp;&amp; dataName != '' &amp;&amp; node.className == 'datefield')
+        {
+            dayNode = node.querySelector('input[name="'+dataName + '.day"]');
+            monthNode = node.querySelector('select[name="'+dataName + '.month"]');
+            yearNode = node.querySelector('input[name="'+dataName + '.year"]');
+
+            day = dayNode.value;
+            year = yearNode.value;
+            month = monthNode.value;
+
+            return { name: dataName, value:  year + '-' + month + '-' + day};
+        }
+
+        return false;
+    }
+
+    var formData = form2object('dateTest', '.', true, processDate);
+&lt;/script&gt;
+</code></pre>
+
+			<p>using <em>processDate()</em> callback <em>formData</em> will contain</p>
+
+<pre><code>{
+    "person": {
+        "dateOfBirth": "2011-01-12"
+    }
+}
+</code></pre>
+
+			<h3>Why not to use jQuery .serializeArray() or similar functions in other frameworks instead?</h3>
+
+			<p>.serializeArray() works a bit different. It makes this structure from markup in "Arrays of objects/nested objects" example:</p>
+
+<pre><code>[
+    { "person.friends[0].email" : "agent.smith@example.com" },
+    { "person.friends[0].name" : "Smith Agent" },
+    { "person.friends[1].email" : "n3o@example.com" },
+    { "person.friends[1].name" : "Thomas A. Anderson" }
+]
+</code></pre>
+
 
 			<h2>License</h2>
 
-			<p>Copyright (c) 2010 Maxim Vasiliev
+			<p>Copyright (c) 2010 Maxim Vasiliev</p>
 
-				Permission is hereby granted, free of charge, to any person obtaining a copy
+			<p>Permission is hereby granted, free of charge, to any person obtaining a copy
 				of this software and associated documentation files (the "Software"), to deal
 				in the Software without restriction, including without limitation the rights
 				to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 				copies of the Software, and to permit persons to whom the Software is
-				furnished to do so, subject to the following conditions:
+				furnished to do so, subject to the following conditions:</p>
 
-				The above copyright notice and this permission notice shall be included in
-				all copies or substantial portions of the Software.
+			<p>The above copyright notice and this permission notice shall be included in
+				all copies or substantial portions of the Software.</p>
 
-				THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+			<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 				IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 				FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 				AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 				LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 				OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 				THE SOFTWARE.</p>
-
-			<h2>Authors</h2>
-
-			<p>Maxim Vasiliev (max-at-work@yandex.ru)
-				<br/>
-				<br/></p>
-
-			<h2>Contact</h2>
-
-			<p>max-at-work@yandex.ru
-				<br/></p>
-
 
 			<h2>Download</h2>
 
