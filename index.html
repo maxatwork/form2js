@@ -108,12 +108,14 @@
 			<h4>Details</h4>
 			<p>Structure of resulting object defined by "name" attribute of form fields. See examples below.</p>
 			<p>This is <strong>not</strong> a serialization library. Library used in example for JSON serialization
-				is <a href="http://www.json.org/js.html">http://www.json.org/js.html</a></p>
+				is <a href="https://github.com/douglascrockford/JSON-js">JSON-js</a></p>
 			<p>All this library doing is collecting form data and putting it in javascript object (obviously you
 				can get JSON/XML/etc string by serializing it, but it's not an only purpose).</p>
 
 			<h3>Usage</h3>
-			<pre><code>form2object(rootNode, delimiter, skipEmpty, nodeCallback)</code></pre>
+			<pre><code>var formData = form2object(rootNode, delimiter, skipEmpty, nodeCallback);</code></pre>
+			<p>or with jQuery plugin:</p>
+			<pre><code>var formData = $('form or form elements selector').toObject(options);</code></pre>
 
 			<p>Values of all inputs under the <em>rootNode</em> will be collected into one object (skipping empty
 				inputs if <em>skipEmpty</em> not false).</p>
