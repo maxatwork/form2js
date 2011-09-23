@@ -29,10 +29,13 @@ var js2form = (function()
 	"use strict";
 
 	var _subArrayRegexp = /^\[\d+?\]/,
-		_subObjectRegexp = /^[a-zA-Z_]+/;
+			_subObjectRegexp = /^[a-zA-Z_][a-zA-Z_0-9]+/,
+			_lastIndexedArrayRegexp = /(.*)(\[)([0-9]*)(\])$/,
+			_arrayOfArraysRegexp = /\[([0-9]+)\]\[([0-9]+)\]/g,
+			_inputOrTextareaRegexp = /INPUT|TEXTAREA/i;
 
 	/**
-	 * 
+	 *
 	 * @param rootNode
 	 * @param data
 	 * @param delimiter
@@ -41,7 +44,180 @@ var js2form = (function()
 	 */
 	function js2form(rootNode, data, delimiter, nodeCallback, useIdIfEmptyName)
 	{
-		console.log(JSON.stringify(object2array(data)));
+		if (arguments.length < 3) delimiter = '.';
+		if (arguments.length < 4) nodeCallback = null;
+		if (arguments.length < 5) useIdIfEmptyName = false;
+
+		var fieldValues,
+				formFieldsByName;
+
+		fieldValues = object2array(data);
+		formFieldsByName = getFields(rootNode, useIdIfEmptyName, delimiter);
+
+		console.log(fieldValues);
+		console.log(formFieldsByName);
+
+		for (var i = 0; i < fieldValues.length; i++)
+		{
+			var fieldName = fieldValues[i].name,
+					fieldValue = fieldValues[i].value;
+
+			if (typeof formFieldsByName[fieldName] != 'undefined')
+			{
+				setValue(formFieldsByName[fieldName], fieldValue);
+			}
+		}
+	}
+
+	function setValue(field, value)
+	{
+		var children, i, l;
+
+		if (_inputOrTextareaRegexp.test(field.nodeName))
+		{
+			if (/checkbox/i.test(field.type) || /radio/i.test(field.type))
+			{
+				if (field.value == value) field.checked = true;
+			}
+			else
+			{
+				field.value = value;
+			}
+		}
+		else if (/SELECT/i.test(field.nodeName))
+		{
+			children = field.getElementsByTagName('option');
+			for (i = 0,l = children.length; i < l; i++)
+			{
+				if (children[i].value == value)
+				{
+					children[i].selected = true;
+					if (field.multiple) break;
+				}
+				else if (!field.multiple)
+				{
+					children[i].selected = false;
+				}
+			}
+		}
+	}
+
+	function getFields(rootNode, useIdIfEmptyName, delimiter, arrayIndexes)
+	{
+		if (arguments.length < 4) arrayIndexes = {};
+
+		var result = {},
+			currNode = rootNode.firstChild,
+			name, nameNormalized,
+			subFieldName,
+			i, j, l,
+			options;
+
+		while (currNode)
+		{
+			name = '';
+
+			if (currNode.name && currNode.name != '')
+			{
+				name = currNode.name;
+			}
+			else if (useIdIfEmptyName && currNode.id && currNode.id != '')
+			{
+				name = currNode.id;
+			}
+
+			if (name == '')
+			{
+				var subFields = getFields(currNode, useIdIfEmptyName, delimiter, arrayIndexes);
+				for (subFieldName in subFields)
+				{
+					if (typeof result[subFieldName] == 'undefined')
+					{
+						result[subFieldName] = subFields[subFieldName];
+					}
+					else
+					{
+						for (i = 0; i < subFields[subFieldName].length; i++)
+						{
+							result[subFieldName].push(subFields[subFieldName][i]);
+						}
+					}
+				}
+			}
+			else
+			{
+				if (/SELECT/i.test(currNode.nodeName))
+				{
+					for(j = 0, l = currNode.getElementsByTagName('option').length; j < l; j++)
+					{
+						nameNormalized = normalizeName(name, delimiter, arrayIndexes);
+						result[nameNormalized] = currNode;
+					}
+				}
+				else
+				{
+					nameNormalized = normalizeName(name, delimiter, arrayIndexes);
+					result[nameNormalized] = currNode;
+				}
+			}
+
+			currNode = currNode.nextSibling;
+		}
+
+		return result;
+	}
+
+	/**
+	 * Normalizes names of arrays, puts correct indexes (consecutive and ordered by element appearance in HTML)
+	 * @param name
+	 * @param delimiter
+	 * @param arrayIndexes
+	 */
+	function normalizeName(name, delimiter, arrayIndexes)
+	{
+		var nameChunksNormalized = [],
+				nameChunks = name.split(delimiter),
+				currChunk,
+				nameMatches,
+				nameNormalized,
+				currIndex,
+				newIndex,
+				i;
+
+		name = name.replace(_arrayOfArraysRegexp, '[$1].[$2]');
+		for (i = 0; i < nameChunks.length; i++)
+		{
+			currChunk = nameChunks[i];
+			nameChunksNormalized.push(currChunk);
+			nameMatches = currChunk.match(_lastIndexedArrayRegexp);
+			if (nameMatches != null)
+			{
+				nameNormalized = nameChunksNormalized.join(delimiter);
+				currIndex = nameNormalized.replace(_lastIndexedArrayRegexp, '$3');
+				nameNormalized = nameNormalized.replace(_lastIndexedArrayRegexp, '$1');
+
+				if (typeof (arrayIndexes[nameNormalized]) == 'undefined')
+				{
+					arrayIndexes[nameNormalized] = {
+						lastIndex: -1,
+						indexes: {}
+					};
+				}
+
+				if (currIndex == '' || typeof arrayIndexes[nameNormalized].indexes[currIndex] == 'undefined')
+				{
+					arrayIndexes[nameNormalized].lastIndex++;
+					arrayIndexes[nameNormalized].indexes[currIndex] = arrayIndexes[nameNormalized].lastIndex;
+				}
+
+				newIndex = arrayIndexes[nameNormalized].indexes[currIndex];
+				nameChunksNormalized[nameChunksNormalized.length - 1] = currChunk.replace(_lastIndexedArrayRegexp, '$1$2' + newIndex + '$4');
+			}
+		}
+
+		nameNormalized = nameChunksNormalized.join(delimiter);
+		nameNormalized = nameNormalized.replace('].[', '][');
+		return nameNormalized;
 	}
 
 	function object2array(obj, lvl)
@@ -52,22 +228,24 @@ var js2form = (function()
 
 		if (obj instanceof Array)
 		{
-			for(i = 0; i < obj.length; i++)
+			for (i = 0; i < obj.length; i++)
 			{
 				name = "[" + i + "]";
-				result = result.concat(getSubValues(obj[i], name, lvl+1));
+				result = result.concat(getSubValues(obj[i], name, lvl + 1));
 			}
 		}
 		else if (typeof obj == 'string' || typeof obj == 'number' || typeof obj == 'date')
 		{
-			result = [{ name: "", value : obj }];
+			result = [
+				{ name: "", value : obj }
+			];
 		}
 		else
 		{
-			for(i in obj)
+			for (i in obj)
 			{
 				name = i;
-				result = result.concat(getSubValues(obj[i], name, lvl+1));
+				result = result.concat(getSubValues(obj[i], name, lvl + 1));
 			}
 		}
 
@@ -77,9 +255,9 @@ var js2form = (function()
 	function getSubValues(subObj, name, lvl)
 	{
 		var itemName;
-		var result = [], tempResult = object2array(subObj, lvl+1), i, tempItem;
-		
-		for(i = 0; i < tempResult.length; i++)
+		var result = [], tempResult = object2array(subObj, lvl + 1), i, tempItem;
+
+		for (i = 0; i < tempResult.length; i++)
 		{
 			itemName = name;
 			if (_subArrayRegexp.test(tempResult[i].name))
@@ -94,16 +272,6 @@ var js2form = (function()
 			tempItem = { name: itemName, value: tempResult[i].value };
 			result.push(tempItem);
 		}
-		return result;
-	}
-
-	function tabs(lvl)
-	{
-		var result = '';
-		for (var i = 0; i < lvl; i++){
-			result += '\t';
-		}
-
 		return result;
 	}
 

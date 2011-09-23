@@ -14,48 +14,96 @@
 	<body>
 		<form id="testForm">
 			<dl>
-				<dt><label>First name</label></dt>
-				<dd><input type="text" name="person.name.first" value="John"></dd>
+				<dt><label>foo.name.first</label></dt>
+				<dd><input type="text" name="foo.name.first" value=""></dd>
 			</dl>
 			<dl>
-				<dt><label>Last name</label></dt>
-				<dd><input type="text" name="person.name.last" value="Doe"></dd>
+				<dt><label>foo.name.last</label></dt>
+				<dd><input type="text" name="foo.name.last" value=""></dd>
 			</dl>
 			<dl>
-				<dt><label>First name</label></dt>
-				<dd><input type="text" name="neo.name.first" value="Thomas"></dd>
+				<dt><label>bar.name.first</label></dt>
+				<dd><input type="text" name="bar.name.first" value=""></dd>
 			</dl>
 			<dl>
-				<dt><label>Last name</label></dt>
-				<dd><input type="text" name="neo.name.last" value="Anderson"></dd>
+				<dt><label>bar.name.last</label></dt>
+				<dd><input type="text" name="bar.name.last" value=""></dd>
 			</dl>
 			<dl>
-				<dt><label>Emails</label></dt>
-				<dd><input type="text" name="neo.Emails[]" value="email1@example.com"></dd>
-				<dd><input type="text" name="neo.Emails[]" value="email2@example.com"></dd>
-				<dd><input type="text" name="neo.Emails[]" value="email3@example.com"></dd>
-				<dd><input type="text" name="neo.Emails[]" value="email4@example.com"></dd>
-				<dd><input type="text" name="neo.Emails[]" value="email5@example.com"></dd>
-				<dd><input type="text" name="neo.Emails[]" value="email6@example.com"></dd>
+				<dt><label>bar.array[4][10].test</label></dt>
+				<dd><input type="text" name="bar.array[4][10]" value=""></dd>
+				<dt><label>bar.array[4][8].test</label></dt>
+				<dd><input type="text" name="bar.array[4][8]" value=""></dd>
 			</dl>
 			<dl>
-				<dt><label>Addresses[0]</label></dt>
-				<dd><input type="text" name="neo.Addresses[0].Zip" value="12345"></dd>
-				<dd><input type="text" name="neo.Addresses[0].City" value="NY"></dd>
-				<dd><input type="text" name="neo.Addresses[0].Street" value="Boardwalk"></dd>
+				<dt><label>bar.Emails[]</label></dt>
+				<dd><input type="text" name="bar.Emails[]" value=""></dd>
+				<dd><input type="text" name="bar.Emails[]" value=""></dd>
+				<dd><input type="text" name="bar.Emails[]" value=""></dd>
+				<dd><input type="text" name="bar.Emails[]" value=""></dd>
+				<dd><input type="text" name="bar.Emails[]" value=""></dd>
+				<dd><input type="text" name="bar.Emails[]" value=""></dd>
 			</dl>
 			<dl>
-				<dt><label>Addresses[0]</label></dt>
-				<dd><input type="text" name="neo.Addresses[1].Zip" value="65432"></dd>
-				<dd><input type="text" name="neo.Addresses[1].City" value="LA"></dd>
-				<dd><input type="text" name="neo.Addresses[1].Street" value="Under the bridge"></dd>
+				<dt><label>bar.Addresses[5]</label></dt>
+				<dd><input type="text" name="bar.Addresses[5].Zip" value=""></dd>
+				<dd><input type="text" name="bar.Addresses[5].City" value=""></dd>
+				<dd><input type="text" name="bar.Addresses[5].Street" value=""></dd>
+			</dl>
+			<dl>
+				<dt><label>bar.Addresses[1]</label></dt>
+				<dd><input type="text" name="bar.Addresses[1].Zip" value=""></dd>
+				<dd><input type="text" name="bar.Addresses[1].City" value=""></dd>
+				<dd><input type="text" name="bar.Addresses[1].Street" value=""></dd>
+			</dl>
+			<dl>
+				<dt><label>foo.selectArray[]</label></dt>
+				<dd>
+					<select name="foo.selectArray[]" multiple>
+						<option value="green">Green</option>
+						<option value="red">Red</option>
+						<option value="blue">Blue</option>
+						<option value="yellow">Yellow</option>
+					</select>
+				</dd>
 			</dl>
 			<button type="button" onclick="getJson()">Get JSON</button>
 			<button type="reset">Reset form</button>
 		</form>
 
 		<div>
-			<textarea id="src" cols="100" rows="20"></textarea>
+			<textarea id="src" cols="70" rows="20">
+{
+	"foo":{
+		"name":{
+			"first":"Foo-First",
+			"last":"Foo-Last"
+		},
+		"selectArray":[ "green", "yellow" ]
+	},
+	"bar":{
+		"name":{
+			"first":"Bar-First",
+			"last":"Bar-Last"
+		},
+		"array":[
+			[ "Bar-array-test", "Bar-array-test2" ]
+		],
+		"Emails":[
+			"mail1@example.com",
+			"mail2@example.com",
+			"mail3@example.com",
+			"mail4@example.com",
+			"mail5@example.com",
+			"mail6@example.com"
+		],
+		"Addresses":[
+			{"Zip":"12345","City":"NY","Street":"13, Boardwalk"},
+			{"Zip":"98765","City":"LA","Street":"Under the bridge"}
+		]
+	}
+}
+			</textarea>
 		</div>
 		<button type="button" onclick="populateForm()">Populate form</button>
 
