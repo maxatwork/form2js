@@ -1,0 +1,138 @@
+<!doctype html>
+
+<!--[if lt IE 7 ]> <html lang="ru" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="ru" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="ru" class="no-js ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="ru" class="no-js ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html lang="ru" class="no-js"> <!--<![endif]-->
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	</head>
+
+	<body>
+		<form id="testForm">
+			<dl>
+				<dt><label>foo.name.first</label></dt>
+				<dd><input type="text" name="foo.name.first" value=""></dd>
+			</dl>
+			<dl>
+				<dt><label>foo.name.last</label></dt>
+				<dd><input type="text" name="foo.name.last" value=""></dd>
+			</dl>
+			<dl>
+				<dt><label>bar.name.first</label></dt>
+				<dd><input type="text" name="bar.name.first" value=""></dd>
+			</dl>
+			<dl>
+				<dt><label>bar.name.last</label></dt>
+				<dd><input type="text" name="bar.name.last" value=""></dd>
+			</dl>
+			<dl>
+				<dt><label>bar.Emails[]</label></dt>
+				<dd><input type="text" name="bar.Emails[]" value=""></dd>
+				<dd><input type="text" name="bar.Emails[]" value=""></dd>
+				<dd><input type="text" name="bar.Emails[]" value=""></dd>
+				<dd><input type="text" name="bar.Emails[]" value=""></dd>
+				<dd><input type="text" name="bar.Emails[]" value=""></dd>
+				<dd><input type="text" name="bar.Emails[]" value=""></dd>
+			</dl>
+			<dl>
+				<dt><label>bar.Addresses[5]</label></dt>
+				<dd><input type="text" name="bar.Addresses[5].Zip" value=""></dd>
+				<dd><input type="text" name="bar.Addresses[5].City" value=""></dd>
+				<dd><input type="text" name="bar.Addresses[5].Street" value=""></dd>
+			</dl>
+			<dl>
+				<dt><label>bar.Addresses[1]</label></dt>
+				<dd><input type="text" name="bar.Addresses[1].Zip" value=""></dd>
+				<dd><input type="text" name="bar.Addresses[1].City" value=""></dd>
+				<dd><input type="text" name="bar.Addresses[1].Street" value=""></dd>
+			</dl>
+			<dl>
+				<dt><label>foo.selectArray[]</label></dt>
+				<dd>
+					<select name="foo.selectArray[]" multiple>
+						<option value="green">Green</option>
+						<option value="red">Red</option>
+						<option value="blue">Blue</option>
+						<option value="yellow">Yellow</option>
+					</select>
+				</dd>
+			</dl>
+			<dl>
+				<dt><label>foo.checkboxArray[]</label></dt>
+				<dd>
+					<label><input type="checkbox" name="foo.checkboxArray[]" value="steak"> Steak</label>
+					<label><input type="checkbox" name="foo.checkboxArray[]" value="pizza"> Pizza</label>
+					<label><input type="checkbox" name="foo.checkboxArray[]" value="chicken"> Chicken</label>
+					<label><input type="checkbox" name="foo.checkboxArray[]" value="pepperoni"> Pepperoni</label>
+				</dd>
+			</dl>
+			<dl>
+				<dt><label>foo.radio</label></dt>
+				<dd>
+					<label><input type="radio" name="foo.radio" value="1"> 1</label>
+					<label><input type="radio" name="foo.radio" value="2"> 2</label>
+					<label><input type="radio" name="foo.radio" value="3"> 3</label>
+					<label><input type="radio" name="foo.radio" value="4"> 4</label>
+				</dd>
+			</dl>
+			<button type="button" onclick="getJson()">Get JSON</button>
+			<button type="reset">Reset form</button>
+		</form>
+
+		<div>
+			<textarea id="src" cols="70" rows="20">
+{
+	"foo":{
+		"radio":"3",
+		"name":{
+			"first":"Foo-First",
+			"last":"Foo-Last"
+		},
+		"selectArray":[ "green", "yellow" ],
+		"checkboxArray":[ "steak", "chicken" ]
+	},
+	"bar":{
+		"name":{
+			"first":"Bar-First",
+			"last":"Bar-Last"
+		},
+		"Emails":[
+			"mail1@example.com",
+			"mail2@example.com",
+			"mail3@example.com",
+			"mail4@example.com",
+			"mail5@example.com",
+			"mail6@example.com"
+		],
+		"Addresses":[
+			{"Zip":"12345","City":"NY","Street":"13, Boardwalk"},
+			{"Zip":"98765","City":"LA","Street":"Under the bridge"}
+		]
+	}
+}
+			</textarea>
+		</div>
+		<button type="button" onclick="populateForm()">Populate form</button>
+
+		<script type="text/javascript" src="../src/form2js.js"></script>
+		<script type="text/javascript" src="../src/js2form.js"></script>
+		<script type="text/javascript" src="json2.js"></script>
+		<script type="text/javascript">
+			function getJson()
+			{
+				document.getElementById('src').value = JSON.stringify(form2js(document.getElementById('testForm')));
+			}
+
+			function populateForm()
+			{
+				var data = document.getElementById('src').value;
+				data = JSON.parse(data);
+				js2form(document.getElementById('testForm'), data);
+			}
+		</script>
+	</body>
+</html>
