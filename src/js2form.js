@@ -30,6 +30,7 @@ var js2form = (function()
 
 	var _subArrayRegexp = /^\[\d+?\]/,
 			_subObjectRegexp = /^[a-zA-Z_][a-zA-Z_0-9]+/,
+			_arrayItemRegexp = /\[[0-9]\]$/,
 			_lastIndexedArrayRegexp = /(.*)(\[)([0-9]*)(\])$/,
 			_arrayOfArraysRegexp = /\[([0-9]+)\]\[([0-9]+)\]/g,
 			_inputOrTextareaRegexp = /INPUT|TEXTAREA/i;
@@ -54,8 +55,8 @@ var js2form = (function()
 		fieldValues = object2array(data);
 		formFieldsByName = getFields(rootNode, useIdIfEmptyName, delimiter);
 
-		console.log(fieldValues);
-		console.log(formFieldsByName);
+		console.log('fieldValues', fieldValues);
+		console.log('formFieldsByName', formFieldsByName);
 
 		for (var i = 0; i < fieldValues.length; i++)
 		{
@@ -66,6 +67,10 @@ var js2form = (function()
 			{
 				setValue(formFieldsByName[fieldName], fieldValue);
 			}
+			else if (typeof formFieldsByName[fieldName.replace(_arrayItemRegexp, '[]')] != 'undefined')
+			{
+				setValue(formFieldsByName[fieldName.replace(_arrayItemRegexp, '[]')], fieldValue);
+			}
 		}
 	}
 
@@ -73,16 +78,18 @@ var js2form = (function()
 	{
 		var children, i, l;
 
-		if (_inputOrTextareaRegexp.test(field.nodeName))
+		if (field instanceof Array)
 		{
-			if (/checkbox/i.test(field.type) || /radio/i.test(field.type))
+			console.log('field', field);
+			for(i = 0; i < field.length; i++)
 			{
-				if (field.value == value) field.checked = true;
+				console.log('field['+i+']', field[i], field[i].value);
+				if (field[i].value == value) field[i].checked = true;
 			}
-			else
-			{
-				field.value = value;
-			}
+		}
+		else if (_inputOrTextareaRegexp.test(field.nodeName))
+		{
+			field.value = value;
 		}
 		else if (/SELECT/i.test(field.nodeName))
 		{
@@ -153,6 +160,13 @@ var js2form = (function()
 						nameNormalized = normalizeName(name, delimiter, arrayIndexes);
 						result[nameNormalized] = currNode;
 					}
+				}
+				else if (/INPUT/i.test(currNode.nodeName) && /CHECKBOX|RADIO/i.test(currNode.type))
+				{
+					nameNormalized = normalizeName(name, delimiter, arrayIndexes);
+					nameNormalized = nameNormalized.replace(_arrayItemRegexp, '[]');
+					if (!result[nameNormalized]) result[nameNormalized] = [];
+					result[nameNormalized].push(currNode);
 				}
 				else
 				{

@@ -67,6 +67,24 @@
 					</select>
 				</dd>
 			</dl>
+			<dl>
+				<dt><label>foo.checkboxArray[]</label></dt>
+				<dd>
+					<label><input type="checkbox" name="foo.checkboxArray[]" value="steak"> Steak</label>
+					<label><input type="checkbox" name="foo.checkboxArray[]" value="pizza"> Pizza</label>
+					<label><input type="checkbox" name="foo.checkboxArray[]" value="chicken"> Chicken</label>
+					<label><input type="checkbox" name="foo.checkboxArray[]" value="pepperoni"> Pepperoni</label>
+				</dd>
+			</dl>
+			<dl>
+				<dt><label>foo.radio</label></dt>
+				<dd>
+					<label><input type="radio" name="foo.radio" value="1"> 1</label>
+					<label><input type="radio" name="foo.radio" value="2"> 2</label>
+					<label><input type="radio" name="foo.radio" value="3"> 3</label>
+					<label><input type="radio" name="foo.radio" value="4"> 4</label>
+				</dd>
+			</dl>
 			<button type="button" onclick="getJson()">Get JSON</button>
 			<button type="reset">Reset form</button>
 		</form>
@@ -75,11 +93,13 @@
 			<textarea id="src" cols="70" rows="20">
 {
 	"foo":{
+		"radio":"3",
 		"name":{
 			"first":"Foo-First",
 			"last":"Foo-Last"
 		},
-		"selectArray":[ "green", "yellow" ]
+		"selectArray":[ "green", "yellow" ],
+		"checkboxArray":[ "steak", "chicken" ]
 	},
 	"bar":{
 		"name":{
