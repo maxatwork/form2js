@@ -53,10 +53,7 @@ var js2form = (function()
 				formFieldsByName;
 
 		fieldValues = object2array(data);
-		formFieldsByName = getFields(rootNode, useIdIfEmptyName, delimiter);
-
-		console.log('fieldValues', fieldValues);
-		console.log('formFieldsByName', formFieldsByName);
+		formFieldsByName = getFields(rootNode, useIdIfEmptyName, delimiter, {}, true);
 
 		for (var i = 0; i < fieldValues.length; i++)
 		{
@@ -80,10 +77,8 @@ var js2form = (function()
 
 		if (field instanceof Array)
 		{
-			console.log('field', field);
 			for(i = 0; i < field.length; i++)
 			{
-				console.log('field['+i+']', field[i], field[i].value);
 				if (field[i].value == value) field[i].checked = true;
 			}
 		}
@@ -109,7 +104,7 @@ var js2form = (function()
 		}
 	}
 
-	function getFields(rootNode, useIdIfEmptyName, delimiter, arrayIndexes)
+	function getFields(rootNode, useIdIfEmptyName, delimiter, arrayIndexes, shouldClean)
 	{
 		if (arguments.length < 4) arrayIndexes = {};
 
@@ -135,7 +130,7 @@ var js2form = (function()
 
 			if (name == '')
 			{
-				var subFields = getFields(currNode, useIdIfEmptyName, delimiter, arrayIndexes);
+				var subFields = getFields(currNode, useIdIfEmptyName, delimiter, arrayIndexes, shouldClean);
 				for (subFieldName in subFields)
 				{
 					if (typeof result[subFieldName] == 'undefined')
@@ -155,14 +150,24 @@ var js2form = (function()
 			{
 				if (/SELECT/i.test(currNode.nodeName))
 				{
-					for(j = 0, l = currNode.getElementsByTagName('option').length; j < l; j++)
+					for(j = 0, options = currNode.getElementsByTagName('option'), l = options.length; j < l; j++)
 					{
+						if (shouldClean)
+						{
+							options[j].selected = false;
+						}
+
 						nameNormalized = normalizeName(name, delimiter, arrayIndexes);
 						result[nameNormalized] = currNode;
 					}
 				}
 				else if (/INPUT/i.test(currNode.nodeName) && /CHECKBOX|RADIO/i.test(currNode.type))
 				{
+					if(shouldClean)
+					{
+						currNode.checked = false;
+					}
+
 					nameNormalized = normalizeName(name, delimiter, arrayIndexes);
 					nameNormalized = nameNormalized.replace(_arrayItemRegexp, '[]');
 					if (!result[nameNormalized]) result[nameNormalized] = [];
@@ -170,6 +175,11 @@ var js2form = (function()
 				}
 				else
 				{
+					if (shouldClean)
+					{
+						currNode.value = '';
+					}
+
 					nameNormalized = normalizeName(name, delimiter, arrayIndexes);
 					result[nameNormalized] = currNode;
 				}
