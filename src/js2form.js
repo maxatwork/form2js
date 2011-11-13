@@ -30,7 +30,7 @@ var js2form = (function()
 
 	var _subArrayRegexp = /^\[\d+?\]/,
 			_subObjectRegexp = /^[a-zA-Z_][a-zA-Z_0-9]+/,
-			_arrayItemRegexp = /\[[0-9]\]$/,
+			_arrayItemRegexp = /\[[0-9]+?\]$/,
 			_lastIndexedArrayRegexp = /(.*)(\[)([0-9]*)(\])$/,
 			_arrayOfArraysRegexp = /\[([0-9]+)\]\[([0-9]+)\]/g,
 			_inputOrTextareaRegexp = /INPUT|TEXTAREA/i;
@@ -250,31 +250,35 @@ var js2form = (function()
 
 		if (arguments.length == 1) lvl = 0;
 
-		if (obj instanceof Array)
-		{
-			for (i = 0; i < obj.length; i++)
-			{
-				name = "[" + i + "]";
-				result = result.concat(getSubValues(obj[i], name, lvl + 1));
-			}
-		}
-		else if (typeof obj == 'string' || typeof obj == 'number' || typeof obj == 'date')
-		{
-			result = [
-				{ name: "", value : obj }
-			];
-		}
-		else
-		{
-			for (i in obj)
-			{
-				name = i;
-				result = result.concat(getSubValues(obj[i], name, lvl + 1));
-			}
-		}
+        if (obj == null)
+        {
+            result = [{ name: "", value: null }];
+        }
+        else if (typeof obj == 'string' || typeof obj == 'number' || typeof obj == 'date' || typeof obj == 'boolean')
+        {
+            result = [
+                { name: "", value : obj }
+            ];
+        }
+        else if (obj instanceof Array)
+        {
+            for (i = 0; i < obj.length; i++)
+            {
+                name = "[" + i + "]";
+                result = result.concat(getSubValues(obj[i], name, lvl + 1));
+            }
+        }
+        else
+        {
+            for (i in obj)
+            {
+                name = i;
+                result = result.concat(getSubValues(obj[i], name, lvl + 1));
+            }
+        }
 
 		return result;
-	}
+    }
 
 	function getSubValues(subObj, name, lvl)
 	{
@@ -296,6 +300,7 @@ var js2form = (function()
 			tempItem = { name: itemName, value: tempResult[i].value };
 			result.push(tempItem);
 		}
+
 		return result;
 	}
 
