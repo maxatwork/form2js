@@ -52,7 +52,7 @@ var form2js = (function()
 			i = 0;
 
 		/* If rootNode is array - combine values */
-		if (rootNode.constructor == Array || (typeof NodeList != "undefined" && rootNode.constructor == NodeList))
+		if (rootNode.constructor == Array || (typeof NodeList != 'undefined' && rootNode.constructor == NodeList))
 		{
 			while(currNode = rootNode[i++])
 			{
@@ -274,8 +274,8 @@ var form2js = (function()
 				switch (fieldNode.type.toLowerCase()) {
 					case 'radio':
 					case 'checkbox':
-                        if (fieldNode.checked && fieldNode.value === "true") return true;
-                        if (!fieldNode.checked && fieldNode.value === "true") return false;
+                        if (fieldNode.checked && fieldNode.value === 'true') return true;
+                        if (!fieldNode.checked && fieldNode.value === 'true') return false;
 						if (fieldNode.checked) return fieldNode.value;
 						break;
 
@@ -312,7 +312,7 @@ var form2js = (function()
 
 		if (!multiple) return selectNode.value;
 
-		for (options = selectNode.getElementsByTagName("option"), i = 0, l = options.length; i < l; i++)
+		for (options = selectNode.getElementsByTagName('option'), i = 0, l = options.length; i < l; i++)
 		{
 			if (options[i].selected) result.push(options[i].value);
 		}
