@@ -79,7 +79,8 @@ var js2form = (function()
 		{
 			for(i = 0; i < field.length; i++)
 			{
-				if (field[i].value == value) field[i].checked = true;
+				if (field[i].value == 'on' || field[i].value == 'true' || 
+					field[i].value == value) field[i].checked = true;
 			}
 		}
 		else if (_inputOrTextareaRegexp.test(field.nodeName))
