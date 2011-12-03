@@ -87,7 +87,8 @@ var js2form = (function()
 		}
 		else if (_inputOrTextareaRegexp.test(field.nodeName))
 		{
-			field.value = value;
+			if (value)
+				field.value = value;
 		}
 		else if (/SELECT/i.test(field.nodeName))
 		{
