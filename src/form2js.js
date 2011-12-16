@@ -242,8 +242,11 @@ var form2js = (function()
             result = [callbackResult];
         }
         else if (fieldName != '' && node.nodeName.match(/INPUT|TEXTAREA/i)) {
-            fieldValue = getFieldValue(node);
-			result = [ { name: fieldName, value: fieldValue} ];
+            fieldValue = getFieldValue(node);   
+	    if(node.type == 'radio' && fieldValue == null)
+                result = [];
+            else
+                result = [ { name: fieldName, value: fieldValue} ];
         }
         else if (fieldName != '' && node.nodeName.match(/SELECT/i)) {
 	        fieldValue = getFieldValue(node);
