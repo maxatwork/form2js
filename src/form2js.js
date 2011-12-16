@@ -95,6 +95,8 @@ var form2js = (function()
 			if (skipEmpty && (value === '' || value === null)) continue;
 
 			name = nameValues[i].name;
+			if (typeof name === 'undefined') continue;
+
 			_nameParts = name.split(delimiter);
 			nameParts = [];
 			currResult = result;
