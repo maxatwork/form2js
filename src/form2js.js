@@ -36,14 +36,16 @@ var form2js = (function()
 	 * @param rootNode {Element|String} root form element (or it's id) or array of root elements
 	 * @param delimiter {String} structure parts delimiter defaults to '.'
 	 * @param skipEmpty {Boolean} should skip empty text values, defaults to true
+	 * @param emptyToNull {Boolean} should empty values be converted to null?
 	 * @param nodeCallback {Function} custom function to get node value
 	 * @param useIdIfEmptyName {Boolean} if true value of id attribute of field will be used if name of field is empty
 	 */
-	function form2js(rootNode, delimiter, skipEmpty, nodeCallback, useIdIfEmptyName)
+	function form2js(rootNode, delimiter, skipEmpty, emptyToNull, nodeCallback, useIdIfEmptyName)
 	{
 		if (typeof skipEmpty == 'undefined' || skipEmpty == null) skipEmpty = true;
+		if (typeof emptyToNull == 'undefined' || emptyToNull == null) emptyToNull = true;
 		if (typeof delimiter == 'undefined' || delimiter == null) delimiter = '.';
-		if (arguments.length < 5) useIdIfEmptyName = false;
+		if (arguments.length < 6) useIdIfEmptyName = false;
 
 		rootNode = typeof rootNode == 'string' ? document.getElementById(rootNode) : rootNode;
 
@@ -73,7 +75,7 @@ var form2js = (function()
 	 * @param skipEmpty if true skips elements with value == '' or value == null
 	 * @param delimiter
 	 */
-	function processNameValues(nameValues, skipEmpty, delimiter)
+	function processNameValues(nameValues, skipEmpty, emptyToNull, delimiter)
 	{
 		var result = {},
 			arrays = {},
@@ -92,6 +94,7 @@ var form2js = (function()
 		{
 			value = nameValues[i].value;
 
+			if (emptyToNull && (value === '')) { value = null; }
 			if (skipEmpty && (value === '' || value === null)) continue;
 
 			name = nameValues[i].name;
