@@ -77,14 +77,18 @@ var js2form = (function()
 
 		if (field instanceof Array)
 		{
-			for(i = 0; i < field.length; i++)
+			for (i = 0; i < field.length; i++)
 			{
-				if (field[i].value == value) field[i].checked = true;
+				if (value == 'on' || value == 'true' || value == '1')
+					field[i].checked = true;
+				else
+					field[i].checked = false
 			}
 		}
 		else if (_inputOrTextareaRegexp.test(field.nodeName))
 		{
-			field.value = value;
+			if (value)
+				field.value = value;
 		}
 		else if (/SELECT/i.test(field.nodeName))
 		{
