@@ -243,7 +243,7 @@ var form2js = (function()
         }
         else if (fieldName != '' && node.nodeName.match(/INPUT|TEXTAREA/i)) {
             fieldValue = getFieldValue(node);   
-	    if(node.type == 'radio' && fieldValue == null)
+	        if (fieldValue == null && node.type == 'radio')
                 result = [];
             else
                 result = [ { name: fieldName, value: fieldValue} ];
