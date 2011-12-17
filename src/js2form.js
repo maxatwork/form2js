@@ -42,18 +42,20 @@ var js2form = (function()
 	 * @param delimiter
 	 * @param nodeCallback
 	 * @param useIdIfEmptyName
+	 * @param shouldClean should we empty out fields first?
 	 */
-	function js2form(rootNode, data, delimiter, nodeCallback, useIdIfEmptyName)
+	function js2form(rootNode, data, delimiter, nodeCallback, useIdIfEmptyName, shouldClean)
 	{
 		if (arguments.length < 3) delimiter = '.';
 		if (arguments.length < 4) nodeCallback = null;
 		if (arguments.length < 5) useIdIfEmptyName = false;
+		if (arguments.length < 6) shouldClean = true;
 
 		var fieldValues,
 				formFieldsByName;
 
 		fieldValues = object2array(data);
-		formFieldsByName = getFields(rootNode, useIdIfEmptyName, delimiter, {}, true);
+		formFieldsByName = getFields(rootNode, useIdIfEmptyName, delimiter, {}, shouldClean);
 
 		for (var i = 0; i < fieldValues.length; i++)
 		{
