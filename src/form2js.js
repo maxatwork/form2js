@@ -66,7 +66,7 @@ var form2js = (function()
 			formValues = getFormValues(rootNode, nodeCallback, useIdIfEmptyName);
 		}
 
-		return processNameValues(formValues, skipEmpty, delimiter);
+		return processNameValues(formValues, skipEmpty, emptyToNull, delimiter);
 	}
 
 	/**
