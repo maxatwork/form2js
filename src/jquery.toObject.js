@@ -38,7 +38,8 @@
 				delimiter: ".",
 				skipEmpty: true,
 				nodeCallback: null,
-				useIdIfEmptyName: false
+				useIdIfEmptyName: false,
+                forceCheckBoxValue: false
 			};
 
 		if (options)
@@ -49,7 +50,7 @@
 		switch(settings.mode)
 		{
 			case 'first':
-				return form2js(this.get(0), settings.delimiter, settings.skipEmpty, settings.nodeCallback, settings.useIdIfEmptyName);
+				return form2js(this.get(0), settings.delimiter, settings.skipEmpty, settings.nodeCallback, settings.useIdIfEmptyName, settings.forceCheckBoxValue);
 				break;
 			case 'all':
 				this.each(function(){

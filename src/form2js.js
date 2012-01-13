@@ -38,8 +38,9 @@ var form2js = (function()
 	 * @param skipEmpty {Boolean} should skip empty text values, defaults to true
 	 * @param nodeCallback {Function} custom function to get node value
 	 * @param useIdIfEmptyName {Boolean} if true value of id attribute of field will be used if name of field is empty
+   * @param forceCheckBoxValue {Boolean} if true the real value of checkbox is used in case of true|false checkboxes
 	 */
-	function form2js(rootNode, delimiter, skipEmpty, nodeCallback, useIdIfEmptyName)
+	function form2js(rootNode, delimiter, skipEmpty, nodeCallback, useIdIfEmptyName, forceCheckBoxValue)
 	{
 		if (typeof skipEmpty == 'undefined' || skipEmpty == null) skipEmpty = true;
 		if (typeof delimiter == 'undefined' || delimiter == null) delimiter = '.';
@@ -56,12 +57,12 @@ var form2js = (function()
 		{
 			while(currNode = rootNode[i++])
 			{
-				formValues = formValues.concat(getFormValues(currNode, nodeCallback, useIdIfEmptyName));
+				formValues = formValues.concat(getFormValues(currNode, nodeCallback, useIdIfEmptyName, forceCheckBoxValue));
 			}
 		}
 		else
 		{
-			formValues = getFormValues(rootNode, nodeCallback, useIdIfEmptyName);
+			formValues = getFormValues(rootNode, nodeCallback, useIdIfEmptyName, forceCheckBoxValue);
 		}
 
 		return processNameValues(formValues, skipEmpty, delimiter);
@@ -213,28 +214,28 @@ var form2js = (function()
 		return result;
 	}
 
-    function getFormValues(rootNode, nodeCallback, useIdIfEmptyName)
+    function getFormValues(rootNode, nodeCallback, useIdIfEmptyName, forceCheckBoxValue)
     {
-        var result = extractNodeValues(rootNode, nodeCallback, useIdIfEmptyName);
-        return result.length > 0 ? result : getSubFormValues(rootNode, nodeCallback, useIdIfEmptyName);
+        var result = extractNodeValues(rootNode, nodeCallback, useIdIfEmptyName, forceCheckBoxValue);
+        return result.length > 0 ? result : getSubFormValues(rootNode, nodeCallback, useIdIfEmptyName, forceCheckBoxValue);
     }
 
-    function getSubFormValues(rootNode, nodeCallback, useIdIfEmptyName)
+    function getSubFormValues(rootNode, nodeCallback, useIdIfEmptyName, forceCheckBoxValue)
 	{
 		var result = [],
 			currentNode = rootNode.firstChild;
-		
+
 		while (currentNode)
 		{
-			result = result.concat(extractNodeValues(currentNode, nodeCallback, useIdIfEmptyName));
+			result = result.concat(extractNodeValues(currentNode, nodeCallback, useIdIfEmptyName, forceCheckBoxValue));
 			currentNode = currentNode.nextSibling;
 		}
 
 		return result;
 	}
 
-    function extractNodeValues(node, nodeCallback, useIdIfEmptyName) {
-        var callbackResult, fieldValue, result, fieldName = getFieldName(node, useIdIfEmptyName);
+    function extractNodeValues(node, nodeCallback, useIdIfEmptyName, forceCheckBoxValue) {
+        var callbackResult, fieldValue, result, fieldName = getFieldName(node, useIdIfEmptyName, forceCheckBoxValue);
 
         callbackResult = nodeCallback && nodeCallback(node);
 
@@ -242,15 +243,15 @@ var form2js = (function()
             result = [callbackResult];
         }
         else if (fieldName != '' && node.nodeName.match(/INPUT|TEXTAREA/i)) {
-            fieldValue = getFieldValue(node);
+            fieldValue = getFieldValue(node, forceCheckBoxValue);
 			result = [ { name: fieldName, value: fieldValue} ];
         }
         else if (fieldName != '' && node.nodeName.match(/SELECT/i)) {
-	        fieldValue = getFieldValue(node);
+	        fieldValue = getFieldValue(node, forceCheckBoxValue);
 	        result = [ { name: fieldName.replace(/\[\]$/, ''), value: fieldValue } ];
         }
         else {
-            result = getSubFormValues(node, nodeCallback, useIdIfEmptyName);
+            result = getSubFormValues(node, nodeCallback, useIdIfEmptyName, forceCheckBoxValue);
         }
 
         return result;
@@ -264,10 +265,10 @@ var form2js = (function()
 	}
 
 
-	function getFieldValue(fieldNode)
+	function getFieldValue(fieldNode, forceCheckBoxValue)
 	{
 		if (fieldNode.disabled) return null;
-		
+
 		switch (fieldNode.nodeName) {
 			case 'INPUT':
 			case 'TEXTAREA':
@@ -275,7 +276,14 @@ var form2js = (function()
 					case 'radio':
 					case 'checkbox':
                         if (fieldNode.checked && fieldNode.value === "true") return true;
-                        if (!fieldNode.checked && fieldNode.value === "true") return false;
+
+                        if (forceCheckBoxValue) {
+                            if (fieldNode.checked && fieldNode.value === "false") return false;
+                            if (!fieldNode.checked && fieldNode.value === "true") return '';
+                        } else {
+                            if (!fieldNode.checked && fieldNode.value === "true") return false;
+                        }
+
 						if (fieldNode.checked) return fieldNode.value;
 						break;
 
