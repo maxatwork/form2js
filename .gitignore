@@ -1,4 +1,4 @@
 .idea
 .hg
 .hgignore
-.iml
+*.iml
