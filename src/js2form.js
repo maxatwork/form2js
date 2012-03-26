@@ -81,7 +81,7 @@ var js2form = (function()
 		{
 			for (i = 0; i < field.length; i++)
 			{
-				if (value == 'on' || value == 'true' || value == '1')
+				if (value == 'on' || value == 'true' || value == '1' || field[i].value == value || field[i].value == value.toString() )
 					field[i].checked = true;
 				else
 					field[i].checked = false
