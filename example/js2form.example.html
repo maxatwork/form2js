@@ -79,13 +79,65 @@
 					<label><input type="radio" name="foo.radio" value="4"> 4</label>
 				</dd>
 			</dl>
+
+
+			<table>
+			<tbody>
+			<tr>
+				<th>Phone</th>
+				<td><input type="text" id="phone" name="phone" /></td>
+			</tr>
+			<tr>
+				<th>Address</th>
+				<td>
+					<table id="addressInfo" class="condensed-table">
+						<tr>
+							<th>Street 1</th>
+							<td><input type="text" id="address.street1" name="address.street1" /></td>
+						</tr>
+						<tr>
+							<th>Street 2</th>
+							<td><input type="text" id="address.street2" name="address.street2" /></td>
+						</tr>
+						<tr>
+							<th>City</th>
+							<td><input type="text" id="address.city" name="address.city" /></td>
+						</tr>
+						<tr>
+							<th>State</th>
+							<td><input type="text" id="address.state" name="address.state" /></td>
+						</tr>
+						<tr>
+							<th>Zip</th>
+							<td><input type="text" id="address.zip" name="address.zip" /></td>
+						</tr>
+						<tr>
+							<th>Country</th>
+							<td><input type="text" id="address.country" name="address.country" /></td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			</tbody>
+			</table>
+
 			<button type="button" onclick="getJson()">Get JSON</button>
 			<button type="reset">Reset form</button>
+
 		</form>
 
 		<div>
 			<textarea id="src" cols="70" rows="20">
 {
+	"phone":"444-444-4444",
+	"address":{
+		"street1": "12345",
+		"street2": "main st",
+		"city": "SF",
+		"state": "CA",
+		"zip": "94444",
+		"country": "USA"
+	},
 	"foo":{
 		"radio":"3",
 		"name":{
@@ -131,7 +183,7 @@
 			{
 				var data = document.getElementById('src').value;
 				data = JSON.parse(data);
-				js2form(document.getElementById('testForm'), data);
+				js2form(document.getElementById('testForm'), data, '.', null, true);
 			}
 		</script>
 	</body>
