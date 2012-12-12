@@ -119,11 +119,11 @@ var js2form = (function()
 		{
 			name = '';
 
-			if (currNode.name && currNode.name != '')
+			if (currNode.name && typeof(currNode.name) === "string" && currNode.name != '')
 			{
 				name = currNode.name;
 			}
-			else if (useIdIfEmptyName && currNode.id && currNode.id != '')
+			else if (useIdIfEmptyName && currNode.id && typeof(currNode.id) === "string" && currNode.id != '')
 			{
 				name = currNode.id;
 			}
