@@ -25,7 +25,19 @@
  */
 
 
-var form2js = (function()
+(function (root, factory)
+{
+	if (typeof define === 'function' && define.amd)
+	{
+		// AMD. Register as an anonymous module.
+		define(factory);
+	}
+	else
+	{
+		// Browser globals
+		root.form2js = factory();
+	}
+}(this, function ()
 {
 	"use strict";
 
@@ -322,4 +334,4 @@ var form2js = (function()
 
 	return form2js;
 
-})();
+}));
