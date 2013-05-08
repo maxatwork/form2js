@@ -24,7 +24,19 @@
  * Time: 23:40
  */
 
-var js2form = (function()
+(function (root, factory)
+{
+	if (typeof define === 'function' && define.amd)
+	{
+		// AMD. Register as an anonymous module.
+		define(factory);
+	}
+	else
+	{
+		// Browser globals
+		root.form2js = factory();
+	}
+}(this, function ()
 {
 	"use strict";
 
@@ -306,4 +318,4 @@ var js2form = (function()
 
 	return js2form;
 
-})();
+}));
