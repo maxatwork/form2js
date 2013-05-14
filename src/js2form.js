@@ -34,7 +34,7 @@
 	else
 	{
 		// Browser globals
-		root.form2js = factory();
+		root.js2form = factory();
 	}
 }(this, function ()
 {
@@ -61,6 +61,8 @@
 		if (arguments.length < 4) nodeCallback = null;
 		if (arguments.length < 5) useIdIfEmptyName = false;
 
+		rootNode = (typeof rootNode == 'string') ? document.getElementById(rootNode) : rootNode;
+		
 		var fieldValues,
 				formFieldsByName;
 
@@ -79,6 +81,9 @@
 			else if (typeof formFieldsByName[fieldName.replace(_arrayItemRegexp, '[]')] != 'undefined')
 			{
 				setValue(formFieldsByName[fieldName.replace(_arrayItemRegexp, '[]')], fieldValue);
+			}
+			else if (typeof formFieldsByName[fieldName.replace(_arrayItemRegexp, "")] != 'undefined') {
+				setValue(formFieldsByName[fieldName.replace(_arrayItemRegexp, "")], fieldValue);
 			}
 		}
 	}
