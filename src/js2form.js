@@ -34,7 +34,7 @@
 	else
 	{
 		// Browser globals
-		root.form2js = factory();
+		root.js2form = factory();
 	}
 }(this, function ()
 {
