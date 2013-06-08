@@ -3,7 +3,7 @@ form2js
 
 Convenient way to collect **structured** form data into JavaScript object.
 [Example](http://form2js.googlecode.com/hg/example/test.html).
-Because everythins is better with jQuery, jQuery plugin added, check out jquery.toObject.js.
+Because everything is better with jQuery, jQuery plugin added, check out jquery.toObject.js.
 If you have any questions/suggestions, find out something weird or illogical - feel free to post an issue.
 
 **Warning!** form2object.js and form2object function renamed to form2js.js and form2js respectively.
