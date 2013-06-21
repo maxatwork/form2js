@@ -285,10 +285,11 @@
 			case 'TEXTAREA':
 				switch (fieldNode.type.toLowerCase()) {
 					case 'radio':
+			if (fieldNode.checked && fieldNode.value === "false") return false;
 					case 'checkbox':
                         if (fieldNode.checked && fieldNode.value === "true") return true;
                         if (!fieldNode.checked && fieldNode.value === "true") return false;
-						if (fieldNode.checked) return fieldNode.value;
+			if (fieldNode.checked) return fieldNode.value;
 						break;
 
 					case 'button':
