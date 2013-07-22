@@ -50,8 +50,9 @@
 	 * @param skipEmpty {Boolean} should skip empty text values, defaults to true
 	 * @param nodeCallback {Function} custom function to get node value
 	 * @param useIdIfEmptyName {Boolean} if true value of id attribute of field will be used if name of field is empty
+	 # @param guessNumbers {Boolean} if true values that appears as «numbers» are rendered without quotes
 	 */
-	function form2js(rootNode, delimiter, skipEmpty, nodeCallback, useIdIfEmptyName)
+	function form2js(rootNode, delimiter, skipEmpty, nodeCallback, useIdIfEmptyName, guessNumbers)
 	{
 		if (typeof skipEmpty == 'undefined' || skipEmpty == null) skipEmpty = true;
 		if (typeof delimiter == 'undefined' || delimiter == null) delimiter = '.';
@@ -68,12 +69,12 @@
 		{
 			while(currNode = rootNode[i++])
 			{
-				formValues = formValues.concat(getFormValues(currNode, nodeCallback, useIdIfEmptyName));
+				formValues = formValues.concat(getFormValues(currNode, nodeCallback, useIdIfEmptyName, guessNumbers));
 			}
 		}
 		else
 		{
-			formValues = getFormValues(rootNode, nodeCallback, useIdIfEmptyName);
+			formValues = getFormValues(rootNode, nodeCallback, useIdIfEmptyName, guessNumbers);
 		}
 
 		return processNameValues(formValues, skipEmpty, delimiter);
@@ -225,44 +226,45 @@
 		return result;
 	}
 
-    function getFormValues(rootNode, nodeCallback, useIdIfEmptyName)
+    function getFormValues(rootNode, nodeCallback, useIdIfEmptyName, guessNumbers)
     {
-        var result = extractNodeValues(rootNode, nodeCallback, useIdIfEmptyName);
-        return result.length > 0 ? result : getSubFormValues(rootNode, nodeCallback, useIdIfEmptyName);
+        var result = extractNodeValues(rootNode, nodeCallback, useIdIfEmptyName, guessNumbers);
+        return result.length > 0 ? result : getSubFormValues(rootNode, nodeCallback, useIdIfEmptyName, guessNumbers);
     }
 
-    function getSubFormValues(rootNode, nodeCallback, useIdIfEmptyName)
+    function getSubFormValues(rootNode, nodeCallback, useIdIfEmptyName, guessNumbers)
 	{
 		var result = [],
 			currentNode = rootNode.firstChild;
 		
 		while (currentNode)
 		{
-			result = result.concat(extractNodeValues(currentNode, nodeCallback, useIdIfEmptyName));
+			result = result.concat(extractNodeValues(currentNode, nodeCallback, useIdIfEmptyName, guessNumbers));
 			currentNode = currentNode.nextSibling;
 		}
 
 		return result;
 	}
 
-    function extractNodeValues(node, nodeCallback, useIdIfEmptyName) {
+    function extractNodeValues(node, nodeCallback, useIdIfEmptyName, guessNumbers) {
         var callbackResult, fieldValue, result, fieldName = getFieldName(node, useIdIfEmptyName);
 
         callbackResult = nodeCallback && nodeCallback(node);
 
         if (callbackResult && callbackResult.name) {
+        	callbackResult.value = parseValue(callbackResult.value, guessNumbers);
             result = [callbackResult];
         }
         else if (fieldName != '' && node.nodeName.match(/INPUT|TEXTAREA/i)) {
-            fieldValue = getFieldValue(node);
+            fieldValue = getFieldValue(node, guessNumbers);
 			result = [ { name: fieldName, value: fieldValue} ];
         }
         else if (fieldName != '' && node.nodeName.match(/SELECT/i)) {
-	        fieldValue = getFieldValue(node);
+	        fieldValue = getFieldValue(node, guessNumbers);
 	        result = [ { name: fieldName.replace(/\[\]$/, ''), value: fieldValue } ];
         }
         else {
-            result = getSubFormValues(node, nodeCallback, useIdIfEmptyName);
+            result = getSubFormValues(node, nodeCallback, useIdIfEmptyName, guessNumbers);
         }
 
         return result;
@@ -276,7 +278,7 @@
 	}
 
 
-	function getFieldValue(fieldNode)
+	function getFieldValue(fieldNode, guessNumbers)
 	{
 		if (fieldNode.disabled) return null;
 		
@@ -300,13 +302,13 @@
 						break;
 
 					default:
-						return fieldNode.value;
+						return parseValue(fieldNode.value, guessNumbers);
 						break;
 				}
 				break;
 
 			case 'SELECT':
-				return getSelectedOptionValue(fieldNode);
+				return getSelectedOptionValue(fieldNode, guessNumbers);
 				break;
 
 			default:
@@ -316,21 +318,29 @@
 		return null;
 	}
 
-	function getSelectedOptionValue(selectNode)
+	function getSelectedOptionValue(selectNode, guessNumbers)
 	{
 		var multiple = selectNode.multiple,
 			result = [],
 			options,
 			i, l;
 
-		if (!multiple) return selectNode.value;
+		if (!multiple) return parseValue(selectNode.value, guessNumbers);
 
 		for (options = selectNode.getElementsByTagName("option"), i = 0, l = options.length; i < l; i++)
 		{
-			if (options[i].selected) result.push(options[i].value);
+			if (options[i].selected) result.push(parseValue(options[i].value , guessNumbers));
 		}
 
 		return result;
+	}
+
+	function isNumber(n) {
+		return !isNaN(parseFloat(n)) && isFinite(n);
+	}
+
+	function parseValue(v, guessNumbers) {
+		return guessNumbers && isNumber(v) ? parseFloat(v) : v;
 	}
 
 	return form2js;

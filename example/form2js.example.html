@@ -101,6 +101,24 @@
 	</dl>
 
 	<dl>
+		<dt>Choose some number</dt>
+		<dd>
+			<select name="manynumbers" multiple="multiple">
+				<optgroup label="Odd">
+					<option value="1">One</option>
+					<option value="3">Three</option>
+					<option value="5">Five</option>
+				</optgroup>
+				<optgroup label="Even">
+					<option value="0">Zero</option>
+					<option value="2">Two</option>
+					<option value="4">Four</option>
+				</optgroup>
+			</select>
+		</dd>
+	</dl>
+
+	<dl>
 		<dt>Multiple select (ZendForm syntax)</dt>
 		<dd>
 			<select name="person.colorsZend[]" multiple="multiple">
@@ -273,6 +291,20 @@
 	</dl>
 
 	<dl>
+		<dt>Simple iteger value</dt>
+		<dd>
+			<input type="text" value="666" name="devil_number" />
+		</dd>
+	</dl>
+
+		<dl>
+		<dt>Integer with callback test:</dt>
+		<dd>
+			<div id="callbacknumber">666.2342</div>
+		</dd>
+	</dl>
+
+	<dl>
 		<dt></dt>
 		<dd><input type="submit" /></dd>
 	</dl>
@@ -292,8 +324,11 @@
 					if (node.id && node.id.match(/callbackTest/))
 					{
 						return { name: node.id, value: node.innerHTML };
+					} else if (node.id && node.id.match(/callbacknumber/))
+					{
+						return { name: node.id, value: node.innerHTML};
 					}
-				});
+				}, false, true);
 
 		document.getElementById('testArea').innerHTML = JSON.stringify(formData, null, '\t');
 	}
