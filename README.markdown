@@ -25,12 +25,13 @@ Usage
 =====
 
 ``` javascript
-form2js(rootNode, delimiter, skipEmpty, nodeCallback, useIdIfEmptyName)
+form2js(rootNode, delimiter, skipEmpty, nodeCallback, useIdIfEmptyName, guessNumbers)
 ```
 
 Values of all inputs under the _rootNode_ will be collected into one object.
 skipping empty inputs if _skipEmpty_ not false.
 
+If _guessNumbers_ is _true_ then it attempts to parse values as numbers generating a more semanticful JSON.
 
 ### Objects/nested objects
 
