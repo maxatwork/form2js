@@ -41,7 +41,7 @@
 	"use strict";
 
 	var _subArrayRegexp = /^\[\d+?\]/,
-			_subObjectRegexp = /^[a-zA-Z_][a-zA-Z_0-9]+/,
+			_subObjectRegexp = /^[a-zA-Z_][a-zA-Z_0-9]*/,
 			_arrayItemRegexp = /\[[0-9]+?\]$/,
 			_lastIndexedArrayRegexp = /(.*)(\[)([0-9]*)(\])$/,
 			_arrayOfArraysRegexp = /\[([0-9]+)\]\[([0-9]+)\]/g,
