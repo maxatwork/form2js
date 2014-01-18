@@ -196,7 +196,7 @@
 					{
 						if (!arrays[arrNameFull][arrIdx])
 						{
-							if ((/^[a-z_]+\[?/i).test(nameParts[j+1])) currResult[arrName].push({});
+							if ((/^[0-9a-z_]+\[?/i).test(nameParts[j+1])) currResult[arrName].push({});
 							else currResult[arrName].push([]);
 
 							arrays[arrNameFull][arrIdx] = currResult[arrName][currResult[arrName].length - 1];
