@@ -246,6 +246,8 @@
 	}
 
     function extractNodeValues(node, nodeCallback, useIdIfEmptyName) {
+        if (node.disabled) return [];
+
         var callbackResult, fieldValue, result, fieldName = getFieldName(node, useIdIfEmptyName);
 
         callbackResult = nodeCallback && nodeCallback(node);
