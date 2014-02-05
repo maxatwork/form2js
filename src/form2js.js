@@ -238,7 +238,12 @@
 		
 		while (currentNode)
 		{
-			result = result.concat(extractNodeValues(currentNode, nodeCallback, useIdIfEmptyName));
+			var currentResult = extractNodeValues(currentNode, nodeCallback, useIdIfEmptyName);
+            		for (var i = 0; i < currentResult.length;i++ ) {
+                		if(currentResult[i].value !== null) {
+                    			result[result.length] = currentResult[i];                    
+                		}
+            		}
 			currentNode = currentNode.nextSibling;
 		}
 
