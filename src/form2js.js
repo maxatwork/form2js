@@ -258,7 +258,11 @@
         }
         else if (fieldName != '' && node.nodeName.match(/INPUT|TEXTAREA/i)) {
             fieldValue = getFieldValue(node, getDisabled);
-			result = [ { name: fieldName, value: fieldValue} ];
+            if (null === fieldValue) {
+                result = [];
+            } else {
+                result = [ { name: fieldName, value: fieldValue} ];
+            }
         }
         else if (fieldName != '' && node.nodeName.match(/SELECT/i)) {
 	        fieldValue = getFieldValue(node, getDisabled);
