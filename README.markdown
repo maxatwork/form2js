@@ -17,8 +17,8 @@ This is **not** a serialization library.
 Library used in example for JSON serialization is [http://www.json.org/js.html](http://www.json.org/js.html)
 Structure of resulting object defined by _name_ attribute of form fields.
 See examples below.
-All this library doing is collecting form data and putting it in javascript object.
-Obviously you can get JSON/XML/etc string by serializing it, but it's not an only purpose.
+All this library does is collect form data and put it in a javascript object.
+Obviously you can get a JSON/XML/etc string by serializing it, but that's not its only purpose.
 
 
 Usage
