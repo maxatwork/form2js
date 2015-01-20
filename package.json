@@ -1,0 +1,22 @@
+{
+  "name": "form2js",
+  "version": "1.0.0",
+  "description": "form2js\r -------",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kirill-zhirnov/form2js.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kirill-zhirnov/form2js/issues"
+  },
+  "homepage": "https://github.com/kirill-zhirnov/form2js"
+}
