@@ -109,7 +109,7 @@
 		{
 			value = nameValues[i].value;
 
-			if (skipEmpty && (value === '' || value === null)) continue;
+			if (skipEmpty && (value === '' || value === null || (typeof value === "object" && value.length === 0))) continue;
 
 			name = nameValues[i].name;
 			_nameParts = name.split(delimiter);
