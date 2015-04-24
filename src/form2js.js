@@ -257,6 +257,11 @@
 
         callbackResult = nodeCallback && nodeCallback(node);
 
+        //if the callback returns undefined do not serialize the node
+        if (nodeCallback && typeof(callbackResult) === 'undefined') {
+            return [];
+        }
+
         if (callbackResult && callbackResult.name) {
             result = [callbackResult];
         }
