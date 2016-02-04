@@ -23,8 +23,9 @@
  * Date: 29.06.11
  * Time: 20:09
  */
-
-(function($){
+(function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('jquery')) : typeof define === 'function' && define.amd ? define(['jquery'], factory) : global.parsley = factory(global.jQuery);
+})(this, function($){
 
 	/**
 	 * jQuery wrapper for form2object()
@@ -63,4 +64,4 @@
 		}
 	}
 
-})(jQuery);
+});
