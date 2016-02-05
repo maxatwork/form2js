@@ -24,7 +24,32 @@
  * Time: 20:09
  */
 
-(function($){
+(function(factory) {
+
+    // Establish the root object, `window` (`self`) in the browser, or `global` on the server.
+    // We use `self` instead of `window` for `WebWorker` support.
+    var root = (typeof self == 'object' && self.self == self && self) ||
+        (typeof global == 'object' && global.global == global && global);
+
+    // Start with AMD.
+    if (typeof define === 'function' && define.amd) {
+        define(['form2js', 'jquery'], function(form2js, $) {
+            factory(root, form2js, $);
+        });
+
+        // Next for Node.js or CommonJS. jQuery may not be needed as a module.
+    } else if (typeof exports !== 'undefined') {
+        var form2js = require('form2js').form2js, $;
+        try { $ = require('jquery'); } catch(e) {}
+
+        factory(root, form2js, $);
+
+        // Finally, as a browser global.
+    } else {
+        factory(root, root.form2js, (root.jQuery || root.Zepto || root.ender || root.$));
+    }
+
+}(function(root, form2js, $){
 
 	/**
 	 * jQuery wrapper for form2object()
@@ -63,4 +88,4 @@
 		}
 	}
 
-})(jQuery);
+}));
