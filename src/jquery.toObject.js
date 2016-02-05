@@ -31,11 +31,9 @@
     var root = (typeof self == 'object' && self.self == self && self) ||
         (typeof global == 'object' && global.global == global && global);
 
-    // Set up Backbone appropriately for the environment. Start with AMD.
+    // Start with AMD.
     if (typeof define === 'function' && define.amd) {
         define(['form2js', 'jquery'], function(form2js, $) {
-            // Export global even in AMD case in case this script is loaded with
-            // others that may still expect a global Backbone.
             factory(root, form2js, $);
         });
 
