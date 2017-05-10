@@ -299,7 +299,7 @@
 			if (fieldNode.checked && fieldNode.value === "false") return false;
 					case 'checkbox':
                         if (fieldNode.checked && fieldNode.value === "true") return true;
-                        if (!fieldNode.checked && fieldNode.value === "true") return false;
+                        if (!fieldNode.checked && fieldNode.value === "false") return false;
 			if (fieldNode.checked) return fieldNode.value;
 						break;
 
