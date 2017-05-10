@@ -302,6 +302,11 @@
                         if (!fieldNode.checked && fieldNode.value === "true") return false;
 			if (fieldNode.checked) return fieldNode.value;
 						break;
+						
+					case 'number':
+					case 'range':
+						return Number(fieldNode.value);
+						break;
 
 					case 'button':
 					case 'reset':
