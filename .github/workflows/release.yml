@@ -25,6 +25,12 @@ jobs:
           registry-url: https://registry.npmjs.org
           cache: npm
 
+      - name: Use npm 11
+        run: npm install --global npm@11.6.2
+
+      - name: Verify toolchain
+        run: node --version && npm --version
+
       - name: Install
         run: npm ci
 
@@ -38,3 +44,4 @@ jobs:
           publish: npm run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
