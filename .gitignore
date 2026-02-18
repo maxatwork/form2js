@@ -7,3 +7,4 @@ coverage
 .idea
 .hg
 .hgignore
+docs/triage-*
