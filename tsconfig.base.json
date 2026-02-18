@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@form2js/core": ["packages/core/src/index.ts"],
+      "@form2js/dom": ["packages/dom/src/index.ts"],
+      "@form2js/form-data": ["packages/form-data/src/index.ts"],
+      "@form2js/js2form": ["packages/js2form/src/index.ts"],
+      "@form2js/jquery": ["packages/jquery/src/index.ts"]
+    },
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "types": [
+      "vitest/globals"
+    ]
+  }
+}

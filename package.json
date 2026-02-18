@@ -1,22 +1,42 @@
 {
-  "name": "form2js",
-  "version": "1.0.0",
-  "description": "form2js\r -------",
-  "main": "index.js",
-  "directories": {
-    "example": "example"
+  "name": "form2js-monorepo",
+  "private": true,
+  "type": "module",
+  "packageManager": "npm@11.6.2",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=18"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "turbo run build",
+    "build:packages": "turbo run build --filter=@form2js/*",
+    "playground": "npm run build:packages && npm -w @form2js/examples run dev",
+    "test": "npm run test:packages && npm run test:integration",
+    "test:packages": "turbo run test",
+    "test:integration": "vitest run test/integration",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rimraf node_modules .turbo",
+    "pack:dry-run": "npm_config_cache=/tmp/form2js-npm-cache npm pack --dry-run --workspace @form2js/core && npm_config_cache=/tmp/form2js-npm-cache npm pack --dry-run --workspace @form2js/dom && npm_config_cache=/tmp/form2js-npm-cache npm pack --dry-run --workspace @form2js/form-data && npm_config_cache=/tmp/form2js-npm-cache npm pack --dry-run --workspace @form2js/js2form && npm_config_cache=/tmp/form2js-npm-cache npm pack --dry-run --workspace @form2js/jquery",
+    "changeset": "changeset",
+    "release": "changeset publish",
+    "scope:rewrite": "node scripts/rewrite-scope.mjs"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kirill-zhirnov/form2js.git"
-  },
-  "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/kirill-zhirnov/form2js/issues"
-  },
-  "homepage": "https://github.com/kirill-zhirnov/form2js"
+  "devDependencies": {
+    "@changesets/cli": "^2.29.7",
+    "@types/jsdom": "^21.1.7",
+    "@eslint/js": "^9.22.0",
+    "eslint": "^9.22.0",
+    "jsdom": "^26.0.0",
+    "rimraf": "^6.0.1",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.5",
+    "turbo": "^2.5.6",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.35.1",
+    "vitest": "^3.2.4"
+  }
 }

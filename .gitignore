@@ -1,3 +1,9 @@
+node_modules
+.npm
+.turbo
+dist
+coverage
+*.tsbuildinfo
 .idea
 .hg
 .hgignore

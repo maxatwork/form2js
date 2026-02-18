@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "types": ["vitest/globals", "jquery"]
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts", "tsup.config.ts"]
+}
