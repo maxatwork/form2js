@@ -23,7 +23,8 @@
     "pack:dry-run": "npm_config_cache=/tmp/form2js-npm-cache npm pack --dry-run --workspace @form2js/core && npm_config_cache=/tmp/form2js-npm-cache npm pack --dry-run --workspace @form2js/dom && npm_config_cache=/tmp/form2js-npm-cache npm pack --dry-run --workspace @form2js/form-data && npm_config_cache=/tmp/form2js-npm-cache npm pack --dry-run --workspace @form2js/js2form && npm_config_cache=/tmp/form2js-npm-cache npm pack --dry-run --workspace @form2js/jquery",
     "changeset": "changeset",
     "release": "changeset publish",
-    "scope:rewrite": "node scripts/rewrite-scope.mjs"
+    "scope:rewrite": "node scripts/rewrite-scope.mjs",
+    "bump-version": "node scripts/bump-version.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.7",

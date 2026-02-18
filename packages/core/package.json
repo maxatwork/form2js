@@ -1,6 +1,6 @@
 {
   "name": "@form2js/core",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Core path parsing and object transformation logic for form2js.",
   "repository": "https://github.com/maxatwork/form2js",
   "homepage": "https://maxatwork.github.io/form2js/",

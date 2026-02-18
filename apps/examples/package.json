@@ -12,11 +12,11 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@form2js/core": "3.0.0",
-    "@form2js/dom": "3.0.0",
-    "@form2js/form-data": "3.0.0",
-    "@form2js/jquery": "3.0.0",
-    "@form2js/js2form": "3.0.0",
+    "@form2js/core": "3.1.0",
+    "@form2js/dom": "3.1.0",
+    "@form2js/form-data": "3.1.0",
+    "@form2js/jquery": "3.1.0",
+    "@form2js/js2form": "3.1.0",
     "jquery": "^3.7.1"
   },
   "devDependencies": {
