@@ -6,6 +6,7 @@ export interface ToObjectOptions {
   mode?: ToObjectMode;
   delimiter?: string;
   skipEmpty?: boolean;
+  allowUnsafePathSegments?: boolean;
   nodeCallback?: FormToObjectNodeCallback;
   useIdIfEmptyName?: boolean;
   getDisabled?: boolean;
@@ -33,6 +34,7 @@ interface ResolvedToObjectOptions {
   mode: ToObjectMode;
   delimiter: string;
   skipEmpty: boolean;
+  allowUnsafePathSegments: boolean;
   nodeCallback?: FormToObjectNodeCallback;
   useIdIfEmptyName: boolean;
   getDisabled: boolean;
@@ -43,6 +45,7 @@ function applySettings(options?: ToObjectOptions): ResolvedToObjectOptions {
     mode: options?.mode ?? "first",
     delimiter: options?.delimiter ?? ".",
     skipEmpty: options?.skipEmpty ?? true,
+    allowUnsafePathSegments: options?.allowUnsafePathSegments ?? false,
     useIdIfEmptyName: options?.useIdIfEmptyName ?? false,
     getDisabled: options?.getDisabled ?? false
   };
@@ -83,7 +86,8 @@ export function installToObjectPlugin($: JQueryLike): void {
               settings.skipEmpty,
               settings.nodeCallback,
               settings.useIdIfEmptyName,
-              settings.getDisabled
+              settings.getDisabled,
+              settings.allowUnsafePathSegments
             )
           );
         });
@@ -105,7 +109,8 @@ export function installToObjectPlugin($: JQueryLike): void {
           settings.skipEmpty,
           settings.nodeCallback,
           settings.useIdIfEmptyName,
-          settings.getDisabled
+          settings.getDisabled,
+          settings.allowUnsafePathSegments
         );
       }
 
@@ -117,7 +122,8 @@ export function installToObjectPlugin($: JQueryLike): void {
           settings.skipEmpty,
           settings.nodeCallback,
           settings.useIdIfEmptyName,
-          settings.getDisabled
+          settings.getDisabled,
+          settings.allowUnsafePathSegments
         );
     }
   };

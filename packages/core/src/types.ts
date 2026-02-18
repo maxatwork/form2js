@@ -13,6 +13,7 @@ export interface NameValuePair {
 export interface ParseOptions {
   delimiter?: string;
   skipEmpty?: boolean;
+  allowUnsafePathSegments?: boolean;
 }
 
 export interface MergeContext {
@@ -22,6 +23,7 @@ export interface MergeContext {
 export interface MergeOptions {
   delimiter?: string;
   context?: MergeContext;
+  allowUnsafePathSegments?: boolean;
 }
 
 export type ObjectTree = Record<string, unknown>;

@@ -84,6 +84,10 @@ function isSupportedField(node: Node): node is SupportedField {
   return isInputNode(node) || isTextareaNode(node) || isSelectNode(node);
 }
 
+function shouldSkipNodeAssignment(node: Node, nodeCallback: ObjectToFormNodeCallback): boolean {
+  return Boolean(nodeCallback && nodeCallback(node) === false);
+}
+
 function normalizeName(name: string, delimiter: string, arrayIndexes: ArrayIndexesMap): string {
   const normalizedNameChunks: string[] = [];
   const chunks = name.replace(ARRAY_OF_ARRAYS_REGEXP, "[$1].[$2]").split(delimiter);
@@ -183,9 +187,19 @@ function getFields(
             option.selected = false;
           }
         }
+      }
 
-        const normalizedName = normalizeName(name, delimiter, arrayIndexes);
-        result[normalizedName] = currentNode;
+      const normalizedName = normalizeName(name, delimiter, arrayIndexes);
+      result[normalizedName] = currentNode;
+
+      const arraySyntaxName = normalizedName.replace(ARRAY_ITEM_REGEXP, "[]");
+      if (arraySyntaxName !== normalizedName) {
+        result[arraySyntaxName] = currentNode;
+      }
+
+      const bareArrayName = normalizedName.replace(ARRAY_ITEM_REGEXP, "");
+      if (bareArrayName !== normalizedName) {
+        result[bareArrayName] = currentNode;
       }
     } else if (isInputNode(currentNode) && /CHECKBOX|RADIO/i.test(currentNode.type)) {
       if (shouldClean) {
@@ -219,13 +233,25 @@ function getFields(
   return result;
 }
 
-function setValue(field: SupportedFieldCollection, value: unknown): void {
+function setValue(
+  field: SupportedFieldCollection,
+  value: unknown,
+  nodeCallback: ObjectToFormNodeCallback
+): void {
   if (Array.isArray(field)) {
     for (const inputNode of field) {
+      if (shouldSkipNodeAssignment(inputNode, nodeCallback)) {
+        continue;
+      }
+
       if (isInputNode(inputNode) && (inputNode.value === String(value) || value === true)) {
         inputNode.checked = true;
       }
     }
+    return;
+  }
+
+  if (shouldSkipNodeAssignment(field, nodeCallback)) {
     return;
   }
 
@@ -290,6 +316,7 @@ export function objectToForm(rootNode: RootNodeInput, data: unknown, options: Ob
   }
 
   const delimiter = options.delimiter ?? ".";
+  const nodeCallback = options.nodeCallback ?? null;
   const fieldValues = toPathEntries(data);
   const formFieldsByName = getFields(
     resolvedRoot,
@@ -304,19 +331,19 @@ export function objectToForm(rootNode: RootNodeInput, data: unknown, options: Ob
     const value = fieldValue.value;
 
     if (formFieldsByName[fieldName]) {
-      setValue(formFieldsByName[fieldName], value);
+      setValue(formFieldsByName[fieldName], value, nodeCallback);
       continue;
     }
 
     const arraySyntaxName = fieldName.replace(ARRAY_ITEM_REGEXP, "[]");
     if (formFieldsByName[arraySyntaxName]) {
-      setValue(formFieldsByName[arraySyntaxName], value);
+      setValue(formFieldsByName[arraySyntaxName], value, nodeCallback);
       continue;
     }
 
     const bareArrayName = fieldName.replace(ARRAY_ITEM_REGEXP, "");
     if (formFieldsByName[bareArrayName]) {
-      setValue(formFieldsByName[bareArrayName], value);
+      setValue(formFieldsByName[bareArrayName], value, nodeCallback);
     }
   }
 }
@@ -328,9 +355,9 @@ export function js2form(
   nodeCallback: ObjectToFormNodeCallback = null,
   useIdIfEmptyName = false
 ): void {
-  void nodeCallback;
   objectToForm(rootNode, data, {
     delimiter,
+    nodeCallback,
     useIdIfEmptyName
   });
 }

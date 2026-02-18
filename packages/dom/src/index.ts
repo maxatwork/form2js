@@ -59,6 +59,60 @@ function isNodeDisabled(node: Node): boolean {
   return "disabled" in node && Boolean((node as { disabled?: boolean }).disabled);
 }
 
+function isFormControlNode(node: Node): node is HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement {
+  return isInputNode(node) || isTextareaNode(node) || isSelectNode(node);
+}
+
+function getFirstLegendChild(fieldset: Element): Element | null {
+  for (let index = 0; index < fieldset.children.length; index += 1) {
+    const child = fieldset.children[index];
+    if (child?.nodeName.toUpperCase() === "LEGEND") {
+      return child;
+    }
+  }
+
+  return null;
+}
+
+function isDisabledByAncestorFieldset(node: Element): boolean {
+  let ancestor: Element | null = node.parentElement;
+
+  while (ancestor) {
+    const isDisabledFieldset =
+      nodeNameIs(ancestor, "FIELDSET") && "disabled" in ancestor && Boolean((ancestor as { disabled?: boolean }).disabled);
+
+    if (isDisabledFieldset) {
+      const firstLegend = getFirstLegendChild(ancestor);
+      if (firstLegend?.contains(node)) {
+        ancestor = ancestor.parentElement;
+        continue;
+      }
+
+      return true;
+    }
+
+    ancestor = ancestor.parentElement;
+  }
+
+  return false;
+}
+
+function isEffectivelyDisabledControl(node: Node): boolean {
+  if (!isFormControlNode(node)) {
+    return false;
+  }
+
+  if (isNodeDisabled(node)) {
+    return true;
+  }
+
+  return isDisabledByAncestorFieldset(node);
+}
+
+function isButtonLikeInputType(inputType: string): boolean {
+  return /^(button|reset|submit|image)$/i.test(inputType);
+}
+
 function isNodeListLike(value: RootNodeInput): value is Node[] | NodeListOf<Node> | HTMLCollection {
   if (!value || typeof value === "string") {
     return false;
@@ -146,6 +200,10 @@ function getFieldValue(fieldNode: Node, getDisabled: boolean): unknown {
     if (isInputNode(fieldNode)) {
       const inputType = fieldNode.type.toLowerCase();
 
+      if (isButtonLikeInputType(inputType)) {
+        return null;
+      }
+
       switch (inputType) {
         case "radio":
           if (fieldNode.checked && fieldNode.value === "false") {
@@ -166,12 +224,6 @@ function getFieldValue(fieldNode: Node, getDisabled: boolean): unknown {
           }
 
           break;
-
-        case "button":
-        case "reset":
-        case "submit":
-        case "image":
-          return "";
 
         default:
           return fieldNode.value;
@@ -207,7 +259,7 @@ function getSubFormValues(rootNode: Node, options: ExtractOptions): Entry[] {
 }
 
 function extractNodeValues(node: Node, options: ExtractOptions): Entry[] {
-  if ((isInputNode(node) || isTextareaNode(node) || isSelectNode(node)) && isNodeDisabled(node) && !options.getDisabled) {
+  if (isEffectivelyDisabledControl(node) && !options.getDisabled) {
     return [];
   }
 
@@ -286,6 +338,10 @@ export function formToObject(rootNode: RootNodeInput, options: FormToObjectOptio
     parseOptions.skipEmpty = options.skipEmpty;
   }
 
+  if (options.allowUnsafePathSegments !== undefined) {
+    parseOptions.allowUnsafePathSegments = options.allowUnsafePathSegments;
+  }
+
   return entriesToObject(pairs, parseOptions);
 }
 
@@ -295,11 +351,13 @@ export function form2js(
   skipEmpty?: boolean,
   nodeCallback?: FormToObjectNodeCallback,
   useIdIfEmptyName = false,
-  getDisabled = false
+  getDisabled = false,
+  allowUnsafePathSegments = false
 ): ObjectTree {
   const normalizedOptions: FormToObjectOptions = {
     useIdIfEmptyName,
-    getDisabled
+    getDisabled,
+    allowUnsafePathSegments
   };
 
   if (delimiter !== undefined) {

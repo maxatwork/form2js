@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { entriesToObject, objectToEntries, processNameValues } from "../src/index";
+import { entriesToObject, objectToEntries, processNameValues, setPathValue } from "../src/index";
 
 describe("entriesToObject", () => {
   it("builds nested objects with dot notation", () => {
@@ -86,6 +86,24 @@ describe("entriesToObject", () => {
       c: "ok"
     });
   });
+
+  it("rejects unsafe path segments by default", () => {
+    expect(() =>
+      entriesToObject([{ key: "__proto__.polluted", value: "yes" }], {
+        skipEmpty: false
+      })
+    ).toThrow(/Unsafe path segment/);
+  });
+
+  it("can opt into unsafe path segments for trusted inputs", () => {
+    const target = Object.create(null) as Record<string, unknown>;
+
+    setPathValue(target, "__proto__.polluted", "yes", {
+      allowUnsafePathSegments: true
+    });
+
+    expect(target.__proto__).toEqual({ polluted: "yes" });
+  });
 });
 
 describe("processNameValues", () => {
@@ -120,5 +138,14 @@ describe("objectToEntries", () => {
     expect(result).toContainEqual({ key: "person.name.first", value: "John" });
     expect(result).toContainEqual({ key: "person.emails[0]", value: "a@example.com" });
     expect(result).toContainEqual({ key: "person.emails[1]", value: "b@example.com" });
+  });
+
+  it("only serializes own enumerable properties", () => {
+    const value = Object.create({ leaked: "secret" }) as Record<string, unknown>;
+    value.safe = "ok";
+
+    const result = objectToEntries(value);
+
+    expect(result).toEqual([{ key: "safe", value: "ok" }]);
   });
 });
