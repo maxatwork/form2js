@@ -104,6 +104,61 @@ describe("formToObject", () => {
     });
   });
 
+  it("respects disabled fieldset semantics", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <fieldset disabled>
+          <legend><input name="insideLegend" value="legend-value" /></legend>
+          <input name="outsideLegend" value="blocked-value" />
+        </fieldset>
+      </form>
+    `;
+
+    const form = document.getElementById("testForm") as HTMLFormElement;
+
+    const withoutDisabled = formToObject(form);
+    expect(withoutDisabled).toEqual({
+      insideLegend: "legend-value"
+    });
+
+    const withDisabled = formToObject(form, { getDisabled: true });
+    expect(withDisabled).toEqual({
+      insideLegend: "legend-value",
+      outsideLegend: "blocked-value"
+    });
+  });
+
+  it("skips button-like input fields even when skipEmpty is false", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <input type="submit" name="submitButton" value="Submit" />
+        <input type="button" name="plainButton" value="Click" />
+        <input type="text" name="person.name" value="Trinity" />
+      </form>
+    `;
+
+    const form = document.getElementById("testForm") as HTMLFormElement;
+    const result = formToObject(form, { skipEmpty: false });
+
+    expect(result).toEqual({
+      person: {
+        name: "Trinity"
+      }
+    });
+  });
+
+  it("rejects unsafe path segments from field names", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <input name="__proto__.polluted" value="yes" />
+      </form>
+    `;
+
+    const form = document.getElementById("testForm") as HTMLFormElement;
+
+    expect(() => formToObject(form)).toThrow(/Unsafe path segment/);
+  });
+
   it("can combine NodeList roots", () => {
     document.body.innerHTML = `
       <form class="part"><input name="person.first" value="Neo" /></form>

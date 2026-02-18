@@ -70,6 +70,60 @@ describe("objectToForm", () => {
     ) as HTMLInputElement;
     expect(input.value).toBe("Neo");
   });
+
+  it("supports nodeCallback by skipping default assignment when callback returns false", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <input name="person.name.first" />
+      </form>
+    `;
+
+    objectToForm(
+      "testForm",
+      { person: { name: { first: "Jane" } } },
+      {
+        nodeCallback(node) {
+          if (node instanceof HTMLInputElement && node.name === "person.name.first") {
+            node.value = "from-callback";
+            return false;
+          }
+
+          return null;
+        }
+      }
+    );
+
+    const input = document.querySelector(
+      "input[name='person.name.first']"
+    ) as HTMLInputElement;
+    expect(input.value).toBe("from-callback");
+  });
+
+  it("populates multi-select values from arrays", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <select name="person.colors[]" multiple>
+          <option value="red">red</option>
+          <option value="blue">blue</option>
+          <option value="green">green</option>
+        </select>
+      </form>
+    `;
+
+    objectToForm("testForm", {
+      person: {
+        colors: ["red", "blue"]
+      }
+    });
+
+    const red = document.querySelector("option[value='red']") as HTMLOptionElement;
+    const blue = document.querySelector("option[value='blue']") as HTMLOptionElement;
+    const green = document.querySelector("option[value='green']") as HTMLOptionElement;
+
+    expect(red.selected).toBe(true);
+    expect(blue.selected).toBe(true);
+    expect(green.selected).toBe(false);
+  });
 });
 
 describe("low-level helpers", () => {
@@ -91,5 +145,22 @@ describe("low-level helpers", () => {
 
     expect(entries).toContainEqual({ key: "foo.bar[0]", value: "a" });
     expect(entries).toContainEqual({ key: "foo.bar[1]", value: "b" });
+  });
+
+  it("maps multi-select names without creating one key per option", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <select name="person.colors[]" multiple>
+          <option value="red">red</option>
+          <option value="blue">blue</option>
+          <option value="green">green</option>
+        </select>
+      </form>
+    `;
+
+    const fields = mapFieldsByName("testForm", { shouldClean: false });
+    expect(Object.keys(fields)).toContain("person.colors[]");
+    expect(Object.keys(fields)).not.toContain("person.colors[1]");
+    expect(Object.keys(fields)).not.toContain("person.colors[2]");
   });
 });

@@ -60,7 +60,10 @@ function createStubJQuery(): StubJQuery {
   }) as StubJQuery;
 
   $.fn = fn;
-  $.extend = (target, ...sources) => Object.assign(target, ...sources);
+  $.extend = (target, ...sources) => {
+    Object.assign(target, ...sources);
+    return target;
+  };
   return $;
 }
 

@@ -38,6 +38,14 @@ describe("formDataToObject", () => {
       }
     });
   });
+
+  it("rejects unsafe path segments by default", () => {
+    expect(() =>
+      formDataToObject([["__proto__.polluted", "yes"]], {
+        skipEmpty: false
+      })
+    ).toThrow(/Unsafe path segment/);
+  });
 });
 
 describe("entriesToObject adapter", () => {

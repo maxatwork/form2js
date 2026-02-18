@@ -25,6 +25,7 @@ These rules apply across parser-based packages (`core`, `dom`, `form-data`):
 - Indexed arrays are compacted in first-seen order: `items[8]`, `items[5]` becomes indexes `0`, `1`
 - Rails-style brackets are supported: `rails[field][value]`
 - By default, empty string and `null` are skipped (`skipEmpty: true`)
+- Unsafe key path segments (`__proto__`, `prototype`, `constructor`) are rejected by default
 
 ## `@form2js/core`
 
@@ -84,13 +85,14 @@ export type {
 | --- | --- | --- | --- |
 | `delimiter` | `"."` | `entriesToObject`, `setPathValue`, `processNameValues` | Controls how dot-like path chunks are split. |
 | `skipEmpty` | `true` | `entriesToObject`, `processNameValues` | Drops `""` and `null` values unless you opt out. |
+| `allowUnsafePathSegments` | `false` | `entriesToObject`, `setPathValue` | Blocks prototype-pollution path segments unless you explicitly trust the source. |
 | `context` | fresh merge context | `setPathValue` | Keeps indexed array compaction stable across multiple writes. |
 
 ### Behavior notes
 
 - Indexed array keys are compacted by encounter order, not preserved by numeric index.
 - `EntryInput` accepts `[key, value]`, `{ key, value }`, and `{ name, value }`.
-- `objectToEntries` emits bracket indexes for arrays (for example `emails[0]`).
+- `objectToEntries` emits bracket indexes for arrays (for example `emails[0]`) and only serializes own enumerable properties.
 
 ### Quick example
 
@@ -163,7 +165,8 @@ export function form2js(
   skipEmpty?: boolean,
   nodeCallback?: FormToObjectNodeCallback,
   useIdIfEmptyName?: boolean,
-  getDisabled?: boolean
+  getDisabled?: boolean,
+  allowUnsafePathSegments?: boolean
 ): ObjectTree;
 ```
 
@@ -173,8 +176,9 @@ export function form2js(
 | --- | --- | --- | --- |
 | `delimiter` | `"."` | `formToObject`, `form2js` | Matches parser path semantics. |
 | `skipEmpty` | `true` | `formToObject`, `form2js` | Skips `""` and `null` values by default. |
+| `allowUnsafePathSegments` | `false` | `formToObject`, `form2js` | Rejects unsafe path segments before object merging. |
 | `useIdIfEmptyName` | `false` | extraction + wrappers | Lets `id` act as field key when `name` is empty. |
-| `getDisabled` | `false` | extraction + wrappers | Disabled controls are ignored unless enabled explicitly. |
+| `getDisabled` | `false` | extraction + wrappers | Disabled controls, including disabled fieldset descendants, are ignored unless enabled explicitly. |
 | `nodeCallback` | unset | extraction + wrappers | Use for custom field extraction from specific nodes. |
 | `document` | ambient/global document | extraction + wrappers | Required outside browser globals. |
 
@@ -185,6 +189,7 @@ export function form2js(
   - checked `"true"` -> `true`
   - unchecked `"true"` -> `false`
   - checked `"false"` (radio/checkbox) -> `false`
+- Button-like inputs (`button`, `reset`, `submit`, `image`) are excluded from extraction.
 - Can merge multiple roots (`NodeList`, arrays, `HTMLCollection`) into one object.
 - If callback returns `{ key|name, value }`, that value is used directly for that node.
 
@@ -238,6 +243,7 @@ export type { EntryInput, ObjectTree, ParseOptions } from "@form2js/core";
 | --- | --- | --- |
 | `delimiter` | `"."` | Keeps path splitting aligned with core/dom behavior. |
 | `skipEmpty` | `true` | Drops empty string and `null` values unless disabled. |
+| `allowUnsafePathSegments` | `false` | Rejects unsafe path segments before object merging. |
 
 ### Behavior notes
 
@@ -269,7 +275,7 @@ const result = formDataToObject([
 | Export | Kind | What it does |
 | --- | --- | --- |
 | `RootNodeInput` | type | Root as element id, node, `null`, or `undefined`. |
-| `ObjectToFormNodeCallback` | type | Compatibility callback type (currently not used by writer). |
+| `ObjectToFormNodeCallback` | type | Write-time callback for per-node assignment control. |
 | `ObjectToFormOptions` | interface | Options for name normalization, cleaning, and document resolution. |
 | `SupportedField`, `SupportedFieldCollection`, `FieldMap` | types | Field typing used by mapping and assignment helpers. |
 | `flattenDataForForm` | function | Flattens object data to entry list. |
@@ -325,13 +331,14 @@ export type { Entry } from "@form2js/core";
 | `useIdIfEmptyName` | `false` | `objectToForm`, `mapFieldsByName`, `js2form` | Useful when form controls are keyed by `id` instead of `name`. |
 | `shouldClean` | `true` | `objectToForm`, `mapFieldsByName` | Clears form state before applying incoming values. |
 | `document` | ambient/global document | all root-resolving APIs | Needed when running with a DOM shim. |
-| `nodeCallback` | accepted, not applied | `objectToForm`, `js2form` options | Kept for compatibility, currently no write-time hook behavior. |
+| `nodeCallback` | unset | `objectToForm`, `js2form` options | Called before default assignment; return `false` to skip default assignment for that node. |
 
 ### Behavior notes
 
 - `objectToForm` is a no-op when root cannot be resolved.
 - Checkbox/radio groups are matched with `[]` and non-`[]` name fallbacks.
 - Name normalization compacts sparse indexes to sequential indexes during matching.
+- For multi-select names like `colors[]`, matching includes `[]` and bare-name fallbacks without creating one map key per option.
 - Form updates set values/checked/selected state, but do not dispatch synthetic events.
 
 ### Quick example
@@ -371,6 +378,7 @@ export interface ToObjectOptions {
   mode?: ToObjectMode;
   delimiter?: string;
   skipEmpty?: boolean;
+  allowUnsafePathSegments?: boolean;
   nodeCallback?: FormToObjectNodeCallback;
   useIdIfEmptyName?: boolean;
   getDisabled?: boolean;
@@ -387,6 +395,7 @@ export function maybeAutoInstallPlugin(scope?: unknown): void;
 | `mode` | `"first"` | Controls whether you parse one match, all matches, or merge all matches. |
 | `delimiter` | `"."` | Same path splitting behavior as other packages. |
 | `skipEmpty` | `true` | Keeps default parser behavior for empty values. |
+| `allowUnsafePathSegments` | `false` | Rejects unsafe path segments before object merging. |
 | `useIdIfEmptyName` | `false` | Lets plugin fall back to `id` where needed. |
 | `getDisabled` | `false` | Disabled controls are skipped unless enabled. |
 | `nodeCallback` | unset | Hook for custom extraction via DOM package semantics. |

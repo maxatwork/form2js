@@ -11,14 +11,17 @@ import type {
 
 const SUB_ARRAY_REGEXP = /^\[\d+?\]/;
 const SUB_OBJECT_REGEXP = /^[a-zA-Z_][a-zA-Z_0-9]*/;
+const PATH_TOKEN_REGEXP = /[a-zA-Z_][a-zA-Z0-9_]*/g;
+const UNSAFE_PATH_SEGMENTS = new Set(["__proto__", "prototype", "constructor"]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
 function normalizeEntry(entry: EntryInput): Entry {
-  if (Array.isArray(entry)) {
-    return { key: entry[0], value: entry[1] };
+  if (Array.isArray(entry) && typeof entry[0] === "string") {
+    const tupleEntry = entry as readonly [string, EntryValue];
+    return { key: tupleEntry[0], value: tupleEntry[1] };
   }
 
   if ("key" in entry && typeof entry.key === "string") {
@@ -34,6 +37,37 @@ function normalizeEntry(entry: EntryInput): Entry {
 
 function shouldSkipValue(value: EntryValue, skipEmpty: boolean): boolean {
   return skipEmpty && (value === "" || value === null);
+}
+
+function findUnsafePathToken(part: string): string | null {
+  const tokens = part.match(PATH_TOKEN_REGEXP);
+  if (!tokens) {
+    return null;
+  }
+
+  for (const token of tokens) {
+    if (UNSAFE_PATH_SEGMENTS.has(token)) {
+      return token;
+    }
+  }
+
+  return null;
+}
+
+function assertPathIsSafe(nameParts: string[], allowUnsafePathSegments: boolean): void {
+  if (allowUnsafePathSegments) {
+    return;
+  }
+
+  for (const namePart of nameParts) {
+    const unsafeToken = findUnsafePathToken(namePart);
+    if (unsafeToken) {
+      throw new TypeError(
+        `Unsafe path segment "${unsafeToken}" is not allowed. ` +
+          "Pass allowUnsafePathSegments: true only for trusted input."
+      );
+    }
+  }
 }
 
 function splitNameIntoParts(name: string, delimiter: string): string[] {
@@ -112,7 +146,9 @@ export function setPathValue(
 ): ObjectTree {
   const delimiter = options.delimiter ?? ".";
   const context = options.context ?? createMergeContext();
+  const allowUnsafePathSegments = options.allowUnsafePathSegments ?? false;
   const nameParts = splitNameIntoParts(path, delimiter);
+  assertPathIsSafe(nameParts, allowUnsafePathSegments);
 
   let currResult: unknown = target;
   let arrayNameFull = "";
@@ -179,6 +215,7 @@ export function setPathValue(
 export function entriesToObject(entries: Iterable<EntryInput>, options: ParseOptions = {}): ObjectTree {
   const delimiter = options.delimiter ?? ".";
   const skipEmpty = options.skipEmpty ?? true;
+  const allowUnsafePathSegments = options.allowUnsafePathSegments ?? false;
   const context = createMergeContext();
   const result: ObjectTree = {};
 
@@ -191,7 +228,8 @@ export function entriesToObject(entries: Iterable<EntryInput>, options: ParseOpt
 
     setPathValue(result, entry.key, entry.value, {
       delimiter,
-      context
+      context,
+      allowUnsafePathSegments
     });
   }
 
@@ -220,7 +258,7 @@ function objectToNameValues(obj: unknown): NameValuePair[] {
   }
 
   if (isRecord(obj)) {
-    for (const key in obj) {
+    for (const key of Object.keys(obj)) {
       result.push(...getSubValues(obj[key], key));
     }
   }

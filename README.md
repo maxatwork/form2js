@@ -198,6 +198,7 @@ Compatibility with the old project is intentional.
 - Array and indexed syntax is preserved (`items[]`, `items[5].name`).
 - Rails-style names are supported (`rails[field][value]`).
 - Checkbox/radio `"true"` and `"false"` quirks are preserved.
+- Unsafe key path segments (`__proto__`, `prototype`, `constructor`) are rejected by default.
 - This library does data shaping, not JSON/XML serialization.
 
 ## Design boundaries and non-goals
@@ -206,7 +207,9 @@ These boundaries are intentional and are used for issue triage.
 
 - Sparse indexes are compacted in first-seen order (`items[5]`, `items[8]` -> `items[0]`, `items[1]`).
 - Type inference is minimal by design; only legacy checkbox/radio `"true"` and `"false"` coercion is built in.
-- `formToObject` reads form control values, not option labels. Use `nodeCallback` if you need custom shape/value extraction.
+- `formToObject` reads successful form control values, not option labels. Disabled controls (including disabled fieldset descendants) and button-like inputs are excluded unless you explicitly opt in to disabled values.
+- Parser inputs reject unsafe path segments by default. Use `allowUnsafePathSegments: true` only with trusted inputs.
+- `objectToForm` supports `nodeCallback`; returning `false` skips the default assignment for that node.
 - `objectToForm` sets form control state and values; it does not dispatch synthetic `change` or `input` events.
 - Empty collections are not synthesized when no matching fields are present (for example, unchecked checkbox groups).
 - Dynamic key/value remapping (for example, converting `key`/`val` fields into arbitrary object keys) is application logic.
