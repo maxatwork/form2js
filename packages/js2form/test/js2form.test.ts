@@ -124,6 +124,74 @@ describe("objectToForm", () => {
     expect(blue.selected).toBe(true);
     expect(green.selected).toBe(false);
   });
+
+  it("populates nested table fields (issue #23 regression)", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <table>
+          <tbody>
+            <tr>
+              <th>Phone</th>
+              <td><input type="text" id="phone" name="phone" /></td>
+            </tr>
+            <tr>
+              <th>Address</th>
+              <td>
+                <table id="addressInfo" class="condensed-table">
+                  <tr>
+                    <th>Street 1</th>
+                    <td><input type="text" id="address.street1" name="address.street1" /></td>
+                  </tr>
+                  <tr>
+                    <th>Street 2</th>
+                    <td><input type="text" id="address.street2" name="address.street2" /></td>
+                  </tr>
+                  <tr>
+                    <th>City</th>
+                    <td><input type="text" id="address.city" name="address.city" /></td>
+                  </tr>
+                  <tr>
+                    <th>State</th>
+                    <td><input type="text" id="address.state" name="address.state" /></td>
+                  </tr>
+                  <tr>
+                    <th>Zip</th>
+                    <td><input type="text" id="address.zip" name="address.zip" /></td>
+                  </tr>
+                  <tr>
+                    <th>Country</th>
+                    <td><input type="text" id="address.country" name="address.country" /></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    `;
+
+    objectToForm("testForm", {
+      phone: "555-0123",
+      address: {
+        street1: "123 Test St",
+        street2: "Suite 5",
+        city: "Portland",
+        state: "OR",
+        zip: "97201",
+        country: "US"
+      }
+    });
+
+    expect((document.querySelector("input[name='phone']") as HTMLInputElement).value).toBe("555-0123");
+    expect((document.querySelector("input[name='address.street1']") as HTMLInputElement).value).toBe(
+      "123 Test St"
+    );
+    expect((document.querySelector("input[name='address.street2']") as HTMLInputElement).value).toBe("Suite 5");
+    expect((document.querySelector("input[name='address.city']") as HTMLInputElement).value).toBe("Portland");
+    expect((document.querySelector("input[name='address.state']") as HTMLInputElement).value).toBe("OR");
+    expect((document.querySelector("input[name='address.zip']") as HTMLInputElement).value).toBe("97201");
+    expect((document.querySelector("input[name='address.country']") as HTMLInputElement).value).toBe("US");
+  });
 });
 
 describe("low-level helpers", () => {
