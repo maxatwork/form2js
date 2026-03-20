@@ -6,7 +6,8 @@
       "@form2js/dom": ["packages/dom/src/index.ts"],
       "@form2js/form-data": ["packages/form-data/src/index.ts"],
       "@form2js/js2form": ["packages/js2form/src/index.ts"],
-      "@form2js/jquery": ["packages/jquery/src/index.ts"]
+      "@form2js/jquery": ["packages/jquery/src/index.ts"],
+      "@form2js/react": ["packages/react/src/index.ts"]
     },
     "target": "ES2020",
     "module": "ESNext",

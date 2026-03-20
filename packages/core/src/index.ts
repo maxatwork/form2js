@@ -2,11 +2,14 @@ import type {
   Entry,
   EntryInput,
   EntryValue,
+  InferSchemaOutput,
   MergeContext,
   MergeOptions,
   NameValuePair,
   ObjectTree,
-  ParseOptions
+  ParseOptions,
+  SchemaValidator,
+  ValidationOptions
 } from "./types";
 
 const SUB_ARRAY_REGEXP = /^\[\d+?\]/;
@@ -212,7 +215,15 @@ export function setPathValue(
   return target;
 }
 
-export function entriesToObject(entries: Iterable<EntryInput>, options: ParseOptions = {}): ObjectTree {
+export function entriesToObject(entries: Iterable<EntryInput>, options?: ParseOptions): ObjectTree;
+export function entriesToObject<TSchema extends SchemaValidator>(
+  entries: Iterable<EntryInput>,
+  options: ParseOptions & { schema: TSchema }
+): InferSchemaOutput<TSchema>;
+export function entriesToObject(
+  entries: Iterable<EntryInput>,
+  options: ParseOptions & ValidationOptions = {}
+): unknown {
   const delimiter = options.delimiter ?? ".";
   const skipEmpty = options.skipEmpty ?? true;
   const allowUnsafePathSegments = options.allowUnsafePathSegments ?? false;
@@ -231,6 +242,10 @@ export function entriesToObject(entries: Iterable<EntryInput>, options: ParseOpt
       context,
       allowUnsafePathSegments
     });
+  }
+
+  if (options.schema) {
+    return options.schema.parse(result);
   }
 
   return result;
@@ -310,9 +325,12 @@ export type {
   Entry,
   EntryInput,
   EntryValue,
+  InferSchemaOutput,
   MergeContext,
   MergeOptions,
   NameValuePair,
   ObjectTree,
-  ParseOptions
+  ParseOptions,
+  SchemaValidator,
+  ValidationOptions
 } from "./types";

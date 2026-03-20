@@ -23,6 +23,7 @@ It is not a serializer, not an ORM, and not a new religion. It just does this on
 | `@form2js/core`      | Path parsing and object transformation engine               | Yes    | No         | Yes                     |
 | `@form2js/dom`       | Extract DOM fields to object (`formToObject`, `form2js`)    | Yes    | Yes        | With DOM shim (`jsdom`) |
 | `@form2js/form-data` | Convert `FormData`/entries to object                        | Yes    | No         | Yes                     |
+| `@form2js/react`     | React submit hook with parsing/validation state             | Yes    | No         | Browser-focused         |
 | `@form2js/js2form`   | Populate DOM fields from object (`objectToForm`, `js2form`) | Yes    | No         | With DOM shim (`jsdom`) |
 | `@form2js/jquery`    | jQuery plugin adapter (`$.fn.toObject`)                     | Yes    | Yes        | Browser-focused         |
 
@@ -36,6 +37,7 @@ npm install @form2js/form-data
 npm install @form2js/js2form
 npm install @form2js/core
 npm install @form2js/jquery jquery
+npm install @form2js/react react
 ```
 
 For browser standalone usage, use script builds where available:
@@ -105,9 +107,74 @@ const result = entriesToObject([
 // => { person: { name: { first: "Sam" }, roles: ["captain"] } }
 ```
 
+With schema validation (works with Zod or any `{ parse(unknown) }` schema):
+
+```ts
+import { z } from "zod";
+import { formDataToObject } from "@form2js/form-data";
+
+const PersonSchema = z.object({
+  person: z.object({
+    age: z.coerce.number().int().min(0)
+  })
+});
+
+const result = formDataToObject([["person.age", "42"]], {
+  schema: PersonSchema
+});
+// => { person: { age: 42 } }
+```
+
 Standalone:
 
 - Not shipped for this package. Use module imports.
+
+### `@form2js/react`
+
+Module:
+
+```ts
+import { z } from "zod";
+import { useForm2js } from "@form2js/react";
+
+const FormDataSchema = z.object({
+  person: z.object({
+    name: z.object({
+      first: z.string().min(1)
+    })
+  })
+});
+
+export function ProfileForm(): React.JSX.Element {
+  const { onSubmit, isSubmitting, isError, error, isSuccess, reset } = useForm2js(
+    async (data) => {
+      // data is inferred from schema when schema is provided
+      await sendFormData(data);
+    },
+    {
+      schema: FormDataSchema
+    }
+  );
+
+  return (
+    <form
+      onSubmit={(event) => {
+        void onSubmit(event);
+      }}
+    >
+      <input name="person.name.first" defaultValue="Sam" />
+      <button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? "Saving..." : "Save"}
+      </button>
+      {isError ? <p>{String(error)}</p> : null}
+      {isSuccess ? <p>Saved</p> : null}
+      <button type="button" onClick={reset}>
+        Reset state
+      </button>
+    </form>
+  );
+}
+```
 
 ### `@form2js/jquery`
 
@@ -237,8 +304,10 @@ npm run pack:dry-run
 
 ```bash
 npm run playground
+npm run playground:react
 # or directly:
 # npm -w @form2js/examples run dev
+# npm -w @form2js/react-playground run dev
 ```
 
 ### GitHub Pages playground

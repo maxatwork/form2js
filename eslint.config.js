@@ -19,7 +19,7 @@ export default tseslint.config(
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
   {
-    files: ["**/*.ts", "**/*.cts", "**/*.mts"],
+    files: ["**/*.ts", "**/*.tsx", "**/*.cts", "**/*.mts"],
     languageOptions: {
       parserOptions: {
         projectService: true,

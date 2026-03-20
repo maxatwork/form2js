@@ -46,6 +46,41 @@ describe("formDataToObject", () => {
       })
     ).toThrow(/Unsafe path segment/);
   });
+
+  it("validates and transforms parsed form data with schema.parse", () => {
+    const schema = {
+      parse(value: unknown) {
+        const record = value as { user?: { id?: string } };
+        return {
+          user: {
+            id: Number(record.user?.id ?? "0")
+          }
+        };
+      }
+    };
+
+    const result = formDataToObject([["user.id", "7"]], { schema });
+
+    expect(result).toEqual({
+      user: {
+        id: 7
+      }
+    });
+  });
+
+  it("propagates schema.parse validation errors", () => {
+    const schema = {
+      parse() {
+        throw new Error("Invalid payload");
+      }
+    };
+
+    expect(() =>
+      formDataToObject([["user.id", "7"]], {
+        schema
+      })
+    ).toThrow("Invalid payload");
+  });
 });
 
 describe("entriesToObject adapter", () => {

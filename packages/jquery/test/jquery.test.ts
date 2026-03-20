@@ -5,6 +5,12 @@ import { installToObjectPlugin, maybeAutoInstallPlugin } from "../src/index";
 
 type ToObjectOptions = {
   mode?: "first" | "all" | "combine";
+  delimiter?: string;
+  skipEmpty?: boolean;
+  allowUnsafePathSegments?: boolean;
+  useIdIfEmptyName?: boolean;
+  getDisabled?: boolean;
+  nodeCallback?: (node: Node) => { name?: string; key?: string; value: unknown } | false;
 };
 
 type ToObjectResult = unknown;
@@ -91,6 +97,60 @@ describe("installToObjectPlugin", () => {
     maybeAutoInstallPlugin($);
 
     expect(typeof $.fn.toObject).toBe("function");
+  });
+
+  it("forwards parsing options through the plugin", () => {
+    document.body.innerHTML = `
+      <form id="profile">
+        <input id="person/name" name="" value="Neo" />
+        <input id="person/nickname" name="" value="" />
+        <input id="person/role" name="" value="captain" disabled />
+      </form>
+    `;
+
+    const $ = createStubJQuery();
+    installToObjectPlugin($);
+
+    const result = $("#profile").toObject?.({
+      delimiter: "/",
+      skipEmpty: false,
+      useIdIfEmptyName: true,
+      getDisabled: true
+    });
+
+    expect(result).toEqual({
+      person: {
+        name: "Neo",
+        nickname: "",
+        role: "captain"
+      }
+    });
+  });
+
+  it("forwards nodeCallback and allowUnsafePathSegments through the plugin", () => {
+    document.body.innerHTML = `
+      <form id="unsafe">
+        <div id="profile.callback">hello world</div>
+        <input name="__proto__.polluted" value="yes" />
+      </form>
+    `;
+
+    const $ = createStubJQuery();
+    installToObjectPlugin($);
+
+    const result = $("#unsafe").toObject?.({
+      allowUnsafePathSegments: true,
+      nodeCallback(node) {
+        if (node instanceof HTMLDivElement && node.id === "profile.callback") {
+          return { name: node.id, value: node.textContent };
+        }
+
+        return false;
+      }
+    }) as { profile: { callback: string } } & Record<string, unknown>;
+
+    expect(result.profile.callback).toBe("hello world");
+    expect(result.__proto__).toEqual({ polluted: "yes" });
   });
 });
 

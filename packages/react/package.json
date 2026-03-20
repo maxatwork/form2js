@@ -1,10 +1,11 @@
 {
-  "name": "@form2js/core",
+  "name": "@form2js/react",
   "version": "3.1.1",
-  "description": "Core path parsing and object transformation logic for form2js.",
+  "description": "React hook adapter for form2js.",
   "repository": "https://github.com/maxatwork/form2js",
   "homepage": "https://maxatwork.github.io/form2js/",
   "type": "module",
+  "sideEffects": false,
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -18,16 +19,20 @@
   "files": [
     "dist"
   ],
-  "peerDependencies": {
-    "zod": "^3.22.0 || ^4.0.0"
-  },
-  "peerDependenciesMeta": {
-    "zod": {
-      "optional": true
-    }
-  },
   "engines": {
     "node": ">=18"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "dependencies": {
+    "@form2js/form-data": "3.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   },
   "scripts": {
     "build": "tsup --config tsup.config.ts",

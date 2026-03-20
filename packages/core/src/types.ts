@@ -16,6 +16,18 @@ export interface ParseOptions {
   allowUnsafePathSegments?: boolean;
 }
 
+export interface SchemaValidator<TOutput = unknown> {
+  parse(input: unknown): TOutput;
+}
+
+export type InferSchemaOutput<TSchema> = TSchema extends SchemaValidator<infer TOutput>
+  ? TOutput
+  : never;
+
+export interface ValidationOptions<TSchema extends SchemaValidator = SchemaValidator> {
+  schema?: TSchema;
+}
+
 export interface MergeContext {
   arrays: Record<string, Record<string, unknown>>;
 }

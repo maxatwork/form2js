@@ -45,6 +45,10 @@ describe("extractPairs", () => {
 
     expect(result).toEqual([{ key: "person.callbackTest", value: "hello world" }]);
   });
+
+  it("returns empty pairs when the root cannot be resolved", () => {
+    expect(extractPairs("missing-form")).toEqual([]);
+  });
 });
 
 describe("formToObject", () => {
@@ -176,6 +180,43 @@ describe("formToObject", () => {
     });
   });
 
+  it("can combine HTMLCollection roots", () => {
+    document.body.innerHTML = `
+      <form class="part"><input name="person.first" value="Neo" /></form>
+      <form class="part"><input name="person.last" value="Anderson" /></form>
+    `;
+
+    const roots = document.getElementsByClassName("part");
+    const result = formToObject(roots);
+
+    expect(result).toEqual({
+      person: {
+        first: "Neo",
+        last: "Anderson"
+      }
+    });
+  });
+
+  it("resolves string roots against an explicit document", () => {
+    const customDocument = document.implementation.createHTMLDocument("custom");
+    customDocument.body.innerHTML = `
+      <form id="testForm">
+        <input name="person/name" value="Sam" />
+      </form>
+    `;
+
+    const result = formToObject("testForm", {
+      document: customDocument,
+      delimiter: "/"
+    });
+
+    expect(result).toEqual({
+      person: {
+        name: "Sam"
+      }
+    });
+  });
+
   it("keeps compatibility wrapper", () => {
     document.body.innerHTML = `
       <form id="testForm">
@@ -190,6 +231,10 @@ describe("formToObject", () => {
         name: "Trinity"
       }
     });
+  });
+
+  it("returns an empty object when the root cannot be resolved", () => {
+    expect(formToObject("missing-form")).toEqual({});
   });
 });
 
