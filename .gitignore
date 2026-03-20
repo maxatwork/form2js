@@ -11,3 +11,5 @@ docs/triage-*
 .env
 .env.local
 .superpowers/brainstorm
+.worktrees/
+.worktrees
