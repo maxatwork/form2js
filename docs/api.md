@@ -13,6 +13,7 @@ If you want a quick tour first, start with `README.md`.
 | `@form2js/core` | Turn path-like key/value pairs into nested objects (and back). | `entriesToObject`, `objectToEntries`, `setPathValue` |
 | `@form2js/dom` | Read browser form fields into an object. | `formToObject`, `extractPairs`, `form2js` |
 | `@form2js/form-data` | Parse `FormData` or entry tuples with the same path rules. | `formDataToObject`, `entriesToObject` |
+| `@form2js/react` | Handle React form submit, parsing, and submit state. | `useForm2js` |
 | `@form2js/js2form` | Push object values back into form controls. | `objectToForm`, `mapFieldsByName`, `js2form` |
 | `@form2js/jquery` | Add `$.fn.toObject()` on top of `@form2js/dom`. | `installToObjectPlugin`, `maybeAutoInstallPlugin` |
 
@@ -32,6 +33,7 @@ These rules apply across parser-based packages (`core`, `dom`, `form-data`):
 ### Common tasks
 
 - Convert key/value entries into nested data (`entriesToObject`)
+- Validate and transform parsed payloads with schemas (`entriesToObject` + `schema`)
 - Flatten nested data into path entries (`objectToEntries`)
 - Apply one path/value into an existing object (`setPathValue`)
 - Keep legacy `name/value` pair input (`processNameValues`)
@@ -45,7 +47,7 @@ These rules apply across parser-based packages (`core`, `dom`, `form-data`):
 | `entriesToObject` | function | Main parser for iterable entries. |
 | `objectToEntries` | function | Flattens nested object/array data into `{ key, value }` entries. |
 | `processNameValues` | function | Compatibility helper for `{ name, value }` input. |
-| `Entry`, `EntryInput`, `EntryValue`, `NameValuePair`, `ObjectTree`, `ParseOptions`, `MergeContext`, `MergeOptions` | types | Public type surface for parser inputs/options/results. |
+| `Entry`, `EntryInput`, `EntryValue`, `NameValuePair`, `ObjectTree`, `ParseOptions`, `MergeContext`, `MergeOptions`, `SchemaValidator`, `ValidationOptions`, `InferSchemaOutput` | types | Public type surface for parser inputs/options/results. |
 
 ```ts
 export function createMergeContext(): MergeContext;
@@ -58,6 +60,10 @@ export function setPathValue(
 ): ObjectTree;
 
 export function entriesToObject(entries: Iterable<EntryInput>, options?: ParseOptions): ObjectTree;
+export function entriesToObject<TSchema extends SchemaValidator>(
+  entries: Iterable<EntryInput>,
+  options: ParseOptions & { schema: TSchema }
+): InferSchemaOutput<TSchema>;
 
 export function objectToEntries(value: unknown): Entry[];
 
@@ -75,7 +81,10 @@ export type {
   MergeOptions,
   NameValuePair,
   ObjectTree,
-  ParseOptions
+  ParseOptions,
+  SchemaValidator,
+  ValidationOptions,
+  InferSchemaOutput
 } from "./types";
 ```
 
@@ -86,12 +95,14 @@ export type {
 | `delimiter` | `"."` | `entriesToObject`, `setPathValue`, `processNameValues` | Controls how dot-like path chunks are split. |
 | `skipEmpty` | `true` | `entriesToObject`, `processNameValues` | Drops `""` and `null` values unless you opt out. |
 | `allowUnsafePathSegments` | `false` | `entriesToObject`, `setPathValue` | Blocks prototype-pollution path segments unless you explicitly trust the source. |
+| `schema` | unset | `entriesToObject` | Runs `schema.parse(parsedObject)` and returns schema output type. |
 | `context` | fresh merge context | `setPathValue` | Keeps indexed array compaction stable across multiple writes. |
 
 ### Behavior notes
 
 - Indexed array keys are compacted by encounter order, not preserved by numeric index.
 - `EntryInput` accepts `[key, value]`, `{ key, value }`, and `{ name, value }`.
+- If `schema` is provided, parser output is passed to `schema.parse()` and schema errors are rethrown.
 - `objectToEntries` emits bracket indexes for arrays (for example `emails[0]`) and only serializes own enumerable properties.
 
 ### Quick example
@@ -210,6 +221,7 @@ const result = formToObject(document.getElementById("profileForm"), {
 
 - Parse a `FormData` instance with the same semantics as DOM parsing
 - Parse tuple entries in server pipelines (`Iterable<[string, value]>`)
+- Validate and transform payloads with schema `parse`
 - Reuse core parser options without importing `@form2js/core` directly
 
 ### API
@@ -220,7 +232,7 @@ const result = formToObject(document.getElementById("profileForm"), {
 | `FormDataToObjectOptions` | interface | Parser options for form-data conversion. |
 | `entriesToObject` | function | Adapter to core parser. |
 | `formDataToObject` | function | Parses `FormData` or iterable form-data entries. |
-| `EntryInput`, `ObjectTree`, `ParseOptions` | type re-export | Core types re-exported for convenience. |
+| `EntryInput`, `ObjectTree`, `ParseOptions`, `SchemaValidator`, `ValidationOptions`, `InferSchemaOutput` | type re-export | Core types re-exported for convenience. |
 
 ```ts
 export type KeyValueEntryInput = EntryInput;
@@ -228,13 +240,28 @@ export type KeyValueEntryInput = EntryInput;
 export interface FormDataToObjectOptions extends ParseOptions {}
 
 export function entriesToObject(entries: Iterable<KeyValueEntryInput>, options?: ParseOptions): ObjectTree;
+export function entriesToObject<TSchema extends SchemaValidator>(
+  entries: Iterable<KeyValueEntryInput>,
+  options: ParseOptions & { schema: TSchema }
+): InferSchemaOutput<TSchema>;
 
 export function formDataToObject(
   formData: FormData | Iterable<readonly [string, FormDataEntryValue]>,
   options?: FormDataToObjectOptions
 ): ObjectTree;
+export function formDataToObject<TSchema extends SchemaValidator>(
+  formData: FormData | Iterable<readonly [string, FormDataEntryValue]>,
+  options: FormDataToObjectOptions & { schema: TSchema }
+): InferSchemaOutput<TSchema>;
 
-export type { EntryInput, ObjectTree, ParseOptions } from "@form2js/core";
+export type {
+  EntryInput,
+  ObjectTree,
+  ParseOptions,
+  SchemaValidator,
+  ValidationOptions,
+  InferSchemaOutput
+} from "@form2js/core";
 ```
 
 ### Options and defaults
@@ -244,11 +271,13 @@ export type { EntryInput, ObjectTree, ParseOptions } from "@form2js/core";
 | `delimiter` | `"."` | Keeps path splitting aligned with core/dom behavior. |
 | `skipEmpty` | `true` | Drops empty string and `null` values unless disabled. |
 | `allowUnsafePathSegments` | `false` | Rejects unsafe path segments before object merging. |
+| `schema` | unset | Runs `schema.parse(parsedObject)` after parsing and returns schema output type. |
 
 ### Behavior notes
 
 - Parsing rules are the same as `@form2js/core`.
 - Accepts either a real `FormData` object or any iterable of readonly key/value tuples.
+- Schema validation is optional and uses only a structural `{ parse(unknown) }` contract.
 
 ### Quick example
 
@@ -259,6 +288,109 @@ const result = formDataToObject([
   ["person.name.first", "Sam"],
   ["person.roles[]", "captain"],
 ]);
+```
+
+## `@form2js/react`
+
+### Common tasks
+
+- Handle `<form onSubmit>` with parsed object payloads
+- Validate payloads with optional schema `parse`
+- Track async submit status (`isSubmitting`, `isError`, `error`, `isSuccess`)
+- Reset hook state after submit attempts
+
+### API
+
+| Export | Kind | What it does |
+| --- | --- | --- |
+| `UseForm2jsData` | type | Infers submit payload from optional schema. |
+| `UseForm2jsSubmit` | type | Submit callback signature. |
+| `UseForm2jsOptions` | interface | Parser options plus optional schema. |
+| `UseForm2jsResult` | interface | Hook return state and handlers. |
+| `useForm2js` | function | Creates submit handler and submit state machine for forms. |
+
+```ts
+export type UseForm2jsData<TSchema extends SchemaValidator | undefined> =
+  TSchema extends SchemaValidator ? InferSchemaOutput<TSchema> : ObjectTree;
+
+export type UseForm2jsSubmit<TSchema extends SchemaValidator | undefined = undefined> = (
+  data: UseForm2jsData<TSchema>
+) => Promise<void> | void;
+
+export interface UseForm2jsOptions<TSchema extends SchemaValidator | undefined = undefined>
+  extends ParseOptions {
+  schema?: TSchema;
+}
+
+export interface UseForm2jsResult {
+  onSubmit: (event: SyntheticEvent<HTMLFormElement, SubmitEvent>) => Promise<void>;
+  isSubmitting: boolean;
+  isError: boolean;
+  error: unknown;
+  isSuccess: boolean;
+  reset: () => void;
+}
+
+export function useForm2js<TSchema extends SchemaValidator | undefined = undefined>(
+  submit: UseForm2jsSubmit<TSchema>,
+  options?: UseForm2jsOptions<TSchema>
+): UseForm2jsResult;
+```
+
+### Options and defaults
+
+| Option | Default | Why this matters |
+| --- | --- | --- |
+| `delimiter` | `"."` | Keeps parser path splitting aligned with other packages. |
+| `skipEmpty` | `true` | Drops empty string and `null` values unless disabled. |
+| `allowUnsafePathSegments` | `false` | Keeps parser hardened by default. |
+| `schema` | unset | If set, parsed payload is run through `schema.parse(...)` before submit callback. |
+
+### Behavior notes
+
+- `onSubmit` always calls `event.preventDefault()`.
+- Re-submit attempts are ignored while a submit promise is still pending.
+- Validation and submit errors are both surfaced through `error` and `isError`.
+- `reset()` clears `isError`, `error`, and `isSuccess`.
+
+### Quick example
+
+```ts
+import { z } from "zod";
+import { useForm2js } from "@form2js/react";
+
+const schema = z.object({
+  person: z.object({
+    email: z.string().email()
+  })
+});
+
+export function SignupForm(): React.JSX.Element {
+  const { onSubmit, isSubmitting, isError, error, isSuccess, reset } = useForm2js(
+    async (data) => {
+      await sendFormData(data);
+    },
+    { schema }
+  );
+
+  return (
+    <form
+      onSubmit={(event) => {
+        void onSubmit(event);
+      }}
+    >
+      <input name="person.email" type="email" defaultValue="sam.vimes@ankh.city" />
+      <button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? "Saving..." : "Save"}
+      </button>
+      {isError ? <p>{String(error)}</p> : null}
+      {isSuccess ? <p>Saved</p> : null}
+      <button type="button" onClick={reset}>
+        Reset state
+      </button>
+    </form>
+  );
+}
 ```
 
 ## `@form2js/js2form`
@@ -423,4 +555,4 @@ const data = $("#profileForm").toObject({ mode: "first" });
   - `formToObject`
   - `form2js`
 - `@form2js/jquery/standalone` checks global `jQuery` and installs `$.fn.toObject()` when available.
-- `@form2js/core`, `@form2js/form-data`, and `@form2js/js2form` are module-only (no standalone global bundle in this repo).
+- `@form2js/core`, `@form2js/form-data`, `@form2js/react`, and `@form2js/js2form` are module-only (no standalone global bundle in this repo).

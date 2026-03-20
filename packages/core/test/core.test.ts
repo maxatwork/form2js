@@ -104,6 +104,41 @@ describe("entriesToObject", () => {
 
     expect(target.__proto__).toEqual({ polluted: "yes" });
   });
+
+  it("validates and transforms using schema.parse when schema is provided", () => {
+    const schema = {
+      parse(value: unknown) {
+        const record = value as { person?: { age?: string } };
+        return {
+          person: {
+            age: Number(record.person?.age ?? "0")
+          }
+        };
+      }
+    };
+
+    const result = entriesToObject([{ key: "person.age", value: "42" }], { schema });
+
+    expect(result).toEqual({
+      person: {
+        age: 42
+      }
+    });
+  });
+
+  it("throws validation errors from schema.parse", () => {
+    const schema = {
+      parse() {
+        throw new Error("Validation failed");
+      }
+    };
+
+    expect(() =>
+      entriesToObject([{ key: "person.name", value: "Neo" }], {
+        schema
+      })
+    ).toThrow("Validation failed");
+  });
 });
 
 describe("processNameValues", () => {
