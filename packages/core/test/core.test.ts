@@ -2,6 +2,38 @@ import { describe, expect, it } from "vitest";
 import { entriesToObject, objectToEntries, processNameValues, setPathValue } from "../src/index";
 
 describe("entriesToObject", () => {
+  it("accepts tuple entries directly", () => {
+    const result = entriesToObject([
+      ["person.name.first", "John"],
+      ["person.name.last", "Doe"]
+    ]);
+
+    expect(result).toEqual({
+      person: {
+        name: {
+          first: "John",
+          last: "Doe"
+        }
+      }
+    });
+  });
+
+  it("accepts name/value object entries directly", () => {
+    const result = entriesToObject([
+      { name: "person.name.first", value: "John" },
+      { name: "person.name.last", value: "Doe" }
+    ]);
+
+    expect(result).toEqual({
+      person: {
+        name: {
+          first: "John",
+          last: "Doe"
+        }
+      }
+    });
+  });
+
   it("builds nested objects with dot notation", () => {
     const result = entriesToObject([
       { key: "person.name.first", value: "John" },
@@ -138,6 +170,12 @@ describe("entriesToObject", () => {
         schema
       })
     ).toThrow("Validation failed");
+  });
+
+  it("throws for invalid entry shapes", () => {
+    expect(() =>
+      entriesToObject([{ value: "missing-key" } as unknown as { key: string; value: unknown }])
+    ).toThrow("Invalid entry");
   });
 });
 

@@ -124,6 +124,99 @@ describe("objectToForm", () => {
     expect(blue.selected).toBe(true);
     expect(green.selected).toBe(false);
   });
+
+  it("clears existing values by default and preserves them when shouldClean is false", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <input name="person.name.first" value="Sam" />
+        <input name="person.name.last" value="" />
+        <input type="checkbox" name="person.favFood[]" value="steak" checked />
+        <input type="checkbox" name="person.favFood[]" value="pizza" />
+      </form>
+    `;
+
+    objectToForm("testForm", {
+      person: {
+        name: { last: "Vimes" },
+        favFood: ["pizza"]
+      }
+    });
+
+    const firstAfterClean = document.querySelector("input[name='person.name.first']") as HTMLInputElement;
+    const lastAfterClean = document.querySelector("input[name='person.name.last']") as HTMLInputElement;
+    const steakAfterClean = document.querySelector(
+      "input[name='person.favFood[]'][value='steak']"
+    ) as HTMLInputElement;
+    const pizzaAfterClean = document.querySelector(
+      "input[name='person.favFood[]'][value='pizza']"
+    ) as HTMLInputElement;
+
+    expect(firstAfterClean.value).toBe("");
+    expect(lastAfterClean.value).toBe("Vimes");
+    expect(steakAfterClean.checked).toBe(false);
+    expect(pizzaAfterClean.checked).toBe(true);
+
+    document.body.innerHTML = `
+      <form id="testForm">
+        <input name="person.name.first" value="Sam" />
+        <input name="person.name.last" value="" />
+        <input type="checkbox" name="person.favFood[]" value="steak" checked />
+        <input type="checkbox" name="person.favFood[]" value="pizza" />
+      </form>
+    `;
+
+    objectToForm(
+      "testForm",
+      {
+        person: {
+          name: { last: "Vimes" },
+          favFood: ["pizza"]
+        }
+      },
+      { shouldClean: false }
+    );
+
+    const firstPreserved = document.querySelector("input[name='person.name.first']") as HTMLInputElement;
+    const lastPreserved = document.querySelector("input[name='person.name.last']") as HTMLInputElement;
+    const steakPreserved = document.querySelector(
+      "input[name='person.favFood[]'][value='steak']"
+    ) as HTMLInputElement;
+    const pizzaPreserved = document.querySelector(
+      "input[name='person.favFood[]'][value='pizza']"
+    ) as HTMLInputElement;
+
+    expect(firstPreserved.value).toBe("Sam");
+    expect(lastPreserved.value).toBe("Vimes");
+    expect(steakPreserved.checked).toBe(true);
+    expect(pizzaPreserved.checked).toBe(true);
+  });
+
+  it("supports id fallback and explicit document resolution", () => {
+    const customDocument = document.implementation.createHTMLDocument("custom");
+    customDocument.body.innerHTML = `
+      <form id="testForm">
+        <input id="person.name.first" name="" />
+      </form>
+    `;
+
+    objectToForm(
+      "testForm",
+      {
+        person: {
+          name: {
+            first: "Neo"
+          }
+        }
+      },
+      {
+        useIdIfEmptyName: true,
+        document: customDocument
+      }
+    );
+
+    const input = customDocument.getElementById("person.name.first") as HTMLInputElement;
+    expect(input.value).toBe("Neo");
+  });
 });
 
 describe("low-level helpers", () => {

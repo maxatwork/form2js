@@ -15,6 +15,7 @@ interface HarnessProps<TSchema extends SchemaValidator | undefined = undefined> 
   submit: UseForm2jsSubmit<TSchema>;
   options?: UseForm2jsOptions<TSchema>;
   onSnapshot: (state: UseForm2jsResult) => void;
+  renderFields?: () => React.ReactNode;
 }
 
 function Harness<TSchema extends SchemaValidator | undefined = undefined>(
@@ -22,11 +23,14 @@ function Harness<TSchema extends SchemaValidator | undefined = undefined>(
 ): React.ReactElement {
   const state = useForm2js(props.submit, props.options);
   props.onSnapshot(state);
+  const fields =
+    props.renderFields?.() ??
+    React.createElement("input", { name: "person.name", defaultValue: "Neo" });
 
   return React.createElement(
     "form",
     { onSubmit: state.onSubmit },
-    React.createElement("input", { name: "person.name", defaultValue: "Neo" }),
+    fields,
     React.createElement("button", { type: "submit" }, "Submit")
   );
 }
@@ -51,7 +55,8 @@ afterEach(() => {
 
 function renderHarness<TSchema extends SchemaValidator | undefined = undefined>(
   submit: UseForm2jsSubmit<TSchema>,
-  options?: UseForm2jsOptions<TSchema>
+  options?: UseForm2jsOptions<TSchema>,
+  renderFields?: () => React.ReactNode
 ): {
   form: HTMLFormElement;
   getState: () => UseForm2jsResult;
@@ -72,6 +77,10 @@ function renderHarness<TSchema extends SchemaValidator | undefined = undefined>(
 
   if (options !== undefined) {
     harnessProps.options = options;
+  }
+
+  if (renderFields !== undefined) {
+    harnessProps.renderFields = renderFields;
   }
 
   act(() => {
@@ -234,6 +243,57 @@ describe("useForm2js", () => {
         }
       }
     ]);
+    expect(getState().isSuccess).toBe(true);
+  });
+
+  it("forwards delimiter and skipEmpty options to the parser", async () => {
+    const received: unknown[] = [];
+    const submit = vi.fn((data: unknown) => {
+      received.push(data);
+    });
+
+    const { form } = renderHarness(
+      submit,
+      {
+        delimiter: "/",
+        skipEmpty: false
+      },
+      () =>
+        React.createElement(
+          React.Fragment,
+          null,
+          React.createElement("input", { name: "person/name", defaultValue: "Neo" }),
+          React.createElement("input", { name: "person/alias", defaultValue: "" })
+        )
+    );
+
+    await submitAndFlush(form);
+
+    expect(received).toEqual([
+      {
+        person: {
+          name: "Neo",
+          alias: ""
+        }
+      }
+    ]);
+  });
+
+  it("forwards allowUnsafePathSegments to the parser", async () => {
+    const submit = vi.fn(() => Promise.resolve());
+
+    const { form, getState } = renderHarness(
+      submit,
+      {
+        allowUnsafePathSegments: true
+      },
+      () => React.createElement("input", { name: "__proto__.polluted", defaultValue: "yes" })
+    );
+
+    await submitAndFlush(form);
+
+    expect(submit).toHaveBeenCalledTimes(1);
+    expect(getState().isError).toBe(false);
     expect(getState().isSuccess).toBe(true);
   });
 });
