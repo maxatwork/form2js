@@ -14,7 +14,8 @@ It is not a serializer, not an ORM, and not a new religion. It just does this on
 
 ## Documentation
 
-- [API Reference](docs/api.md) - full package-by-package API docs with defaults, signatures, and compatibility notes.
+- [Docs Site](https://maxatwork.github.io/form2js/) - overview, installation, unified playground, and published API reference.
+- [API Reference Source](docs/api.md) - markdown source for the published API docs page.
 
 ## Packages
 
@@ -300,23 +301,22 @@ npm run build
 npm run pack:dry-run
 ```
 
-### Examples
+### Local docs site
 
 ```bash
-npm run playground
-npm run playground:react
-# or directly:
-# npm -w @form2js/examples run dev
-# npm -w @form2js/react-playground run dev
+npm run docs
+npm run docs:build
 ```
 
-### GitHub Pages playground
+The homepage includes the unified playground for `@form2js/react`, `@form2js/dom`, `@form2js/jquery`, `@form2js/js2form`, `@form2js/core`, and `@form2js/form-data`.
 
-The live playground is deployed by `.github/workflows/pages.yml`.
+### GitHub Pages docs site
 
-- Trigger: push to `master` (or manual `workflow_dispatch`).
-- Output: `apps/examples/dist`.
-- URL pattern: `https://<owner>.github.io/<repo>/` (for this repo, likely `.../form2js/`).
+The published docs site is deployed by `.github/workflows/pages.yml`.
+
+- Trigger: pushes to `master` that touch `apps/docs/**`, `docs/**`, or `packages/**` and manual `workflow_dispatch`.
+- Output: `apps/docs/dist`.
+- URL: `https://maxatwork.github.io/form2js/`.
 
 In repository settings, set Pages source to `GitHub Actions` once, and then the workflow handles updates.
 

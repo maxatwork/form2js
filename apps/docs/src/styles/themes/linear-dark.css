@@ -1,0 +1,16 @@
+/* apps/docs/src/styles/themes/linear-dark.css */
+:root {
+  color-scheme: dark;
+  --c-bg: #060609;
+  --c-panel: rgba(255, 255, 255, 0.025);
+  --c-panel-2: rgba(255, 255, 255, 0.04);
+  --c-text: #ffffff;
+  --c-muted: rgba(255, 255, 255, 0.4);
+  --c-accent: #5e56ff;
+  --c-accent-2: #9747ff;
+  --c-accent-glow: rgba(94, 86, 255, 0.22);
+  --c-border: rgba(255, 255, 255, 0.07);
+  --f-ui: 'Geist', 'Segoe UI', sans-serif;
+  --f-mono: 'DM Mono', 'Fira Code', monospace;
+  --f-display: 'Geist', 'Segoe UI', sans-serif;
+}

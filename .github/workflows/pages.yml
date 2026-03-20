@@ -1,9 +1,18 @@
-name: Deploy Playground
+name: Deploy Docs Site
 
 on:
   push:
     branches:
       - master
+    paths:
+      - "apps/docs/**"
+      - "docs/**"
+      - "packages/**"
+      - ".github/workflows/pages.yml"
+      - "package.json"
+      - "package-lock.json"
+      - "turbo.json"
+      - "tsconfig.base.json"
   workflow_dispatch:
 
 permissions:
@@ -39,15 +48,15 @@ jobs:
       - name: Build workspace packages
         run: npm run build:packages
 
-      - name: Build examples app
-        run: npm -w @form2js/examples run build
+      - name: Build docs app
+        run: npm -w @form2js/docs run build
         env:
-          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          DOCS_BASE_PATH: ${{ steps.pages.outputs.base_path }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: apps/examples/dist
+          path: apps/docs/dist
 
   deploy:
     runs-on: ubuntu-latest

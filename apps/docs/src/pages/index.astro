@@ -1,0 +1,21 @@
+---
+// apps/docs/src/pages/1.astro
+import "../styles/themes/dark-brutalism.css";
+import DesignShell from "../layouts/DesignShell.astro";
+import Hero from "../components/landing/Hero.astro";
+import InstallSection from "../components/landing/InstallSection.astro";
+import ApiDocsCta from "../components/landing/ApiDocsCta.astro";
+import { PlaygroundShell } from "../components/playground/PlaygroundShell";
+---
+
+<DesignShell title="form2js - form serialization library" theme="dark-brutalism">
+  <Hero />
+  <section class="content-wrap section" id="playground">
+    <p class="section-eyebrow">Playground</p>
+    <h2 class="section-title">Try it live</h2>
+    <PlaygroundShell client:load />
+  </section>
+  <InstallSection />
+  <ApiDocsCta />
+</DesignShell>
+

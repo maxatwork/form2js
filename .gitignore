@@ -7,9 +7,13 @@ coverage
 .idea
 .hg
 .hgignore
+.astro
+**/.astro/
 docs/triage-*
 .env
 .env.local
 .superpowers/brainstorm
 .worktrees/
 .worktrees
+apps/docs/test-results/
+apps/docs/playwright-report/

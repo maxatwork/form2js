@@ -1,0 +1,56 @@
+---
+// apps/docs/src/layouts/DesignShell.astro
+import { apiDocsPath } from "../lib/site-routes";
+import "../styles/landing.css";
+import "../styles/playground.css";
+
+interface Props {
+  title?: string;
+  theme: "dark-brutalism" | "outrun-sunset" | "terminal-noir" | "linear-dark" | "editorial";
+}
+
+const { title = "form2js", theme } = Astro.props;
+const basePath = import.meta.env.BASE_URL;
+
+const THEME_FONTS: Record<string, string> = {
+  "dark-brutalism":
+    "https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800;900&family=DM+Mono:wght@300;400;500&display=swap",
+  "outrun-sunset":
+    "https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Syne:wght@700;900&family=DM+Mono:wght@300;400;500&display=swap",
+  "terminal-noir":
+    "https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap",
+  "linear-dark":
+    "https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;900&family=DM+Mono:wght@300;400;500&display=swap",
+  editorial:
+    "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap",
+};
+
+const fontsHref = THEME_FONTS[theme];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} — form2js</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {fontsHref && <link href={fontsHref} rel="stylesheet" />}
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="site-brand" href={basePath}>
+        <span class="site-brand__badge">f2j</span>
+        form2js
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href={apiDocsPath(basePath)}>API Docs</a>
+        <a href="https://github.com/maxatwork/form2js">Github</a>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>
