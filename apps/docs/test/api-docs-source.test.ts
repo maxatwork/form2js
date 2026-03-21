@@ -7,39 +7,42 @@ import { describe, expect, it } from "vitest";
 import { parseApiDocsMarkdown } from "../src/lib/api-docs-source";
 
 const testDir = path.dirname(fileURLToPath(import.meta.url));
-const apiDocsMarkdown = readFileSync(path.resolve(testDir, "../../../docs/api.md"), "utf8");
+const apiIndexMarkdown = readFileSync(path.resolve(testDir, "../../../docs/api-index.md"), "utf8");
+const apiCoreMarkdown = readFileSync(path.resolve(testDir, "../../../docs/api-core.md"), "utf8");
+const apiDomMarkdown = readFileSync(path.resolve(testDir, "../../../docs/api-dom.md"), "utf8");
+const apiFormDataMarkdown = readFileSync(path.resolve(testDir, "../../../docs/api-form-data.md"), "utf8");
+const apiJqueryMarkdown = readFileSync(path.resolve(testDir, "../../../docs/api-jquery.md"), "utf8");
+const apiJs2formMarkdown = readFileSync(path.resolve(testDir, "../../../docs/api-js2form.md"), "utf8");
+const apiReactMarkdown = readFileSync(path.resolve(testDir, "../../../docs/api-react.md"), "utf8");
+const readmeMarkdown = readFileSync(path.resolve(testDir, "../../../README.md"), "utf8");
 
 describe("parseApiDocsMarkdown", () => {
-  it("extracts the H1 title, intro copy, headings, and rewrites markdown links", () => {
+  it("extracts the H1 title, intro copy, headings, and rewrites package markdown links", () => {
     const source = parseApiDocsMarkdown(
-      `# API Title
+      `# React API
 
-Intro line with [README.md](README.md).
+Intro with [index](api-index.md).
 
-## First Section
+## Installation
 
-Paragraph
+Text with [core](api-core.md).
 
-### Nested Topic
+### npm
 
 More text.
-
-## Second Section
-
-Tail text.
 `,
       { basePath: "/form2js/" }
     );
 
-    expect(source.title).toBe("API Title");
-    expect(source.introMarkdown).toContain("Intro line");
-    expect(source.introHtml).toContain('href="/form2js/"');
-    expect(source.bodyHtml).toContain('id="first-section"');
-    expect(source.bodyHtml).toContain('id="nested-topic"');
+    expect(source.title).toBe("React API");
+    expect(source.introMarkdown).toContain("Intro with");
+    expect(source.introHtml).toContain('href="/form2js/api/"');
+    expect(source.bodyHtml).toContain('href="/form2js/api/core/"');
+    expect(source.bodyHtml).toContain('id="installation"');
+    expect(source.bodyHtml).toContain('id="npm"');
     expect(source.headings).toEqual([
-      { depth: 2, slug: "first-section", text: "First Section" },
-      { depth: 3, slug: "nested-topic", text: "Nested Topic" },
-      { depth: 2, slug: "second-section", text: "Second Section" }
+      { depth: 2, slug: "installation", text: "Installation" },
+      { depth: 3, slug: "npm", text: "npm" }
     ]);
   });
 
@@ -89,18 +92,27 @@ Text.
 `,
         { basePath: "/" }
       )
-    ).toThrow("docs/api.md must start with an H1 heading.");
+    ).toThrow("API docs markdown must start with an H1 heading.");
   });
 
-  it("documents installation for every package, including standalone globals where supported", () => {
-    expect(apiDocsMarkdown).toContain("npm install @form2js/core");
-    expect(apiDocsMarkdown).toContain("npm install @form2js/dom");
-    expect(apiDocsMarkdown).toContain("npm install @form2js/form-data");
-    expect(apiDocsMarkdown).toContain("npm install @form2js/react react");
-    expect(apiDocsMarkdown).toContain("npm install @form2js/js2form");
-    expect(apiDocsMarkdown).toContain("npm install @form2js/jquery jquery");
-    expect(apiDocsMarkdown).toContain("https://unpkg.com/@form2js/dom/dist/standalone.global.js");
-    expect(apiDocsMarkdown).toContain("https://unpkg.com/@form2js/jquery/dist/standalone.global.js");
-    expect(apiDocsMarkdown).toContain("Standalone/global build is not shipped for this package.");
+  it("documents the split api markdown sources and updates the readme source link", () => {
+    expect(apiIndexMarkdown).toContain("# form2js API Reference");
+    expect(apiCoreMarkdown).toContain("## Installation");
+    expect(apiCoreMarkdown).toContain("## General Example");
+    expect(apiCoreMarkdown).toContain("## Types and Properties");
+    expect(apiCoreMarkdown).toContain("npm install @form2js/core");
+    expect(apiCoreMarkdown).toContain("### Schema validation");
+    expect(apiCoreMarkdown).toContain("entriesToObject(rawEntries, { schema: PersonSchema })");
+    expect(apiDomMarkdown).toContain("https://unpkg.com/@form2js/dom/dist/standalone.global.js");
+    expect(apiDomMarkdown).toContain("### `useIdIfEmptyName`");
+    expect(apiDomMarkdown).toContain("### `nodeCallback`");
+    expect(apiFormDataMarkdown).toContain("### Schema validation");
+    expect(apiFormDataMarkdown).toContain("formDataToObject(formData, { schema: PersonSchema })");
+    expect(apiJqueryMarkdown).toContain("https://unpkg.com/@form2js/jquery/dist/standalone.global.js");
+    expect(apiJqueryMarkdown).toContain("### `mode: \"all\"`");
+    expect(apiJs2formMarkdown).toContain("### `shouldClean: false`");
+    expect(apiJs2formMarkdown).toContain("### `useIdIfEmptyName`");
+    expect(apiReactMarkdown).toContain("npm install @form2js/react react");
+    expect(readmeMarkdown).toContain("[API Reference Source](docs/api-index.md)");
   });
 });

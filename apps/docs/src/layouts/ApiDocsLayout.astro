@@ -1,5 +1,7 @@
 ---
+import { ApiPackageNav } from "../components/api/ApiPackageNav";
 import { ApiToc } from "../components/api/ApiToc";
+import type { ApiPackageEntry } from "../lib/api-packages";
 import type { ApiHeading } from "../lib/api-docs-source";
 import DocsShell from "./DocsShell.astro";
 
@@ -8,23 +10,37 @@ interface Props {
   introHtml: string;
   bodyHtml: string;
   headings: ApiHeading[];
+  packages: ApiPackageEntry[];
+  activePackageSlug?: ApiPackageEntry["slug"];
 }
 
-const { title, introHtml, bodyHtml, headings } = Astro.props;
+const { title, introHtml, bodyHtml, headings, packages, activePackageSlug } =
+  Astro.props;
+const basePath = import.meta.env.BASE_URL;
 ---
 
 <DocsShell title={`${title} | form2js`}>
   <section class="api-docs">
+    <aside class="api-docs__nav">
+      <ApiPackageNav
+        activeSlug={activePackageSlug}
+        basePath={basePath}
+        packages={packages}
+      />
+    </aside>
     <article class="api-docs__content">
       <header class="api-docs__header">
         <p class="hero__eyebrow">API Docs</p>
         <h1>{title}</h1>
         {introHtml ? <div class="api-docs__intro" set:html={introHtml} /> : null}
       </header>
+      <slot name="summary" />
       <div class="api-docs__body" set:html={bodyHtml} />
     </article>
-    <aside class="api-docs__sidebar">
-      <ApiToc client:load headings={headings} />
-    </aside>
+    {headings.length > 0 ? (
+      <aside class="api-docs__sidebar">
+        <ApiToc client:load headings={headings} />
+      </aside>
+    ) : null}
   </section>
 </DocsShell>

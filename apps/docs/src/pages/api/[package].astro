@@ -1,0 +1,31 @@
+---
+import ApiDocsLayout from "../../layouts/ApiDocsLayout.astro";
+import { apiPackages, type ApiPackageEntry } from "../../lib/api-packages";
+import { loadApiDocsSource } from "../../lib/api-docs-source";
+
+interface Props {
+  apiPackage: ApiPackageEntry;
+}
+
+export function getStaticPaths() {
+  return apiPackages.map((apiPackage) => ({
+    params: { package: apiPackage.slug },
+    props: { apiPackage }
+  }));
+}
+
+const { apiPackage } = Astro.props;
+const apiDocsSource = await loadApiDocsSource({
+  basePath: import.meta.env.BASE_URL,
+  markdownPath: apiPackage.markdownPath
+});
+---
+
+<ApiDocsLayout
+  activePackageSlug={apiPackage.slug}
+  bodyHtml={apiDocsSource.bodyHtml}
+  headings={apiDocsSource.headings}
+  introHtml={apiDocsSource.introHtml}
+  packages={apiPackages}
+  title={apiDocsSource.title}
+/>
