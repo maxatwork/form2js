@@ -31,6 +31,38 @@ type ArrayIndexesMap = Record<
   }
 >;
 
+interface BracketMatch {
+  content: string;
+  index: number;
+  text: string;
+}
+
+function findBracketMatches(input: string): BracketMatch[] {
+  const matches: BracketMatch[] = [];
+  let cursor = 0;
+
+  while (cursor < input.length) {
+    const startIndex = input.indexOf("[", cursor);
+    if (startIndex === -1) {
+      break;
+    }
+
+    const endIndex = input.indexOf("]", startIndex + 1);
+    if (endIndex === -1) {
+      break;
+    }
+
+    matches.push({
+      content: input.slice(startIndex + 1, endIndex),
+      index: startIndex,
+      text: input.slice(startIndex, endIndex + 1)
+    });
+    cursor = endIndex + 1;
+  }
+
+  return matches;
+}
+
 function isNodeObject(value: unknown): value is Node {
   return typeof value === "object" && value !== null && "nodeType" in value && "nodeName" in value;
 }
@@ -98,7 +130,7 @@ function normalizeName(name: string, delimiter: string, arrayIndexes: ArrayIndex
   const normalizedRawChunks: string[] = [];
 
   for (const rawChunk of rawChunks) {
-    const bracketMatches = Array.from(rawChunk.matchAll(/\[([^\]]*)\]/g));
+    const bracketMatches = findBracketMatches(rawChunk);
     if (bracketMatches.length === 0) {
       normalizedRawChunks.push(rawChunk);
       continue;
@@ -113,7 +145,7 @@ function normalizeName(name: string, delimiter: string, arrayIndexes: ArrayIndex
         currentChunk += literalText;
       }
 
-      const bracketContent = match[1] ?? "";
+      const bracketContent = match.content;
       const isArraySegment = bracketContent === "" || /^\d+$/.test(bracketContent);
 
       if (isArraySegment) {
@@ -131,7 +163,7 @@ function normalizeName(name: string, delimiter: string, arrayIndexes: ArrayIndex
         currentChunk = bracketContent;
       }
 
-      cursor = (match.index ?? cursor) + match[0].length;
+      cursor = match.index + match.text.length;
     }
 
     const trailingText = rawChunk.slice(cursor);
@@ -140,7 +172,7 @@ function normalizeName(name: string, delimiter: string, arrayIndexes: ArrayIndex
     }
 
     if (currentChunk !== "") {
-        normalizedRawChunks.push(currentChunk);
+      normalizedRawChunks.push(currentChunk);
     }
   }
 

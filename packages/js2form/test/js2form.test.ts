@@ -410,4 +410,15 @@ describe("low-level helpers", () => {
     const fields = mapFieldsByName("testForm", { shouldClean: false });
     expect(Object.keys(fields)).toContain("items[5]_id");
   });
+
+  it("preserves unmatched bracket-heavy field names", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <input name="filters[[[[value" value="alpha" />
+      </form>
+    `;
+
+    const fields = mapFieldsByName("testForm", { shouldClean: false });
+    expect(Object.keys(fields)).toContain("filters[[[[value");
+  });
 });

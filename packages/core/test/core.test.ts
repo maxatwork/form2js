@@ -219,6 +219,32 @@ describe("entriesToObject", () => {
     expect(target.__proto__).toEqual({ polluted: "yes" });
   });
 
+  it("stores trusted unsafe path segments as own properties on plain objects", () => {
+    const target = {} as Record<string, unknown>;
+
+    setPathValue(target, "__proto__.polluted", "yes", {
+      allowUnsafePathSegments: true
+    });
+
+    expect(Object.getPrototypeOf(target)).toBe(Object.prototype);
+    expect(Object.prototype.hasOwnProperty.call(target, "__proto__")).toBe(true);
+    expect(target.__proto__).toEqual({ polluted: "yes" });
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+  });
+
+  it("does not treat trusted array index markers as prototype access", () => {
+    const target = {} as Record<string, unknown>;
+
+    setPathValue(target, "items[__proto__].title", "safe", {
+      allowUnsafePathSegments: true
+    });
+
+    expect(Object.getPrototypeOf(target)).toBe(Object.prototype);
+    expect(({} as Record<string, unknown>).title).toBeUndefined();
+    expect(Object.prototype.hasOwnProperty.call(target.items as Record<string, unknown>, "__proto__")).toBe(true);
+    expect((target.items as Record<string, unknown>).__proto__).toEqual({ title: "safe" });
+  });
+
   it("validates and transforms using schema.parse when schema is provided", () => {
     const schema = {
       parse(value: unknown) {
