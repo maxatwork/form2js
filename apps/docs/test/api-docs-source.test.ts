@@ -1,6 +1,13 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { describe, expect, it } from "vitest";
 
 import { parseApiDocsMarkdown } from "../src/lib/api-docs-source";
+
+const testDir = path.dirname(fileURLToPath(import.meta.url));
+const apiDocsMarkdown = readFileSync(path.resolve(testDir, "../../../docs/api.md"), "utf8");
 
 describe("parseApiDocsMarkdown", () => {
   it("extracts the H1 title, intro copy, headings, and rewrites markdown links", () => {
@@ -83,5 +90,17 @@ Text.
         { basePath: "/" }
       )
     ).toThrow("docs/api.md must start with an H1 heading.");
+  });
+
+  it("documents installation for every package, including standalone globals where supported", () => {
+    expect(apiDocsMarkdown).toContain("npm install @form2js/core");
+    expect(apiDocsMarkdown).toContain("npm install @form2js/dom");
+    expect(apiDocsMarkdown).toContain("npm install @form2js/form-data");
+    expect(apiDocsMarkdown).toContain("npm install @form2js/react react");
+    expect(apiDocsMarkdown).toContain("npm install @form2js/js2form");
+    expect(apiDocsMarkdown).toContain("npm install @form2js/jquery jquery");
+    expect(apiDocsMarkdown).toContain("https://unpkg.com/@form2js/dom/dist/standalone.global.js");
+    expect(apiDocsMarkdown).toContain("https://unpkg.com/@form2js/jquery/dist/standalone.global.js");
+    expect(apiDocsMarkdown).toContain("Standalone/global build is not shipped for this package.");
   });
 });

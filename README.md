@@ -2,7 +2,7 @@
 
 🚀 **form2js is back — modernized and actively maintained.**
 
-Originally created in 2010, now rewritten for modern JavaScript, TypeScript, ESM, and modular usage.
+Originally created in 2010, now rewritten for modern JavaScript, TypeScript, ESM, React, and modular usage.
 
 Legacy version is available in the [`legacy` branch](https://github.com/maxatwork/form2js/tree/legacy).
 
@@ -10,7 +10,7 @@ Legacy version is available in the [`legacy` branch](https://github.com/maxatwor
 
 A small family of packages for turning form-shaped data into objects, and objects back into forms.
 
-It is not a serializer, not an ORM, and not a new religion. It just does this one job and does it reliably.
+It is not a serializer, not an ORM, and not a new religion. It just does this one job, does it reliably, and leaves before anyone starts a committee about it.
 
 ## Documentation
 
@@ -19,26 +19,26 @@ It is not a serializer, not an ORM, and not a new religion. It just does this on
 
 ## Packages
 
-| Package              | Purpose                                                     | Module | Standalone | Node.js                 |
-| -------------------- | ----------------------------------------------------------- | ------ | ---------- | ----------------------- |
-| `@form2js/core`      | Path parsing and object transformation engine               | Yes    | No         | Yes                     |
-| `@form2js/dom`       | Extract DOM fields to object (`formToObject`, `form2js`)    | Yes    | Yes        | With DOM shim (`jsdom`) |
-| `@form2js/form-data` | Convert `FormData`/entries to object                        | Yes    | No         | Yes                     |
-| `@form2js/react`     | React submit hook with parsing/validation state             | Yes    | No         | Browser-focused         |
-| `@form2js/js2form`   | Populate DOM fields from object (`objectToForm`, `js2form`) | Yes    | No         | With DOM shim (`jsdom`) |
-| `@form2js/jquery`    | jQuery plugin adapter (`$.fn.toObject`)                     | Yes    | Yes        | Browser-focused         |
+| Package | npm | Purpose | Module | Standalone | Node.js |
+| ------- | --- | ------- | ------ | ---------- | ------- |
+| [`@form2js/react`](https://www.npmjs.com/package/@form2js/react) | [![npm version](https://img.shields.io/npm/v/%40form2js%2Freact?label=npm)](https://www.npmjs.com/package/@form2js/react) | React submit hook with parsing/validation state | Yes | No | Browser-focused |
+| [`@form2js/dom`](https://www.npmjs.com/package/@form2js/dom) | [![npm version](https://img.shields.io/npm/v/%40form2js%2Fdom?label=npm)](https://www.npmjs.com/package/@form2js/dom) | Extract DOM fields to object (`formToObject`, `form2js`) | Yes | Yes | With DOM shim (`jsdom`) |
+| [`@form2js/form-data`](https://www.npmjs.com/package/@form2js/form-data) | [![npm version](https://img.shields.io/npm/v/%40form2js%2Fform-data?label=npm)](https://www.npmjs.com/package/@form2js/form-data) | Convert `FormData`/entries to object | Yes | No | Yes |
+| [`@form2js/js2form`](https://www.npmjs.com/package/@form2js/js2form) | [![npm version](https://img.shields.io/npm/v/%40form2js%2Fjs2form?label=npm)](https://www.npmjs.com/package/@form2js/js2form) | Populate DOM fields from object (`objectToForm`, `js2form`) | Yes | No | With DOM shim (`jsdom`) |
+| [`@form2js/core`](https://www.npmjs.com/package/@form2js/core) | [![npm version](https://img.shields.io/npm/v/%40form2js%2Fcore?label=npm)](https://www.npmjs.com/package/@form2js/core) | Path parsing and object transformation engine | Yes | No | Yes |
+| [`@form2js/jquery`](https://www.npmjs.com/package/@form2js/jquery) | [![npm version](https://img.shields.io/npm/v/%40form2js%2Fjquery?label=npm)](https://www.npmjs.com/package/@form2js/jquery) | jQuery plugin adapter (`$.fn.toObject`) | Yes | Yes | Browser-focused |
 
 ## Installation
 
 Install only what you need:
 
 ```bash
+npm install @form2js/react react
 npm install @form2js/dom
 npm install @form2js/form-data
 npm install @form2js/js2form
 npm install @form2js/core
 npm install @form2js/jquery jquery
-npm install @form2js/react react
 ```
 
 For browser standalone usage, use script builds where available:

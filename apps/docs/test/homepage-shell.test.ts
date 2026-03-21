@@ -6,6 +6,10 @@ import { describe, expect, it } from "vitest";
 
 const testDir = path.dirname(fileURLToPath(import.meta.url));
 const homepageSource = readFileSync(path.resolve(testDir, "../src/pages/index.astro"), "utf8");
+const installSectionSource = readFileSync(
+  path.resolve(testDir, "../src/components/landing/InstallSection.astro"),
+  "utf8"
+);
 
 describe("docs homepage shell", () => {
   it("wires the landing page sections together", () => {
@@ -13,5 +17,14 @@ describe("docs homepage shell", () => {
     expect(homepageSource).toContain('id="playground"');
     expect(homepageSource).toContain("<InstallSection />");
     expect(homepageSource).toContain("<ApiDocsCta />");
+    expect(readFileSync(path.resolve(testDir, "../src/components/landing/Hero.astro"), "utf8")).toContain(
+      "npm install @form2js/react react"
+    );
+  });
+
+  it("includes npm and standalone install guidance for supported variants", () => {
+    expect(installSectionSource).toContain("npm install @form2js/react react");
+    expect(installSectionSource).toContain("https://unpkg.com/@form2js/dom/dist/standalone.global.js");
+    expect(installSectionSource).toContain("https://unpkg.com/@form2js/jquery/dist/standalone.global.js");
   });
 });
