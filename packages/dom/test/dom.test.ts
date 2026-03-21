@@ -116,11 +116,14 @@ describe("extractPairs", () => {
 });
 
 describe("formToObject", () => {
-  it("keeps legacy checkbox and radio coercion quirks", () => {
+  it("keeps checkbox and radio values aligned with native form submission", () => {
     document.body.innerHTML = `
       <form id="testForm">
-        <input type="checkbox" name="person.agree" value="true" />
-        <input type="radio" name="person.optOut" value="false" checked />
+        <input type="checkbox" name="person.checkboxTrueChecked" value="true" checked />
+        <input type="checkbox" name="person.checkboxTrueUnchecked" value="true" />
+        <input type="checkbox" name="person.checkboxFalseChecked" value="false" checked />
+        <input type="checkbox" name="person.checkboxFalseUnchecked" value="false" />
+        <input type="radio" name="person.radio" value="false" checked />
       </form>
     `;
 
@@ -129,8 +132,9 @@ describe("formToObject", () => {
 
     expect(result).toEqual({
       person: {
-        agree: false,
-        optOut: false
+        checkboxTrueChecked: "true",
+        checkboxFalseChecked: "false",
+        radio: "false"
       }
     });
   });

@@ -224,10 +224,9 @@ export function form2js(
 ### Behavior notes
 
 - `select name="colors[]"` is emitted as key `colors` (the trailing `[]` is removed for selects).
-- Legacy checkbox/radio quirks are preserved:
-  - checked `"true"` -> `true`
-  - unchecked `"true"` -> `false`
-  - checked `"false"` (radio/checkbox) -> `false`
+- Checkbox and radio values follow native browser form submission semantics:
+  - checked controls emit their string `value`
+  - unchecked controls are omitted
 - Button-like inputs (`button`, `reset`, `submit`, `image`) are excluded from extraction.
 - Can merge multiple roots (`NodeList`, arrays, `HTMLCollection`) into one object.
 - If callback returns `SKIP_NODE`, that node is excluded from extraction entirely.

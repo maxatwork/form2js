@@ -208,29 +208,7 @@ function getFieldValue(fieldNode: Node, getDisabled: boolean): unknown {
 
       switch (inputType) {
         case "radio":
-          if (fieldNode.checked && fieldNode.value === "false") {
-            return false;
-          }
-
-          if (fieldNode.checked && fieldNode.value === "true") {
-            return true;
-          }
-
-          if (fieldNode.checked) {
-            return fieldNode.value;
-          }
-
-          return null;
-
         case "checkbox":
-          if (fieldNode.checked && fieldNode.value === "true") {
-            return true;
-          }
-
-          if (!fieldNode.checked && fieldNode.value === "true") {
-            return false;
-          }
-
           if (fieldNode.checked) {
             return fieldNode.value;
           }

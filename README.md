@@ -265,7 +265,7 @@ Compatibility with the old project is intentional.
 - Name paths define output shape (`person.name.first`).
 - Array and indexed syntax is preserved (`items[]`, `items[5].name`).
 - Rails-style names are supported (`rails[field][value]`).
-- Checkbox/radio `"true"` and `"false"` quirks are preserved.
+- DOM extraction follows native browser form submission semantics for checkbox and radio values.
 - Unsafe key path segments (`__proto__`, `prototype`, `constructor`) are rejected by default.
 - This library does data shaping, not JSON/XML serialization.
 
@@ -274,7 +274,7 @@ Compatibility with the old project is intentional.
 These boundaries are intentional and are used for issue triage.
 
 - Sparse indexes are compacted in first-seen order (`items[5]`, `items[8]` -> `items[0]`, `items[1]`).
-- Type inference is minimal by design; only legacy checkbox/radio `"true"` and `"false"` coercion is built in.
+- Type inference is minimal by design; DOM extraction keeps native string values instead of coercing checkbox/radio fields.
 - `formToObject` reads successful form control values, not option labels. Disabled controls (including disabled fieldset descendants) and button-like inputs are excluded unless you explicitly opt in to disabled values.
 - `extractPairs`/`formToObject` support `nodeCallback`; return `SKIP_NODE` to exclude a node entirely, or `{ name|key, value }` to inject a custom entry.
 - Parser inputs reject unsafe path segments by default. Use `allowUnsafePathSegments: true` only with trusted inputs.
