@@ -13,10 +13,10 @@
   "scripts": {
     "build": "turbo run build",
     "build:packages": "turbo run build --filter=@form2js/*",
-    "docs": "npm -w @form2js/docs run dev",
-    "docs:build": "npm -w @form2js/docs run build",
+    "docs": "npm run build:packages && npm -w @form2js/docs run dev",
+    "docs:build": "npm run build:packages && npm -w @form2js/docs run build",
     "test": "npm run test:packages && npm run test:integration && npm run test:docs",
-    "test:docs": "DOCS_E2E_PORT=4329 npm -w @form2js/docs run test:e2e",
+    "test:docs": "npm run build:packages && DOCS_E2E_PORT=4329 npm -w @form2js/docs run test:e2e",
     "test:packages": "turbo run test",
     "test:integration": "vitest run test/integration",
     "lint": "turbo run lint",
