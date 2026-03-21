@@ -13,12 +13,12 @@
     "clean": "rimraf dist .astro"
   },
   "dependencies": {
-    "@form2js/core": "3.3.0",
-    "@form2js/dom": "3.2.0",
-    "@form2js/form-data": "3.2.3",
-    "@form2js/jquery": "3.1.5",
-    "@form2js/js2form": "3.2.0",
-    "@form2js/react": "3.2.3",
+    "@form2js/core": "3.4.0",
+    "@form2js/dom": "3.4.0",
+    "@form2js/form-data": "3.4.0",
+    "@form2js/jquery": "3.4.0",
+    "@form2js/js2form": "3.4.0",
+    "@form2js/react": "3.4.0",
     "@astrojs/react": "^4.4.0",
     "astro": "^5.7.0",
     "jquery": "^3.7.1",

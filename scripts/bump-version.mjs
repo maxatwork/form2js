@@ -71,6 +71,18 @@ async function readJson(filePath) {
   return JSON.parse(raw);
 }
 
+async function readJsonIfExists(filePath) {
+  try {
+    return await readJson(filePath);
+  } catch (error) {
+    if (error && typeof error === "object" && error.code === "ENOENT") {
+      return null;
+    }
+
+    throw error;
+  }
+}
+
 function rewriteDependencyRange(currentRange, targetVersion) {
   const clean = currentRange.trim();
 
@@ -109,12 +121,14 @@ async function main() {
   ).flat();
 
   const packagePaths = workspaceDirs.map((dir) => path.resolve(dir, "package.json"));
-  const manifests = await Promise.all(
-    packagePaths.map(async (packagePath) => ({
-      packagePath,
-      data: await readJson(packagePath),
-    }))
-  );
+  const manifests = (
+    await Promise.all(
+      packagePaths.map(async (packagePath) => {
+        const data = await readJsonIfExists(packagePath);
+        return data ? { packagePath, data } : null;
+      })
+    )
+  ).filter(Boolean);
 
   const workspacePackageNames = new Set(
     manifests.map((manifest) => manifest.data.name).filter(Boolean)

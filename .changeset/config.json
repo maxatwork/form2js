@@ -2,7 +2,16 @@
   "$schema": "https://unpkg.com/@changesets/config@3.0.0/schema.json",
   "changelog": "@changesets/cli/changelog",
   "commit": false,
-  "fixed": [],
+  "fixed": [
+    [
+      "@form2js/core",
+      "@form2js/dom",
+      "@form2js/form-data",
+      "@form2js/js2form",
+      "@form2js/jquery",
+      "@form2js/react"
+    ]
+  ],
   "linked": [],
   "access": "public",
   "baseBranch": "master",

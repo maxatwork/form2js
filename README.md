@@ -341,7 +341,7 @@ Please include:
 ## Release workflow
 
 - CI runs lint, typecheck, test, build, and package dry-run.
-- Releases are managed with Changesets and independent package versions.
+- Releases are managed with Changesets and the published `@form2js/*` packages are versioned in lockstep.
 
 ## Scope rewrite helper
 
