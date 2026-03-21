@@ -63,5 +63,8 @@ jobs:
       - name: Install Playwright Chromium
         run: npm -w @form2js/docs exec playwright install --with-deps chromium
 
+      - name: Build workspace packages
+        run: npm run build:packages
+
       - name: Test Docs E2E
         run: npm run test:docs
