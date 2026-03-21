@@ -17,3 +17,4 @@ docs/triage-*
 .worktrees
 apps/docs/test-results/
 apps/docs/playwright-report/
+docs/superpowers/
