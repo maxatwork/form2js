@@ -108,12 +108,19 @@ a {
 }
 
 .api-docs {
-  width: min(82rem, calc(100% - 3rem));
+  width: min(96rem, calc(100% - 3rem));
   margin: 0 auto;
   padding: 3rem 0 4rem;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 18rem;
+  grid-template-columns: 16rem minmax(0, 1fr) 18rem;
   gap: 2rem;
+}
+
+.api-docs__nav,
+.api-docs__sidebar {
+  position: sticky;
+  top: 1rem;
+  align-self: start;
 }
 
 .api-docs__content {
@@ -137,6 +144,14 @@ a {
 
 .api-docs__body {
   margin-top: 2rem;
+}
+
+.api-package-nav,
+.api-toc,
+.api-package-summary {
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--panel);
 }
 
 .api-docs__body h2,
@@ -171,19 +186,11 @@ a {
   vertical-align: top;
 }
 
-.api-docs__sidebar {
-  position: sticky;
-  top: 1rem;
-  align-self: start;
-}
-
-.api-toc {
+.api-package-nav {
   padding: 1rem;
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-  background: var(--panel);
 }
 
+.api-package-nav__eyebrow,
 .api-toc__eyebrow {
   margin: 0 0 0.75rem;
   color: var(--accent);
@@ -191,6 +198,36 @@ a {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.8rem;
+}
+
+.api-package-nav__list,
+.api-toc__list,
+.api-toc__sublist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.api-package-nav__list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.api-package-nav__link {
+  display: block;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.75rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.api-package-nav__link[aria-current="page"] {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--text);
+}
+
+.api-toc {
+  padding: 1rem;
 }
 
 .api-toc__list,
@@ -223,13 +260,44 @@ a {
   color: var(--text);
 }
 
+.api-package-summary-list {
+  margin-top: 2rem;
+}
+
+.api-package-summary-list h2 {
+  margin-bottom: 1rem;
+}
+
+.api-package-summary-list__items {
+  display: grid;
+  gap: 1rem;
+}
+
+.api-package-summary {
+  padding: 1.25rem;
+}
+
+.api-package-summary h3 {
+  margin: 0 0 0.5rem;
+}
+
+.api-package-summary p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
 @media (max-width: 900px) {
   .api-docs {
     grid-template-columns: 1fr;
   }
 
-  .api-docs__sidebar {
+  .api-docs__nav {
     position: static;
     order: -1;
+  }
+
+  .api-docs__sidebar {
+    position: static;
   }
 }

@@ -15,7 +15,7 @@ It is not a serializer, not an ORM, and not a new religion. It just does this on
 ## Documentation
 
 - [Docs Site](https://maxatwork.github.io/form2js/) - overview, installation, unified playground, and published API reference.
-- [API Reference Source](docs/api.md) - markdown source for the published API docs page.
+- [API Reference Source](docs/api-index.md) - markdown source for the published API docs page.
 
 ## Packages
 

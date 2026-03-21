@@ -1,12 +1,15 @@
 import { readFile } from "node:fs/promises";
-import path from "node:path";
 import rehypeStringify from "rehype-stringify";
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 
-import { apiDocsPath, homepagePath } from "./site-routes";
+import {
+  apiIndexMarkdownPath,
+  getApiPackageByMarkdownBasename
+} from "./api-packages";
+import { apiDocsPath, apiPackageDocsPath, homepagePath } from "./site-routes";
 
 export interface ApiHeading {
   depth: 2 | 3;
@@ -63,22 +66,24 @@ function rewriteMarkdownLink(url: string, basePath: string): string {
 
   const [pathname, hash] = url.split("#");
   const suffix = hash ? `#${hash}` : "";
+  const normalizedPathname = pathname
+    .replace(/^(?:\.\.\/)?docs\//, "")
+    .replace(/^\.\//, "");
 
   if (
-    pathname === "README.md" ||
-    pathname === "./README.md" ||
+    normalizedPathname === "README.md" ||
     pathname === "../README.md"
   ) {
     return `${homepagePath(basePath)}${suffix}`;
   }
 
-  if (
-    pathname === "api.md" ||
-    pathname === "./api.md" ||
-    pathname === "docs/api.md" ||
-    pathname === "../docs/api.md"
-  ) {
+  if (normalizedPathname === "api.md" || normalizedPathname === "api-index.md") {
     return `${apiDocsPath(basePath)}${suffix}`;
+  }
+
+  const apiPackage = getApiPackageByMarkdownBasename(normalizedPathname);
+  if (apiPackage) {
+    return `${apiPackageDocsPath(basePath, apiPackage.slug)}${suffix}`;
   }
 
   return url;
@@ -135,7 +140,7 @@ export function parseApiDocsMarkdown(
   const titleNode = rootChildren[0];
 
   if (titleNode?.type !== "heading" || titleNode.depth !== 1) {
-    throw new Error("docs/api.md must start with an H1 heading.");
+    throw new Error("API docs markdown must start with an H1 heading.");
   }
 
   const title = collectText(titleNode);
@@ -217,9 +222,7 @@ export function parseApiDocsMarkdown(
 export async function loadApiDocsSource(
   options: { basePath?: string; markdownPath?: string } = {}
 ): Promise<ApiDocsSource> {
-  const markdownPath =
-    options.markdownPath ??
-    path.resolve(process.cwd(), "..", "..", "docs", "api.md");
+  const markdownPath = options.markdownPath ?? apiIndexMarkdownPath;
   const markdown = await readFile(markdownPath, "utf8");
 
   return parseApiDocsMarkdown(markdown, {

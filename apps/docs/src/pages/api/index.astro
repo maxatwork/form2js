@@ -1,5 +1,7 @@
 ---
+import { ApiPackageSummaryList } from "../../components/api/ApiPackageSummaryList";
 import ApiDocsLayout from "../../layouts/ApiDocsLayout.astro";
+import { apiPackages } from "../../lib/api-packages";
 import { loadApiDocsSource } from "../../lib/api-docs-source";
 
 const apiDocsSource = await loadApiDocsSource({
@@ -11,5 +13,12 @@ const apiDocsSource = await loadApiDocsSource({
   bodyHtml={apiDocsSource.bodyHtml}
   headings={apiDocsSource.headings}
   introHtml={apiDocsSource.introHtml}
+  packages={apiPackages}
   title={apiDocsSource.title}
-/>
+>
+  <ApiPackageSummaryList
+    slot="summary"
+    basePath={import.meta.env.BASE_URL}
+    packages={apiPackages}
+  />
+</ApiDocsLayout>
