@@ -1,5 +1,13 @@
 # @form2js/js2form
 
+## 3.1.4
+
+### Patch Changes
+
+- Republish the package metadata and package-level README improvements across all public packages after fixing publish configuration.
+- Updated dependencies
+  - @form2js/core@3.2.2
+
 ## 3.1.3
 
 ### Patch Changes

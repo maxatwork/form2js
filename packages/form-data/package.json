@@ -1,6 +1,6 @@
 {
   "name": "@form2js/form-data",
-  "version": "3.2.1",
+  "version": "3.2.2",
   "description": "FormData adapters for form2js.",
   "license": "MIT",
   "repository": "https://github.com/maxatwork/form2js",
@@ -38,7 +38,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@form2js/core": "3.2.1"
+    "@form2js/core": "3.2.2"
   },
   "scripts": {
     "build": "tsup --config tsup.config.ts",

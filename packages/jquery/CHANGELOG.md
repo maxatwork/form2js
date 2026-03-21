@@ -1,5 +1,13 @@
 # @form2js/jquery
 
+## 3.1.4
+
+### Patch Changes
+
+- Republish the package metadata and package-level README improvements across all public packages after fixing publish configuration.
+- Updated dependencies
+  - @form2js/dom@3.1.4
+
 ## 3.1.3
 
 ### Patch Changes

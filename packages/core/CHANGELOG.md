@@ -1,5 +1,11 @@
 # @form2js/core
 
+## 3.2.2
+
+### Patch Changes
+
+- Republish the package metadata and package-level README improvements across all public packages after fixing publish configuration.
+
 ## 3.2.1
 
 ### Patch Changes

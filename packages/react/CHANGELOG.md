@@ -1,5 +1,13 @@
 # @form2js/react
 
+## 3.2.2
+
+### Patch Changes
+
+- Republish the package metadata and package-level README improvements across all public packages after fixing publish configuration.
+- Updated dependencies
+  - @form2js/form-data@3.2.2
+
 ## 3.2.1
 
 ### Patch Changes
