@@ -28,6 +28,14 @@ function createSuccessState(parsedPayload: unknown): StandardOutputState {
   return { kind: "standard", status: "success", statusMessage: "@form2js/js2form -> objectToForm(...), then formToObject(...)", errorMessage: null, parsedPayload };
 }
 
+function formatVariantError(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return String(error);
+}
+
 export function Js2FormVariant({ onOutputChange }: VariantComponentProps): React.JSX.Element {
   const formRef = useRef<HTMLFormElement>(null);
   const jsonInputRef = useRef<HTMLTextAreaElement>(null);
@@ -36,12 +44,21 @@ export function Js2FormVariant({ onOutputChange }: VariantComponentProps): React
     const form = formRef.current;
     const jsonInput = jsonInputRef.current;
     if (!form || !jsonInput) { onOutputChange(createIdleState()); return; }
+
+    let parsed: unknown;
+
     try {
-      const parsed = JSON.parse(jsonInput.value) as unknown;
-      objectToForm(form, parsed);
-      onOutputChange(createSuccessState(formToObject(form)));
+      parsed = JSON.parse(jsonInput.value) as unknown;
     } catch {
       onOutputChange(createErrorState("JSON parse error: please provide valid JSON before applying js2form."));
+      return;
+    }
+
+    try {
+      objectToForm(form, parsed);
+      onOutputChange(createSuccessState(formToObject(form)));
+    } catch (error: unknown) {
+      onOutputChange(createErrorState(`js2form runtime error: ${formatVariantError(error)}`));
     }
   }
 

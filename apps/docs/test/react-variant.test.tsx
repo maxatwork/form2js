@@ -160,6 +160,50 @@ describe("ReactVariant", () => {
     act(() => { view.root.unmount(); });
   });
 
+  it("clears a queued force-error after a validation failure so the next valid submit succeeds", async () => {
+    const view = renderVariant(ReactVariant);
+    const forceErrorButton = [...view.container.querySelectorAll("button")].find((button) =>
+      button.textContent?.includes("Force Error")
+    );
+    const emailInput = view.container.querySelector<HTMLInputElement>('input[name="person.email"]');
+
+    act(() => {
+      if (!emailInput) throw new Error("Missing email input.");
+      emailInput.value = "bad-email";
+      emailInput.dispatchEvent(new Event("input", { bubbles: true }));
+      forceErrorButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+
+    act(() => {
+      if (!emailInput) throw new Error("Missing email input.");
+      emailInput.value = "sam.vimes@ankh-morpork.gov";
+      emailInput.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+
+    await submitForm(view.container);
+
+    expect(view.getLastOutputState()).toMatchObject({
+      kind: "react",
+      status: "running"
+    });
+
+    await act(async () => {
+      vi.advanceTimersByTime(900);
+      await Promise.resolve();
+    });
+
+    expect(view.getLastOutputState()).toMatchObject({
+      kind: "react",
+      status: "success",
+      statusMessage: "Callback resolved",
+      submitFlags: { isSubmitting: false, isError: false, isSuccess: true },
+      error: null,
+      meta: { submitMode: "onSubmit", validationEnabled: true }
+    });
+
+    act(() => { view.root.unmount(); });
+  });
+
   it("resets back to idle and clears the last successful payload", async () => {
     const view = renderVariant(ReactVariant);
     const resetButton = [...view.container.querySelectorAll("button")].find((button) =>

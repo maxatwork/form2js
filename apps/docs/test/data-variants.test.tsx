@@ -83,7 +83,7 @@ describe("parser playground variants", () => {
     const form = view.container.querySelector("form");
 
     expect(firstNameInput?.value).toBe("Tiffany");
-    expect(form).toBeDefined();
+    expect(form).not.toBeNull();
 
     act(() => {
       form?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
@@ -102,6 +102,34 @@ describe("parser playground variants", () => {
           tags: ["witch"]
         }
       }
+    });
+
+    act(() => { view.root.unmount(); });
+  });
+
+  it("reports runtime merge failures from the core parser instead of labeling them as JSON parse errors", () => {
+    const view = renderVariant(CoreVariant);
+    const jsonInput = view.container.querySelector<HTMLTextAreaElement>('textarea[name="core-entries-json"]');
+    const runButton = [...view.container.querySelectorAll("button")].find((button) =>
+      button.textContent?.includes("@form2js/core")
+    );
+
+    act(() => {
+      if (!jsonInput) throw new Error("Missing core JSON input.");
+      jsonInput.value = JSON.stringify([
+        { key: "person", value: "watch" },
+        { key: "person.name.first", value: "Sam" }
+      ]);
+      jsonInput.dispatchEvent(new Event("input", { bubbles: true }));
+      runButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+
+    expect(view.getLastOutputState()).toEqual({
+      kind: "standard",
+      status: "error",
+      statusMessage: "core parse failed.",
+      errorMessage: "Core conversion failed: Expected object-like container while setting nested path",
+      parsedPayload: null
     });
 
     act(() => { view.root.unmount(); });

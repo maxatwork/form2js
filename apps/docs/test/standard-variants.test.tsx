@@ -61,7 +61,7 @@ describe("standard playground variants", () => {
 
     expect(firstNameInput?.value).toBe("Esme");
     expect(lastNameInput?.value).toBe("Weatherwax");
-    expect(form).toBeDefined();
+    expect(form).not.toBeNull();
 
     act(() => {
       form?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));

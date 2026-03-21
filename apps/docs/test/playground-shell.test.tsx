@@ -108,6 +108,10 @@ function makeVariant(
   };
 }
 
+function resetMockVariants(): void {
+  mockVariantsById.react = makeVariant("react", "react", "React", "React complete");
+}
+
 const { mockVariantsById } = vi.hoisted(() => ({
   mockVariantsById: {
     react: makeVariant("react", "react", "React", "React complete"),
@@ -136,6 +140,7 @@ let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
 beforeEach(() => {
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  resetMockVariants();
   consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
   container = document.createElement("div");
   document.body.append(container);
@@ -148,6 +153,7 @@ afterEach(() => {
     root.unmount();
   });
   container.remove();
+  resetMockVariants();
   consoleErrorSpy.mockRestore();
   vi.clearAllMocks();
 });
@@ -312,6 +318,5 @@ describe("PlaygroundShell", () => {
     expect(container.textContent).toContain("React failed");
     expect(container.textContent).toContain("React render exploded");
 
-    mockVariantsById.react = makeVariant("react", "react", "React", "React complete");
   });
 });

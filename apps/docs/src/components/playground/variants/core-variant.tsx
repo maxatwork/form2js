@@ -21,17 +21,34 @@ function createSuccessState(parsedPayload: unknown): StandardOutputState {
   return { kind: "standard", status: "success", statusMessage: "@form2js/core -> entriesToObject(entry objects)", errorMessage: null, parsedPayload };
 }
 
+function formatVariantError(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return String(error);
+}
+
 export function CoreVariant({ onOutputChange }: VariantComponentProps): React.JSX.Element {
   const jsonInputRef = useRef<HTMLTextAreaElement>(null);
 
   function handleRun(): void {
     const jsonInput = jsonInputRef.current;
     if (!jsonInput) return;
+
+    let parsed: { key: string; value: unknown }[];
+
     try {
-      const parsed = JSON.parse(jsonInput.value) as { key: string; value: unknown }[];
-      onOutputChange(createSuccessState(entriesToObject(parsed)));
+      parsed = JSON.parse(jsonInput.value) as { key: string; value: unknown }[];
     } catch {
       onOutputChange(createErrorState("JSON parse error: please provide valid entry-object JSON before parsing core entries."));
+      return;
+    }
+
+    try {
+      onOutputChange(createSuccessState(entriesToObject(parsed)));
+    } catch (error: unknown) {
+      onOutputChange(createErrorState(`Core conversion failed: ${formatVariantError(error)}`));
     }
   }
 

@@ -80,14 +80,31 @@ export function ReactVariant({ onOutputChange }: VariantComponentProps): React.J
     onOutputChangeRef.current(createOutputState(isSubmitting, isError, isSuccess, error, lastSuccessfulPayload));
   }, [error, isError, isSubmitting, isSuccess, lastSuccessfulPayload]);
 
+  useEffect(() => {
+    if (!isSubmitting && (isError || isSuccess)) {
+      forceErrorRef.current = false;
+    }
+  }, [isError, isSubmitting, isSuccess]);
+
   function handleReset(): void {
+    forceErrorRef.current = false;
     reset();
     setLastSuccessfulPayload(null);
   }
 
   function handleForceError(): void {
+    const form = formRef.current;
+    if (!form) {
+      return;
+    }
+
+    if (!form.reportValidity()) {
+      forceErrorRef.current = false;
+      return;
+    }
+
     forceErrorRef.current = true;
-    formRef.current?.requestSubmit();
+    form.requestSubmit();
   }
 
   return (

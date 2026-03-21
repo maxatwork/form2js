@@ -47,6 +47,7 @@
 
 @media (max-width: 760px) {
   .pg-body { grid-template-columns: 1fr; }
+  .pg-form-col { border-right: none; }
 }
 
 .pg-form-col {

@@ -314,7 +314,7 @@ The homepage includes the unified playground for `@form2js/react`, `@form2js/dom
 
 The published docs site is deployed by `.github/workflows/pages.yml`.
 
-- Trigger: pushes to `master` that touch `apps/docs/**`, `docs/**`, or `packages/**` and manual `workflow_dispatch`.
+- Trigger: pushes to `master` that touch `apps/docs/**`, `docs/**`, `packages/**`, `.github/workflows/pages.yml`, `package.json`, `package-lock.json`, `turbo.json`, or `tsconfig.base.json`, plus manual `workflow_dispatch`.
 - Output: `apps/docs/dist`.
 - URL: `https://maxatwork.github.io/form2js/`.
 
