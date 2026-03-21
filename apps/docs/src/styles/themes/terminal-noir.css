@@ -1,0 +1,16 @@
+/* apps/docs/src/styles/themes/terminal-noir.css */
+:root {
+  color-scheme: dark;
+  --c-bg: #030403;
+  --c-panel: #040c04;
+  --c-panel-2: #020802;
+  --c-text: #22ff44;
+  --c-muted: #2a6b2a;
+  --c-accent: #22ff44;
+  --c-accent-2: #22ff44;
+  --c-accent-glow: rgba(34, 255, 68, 0.18);
+  --c-border: #0f2e0f;
+  --f-ui: 'Space Mono', monospace;
+  --f-mono: 'Space Mono', monospace;
+  --f-display: 'Space Mono', monospace;
+}

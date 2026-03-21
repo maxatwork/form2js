@@ -1,0 +1,30 @@
+---
+import { ApiToc } from "../components/api/ApiToc";
+import type { ApiHeading } from "../lib/api-docs-source";
+import DocsShell from "./DocsShell.astro";
+
+interface Props {
+  title: string;
+  introHtml: string;
+  bodyHtml: string;
+  headings: ApiHeading[];
+}
+
+const { title, introHtml, bodyHtml, headings } = Astro.props;
+---
+
+<DocsShell title={`${title} | form2js`}>
+  <section class="api-docs">
+    <article class="api-docs__content">
+      <header class="api-docs__header">
+        <p class="hero__eyebrow">API Docs</p>
+        <h1>{title}</h1>
+        {introHtml ? <div class="api-docs__intro" set:html={introHtml} /> : null}
+      </header>
+      <div class="api-docs__body" set:html={bodyHtml} />
+    </article>
+    <aside class="api-docs__sidebar">
+      <ApiToc client:load headings={headings} />
+    </aside>
+  </section>
+</DocsShell>

@@ -1,0 +1,15 @@
+---
+// apps/docs/src/components/landing/ApiDocsCta.astro
+import { apiDocsPath } from "../../lib/site-routes";
+const basePath = import.meta.env.BASE_URL;
+---
+
+<section class="section content-wrap">
+  <p class="section-eyebrow">Reference</p>
+  <h2 class="section-title">API Documentation</h2>
+  <p class="section-desc">
+    Exact signatures, option defaults, TypeScript types, and compatibility
+    notes for every package — all generated from the same source of truth.
+  </p>
+  <a class="btn-primary" href={apiDocsPath(basePath)}>Open API Docs →</a>
+</section>

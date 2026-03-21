@@ -1,0 +1,16 @@
+/* apps/docs/src/styles/themes/outrun-sunset.css */
+:root {
+  color-scheme: dark;
+  --c-bg: #050a1a;
+  --c-panel: #080f26;
+  --c-panel-2: #060c1e;
+  --c-text: #ffffff;
+  --c-muted: rgba(255, 255, 255, 0.35);
+  --c-accent: #ff8c00;
+  --c-accent-2: #ff2d55;
+  --c-accent-glow: rgba(255, 100, 0, 0.22);
+  --c-border: rgba(255, 100, 0, 0.2);
+  --f-ui: 'Syne', sans-serif;
+  --f-mono: 'DM Mono', 'Fira Code', monospace;
+  --f-display: 'Dela Gothic One', 'Syne', sans-serif;
+}

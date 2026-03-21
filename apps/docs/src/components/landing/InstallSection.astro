@@ -1,0 +1,74 @@
+---
+// apps/docs/src/components/landing/InstallSection.astro
+---
+
+<section class="section content-wrap" id="install">
+  <p class="section-eyebrow">Use in your project</p>
+  <div class="install-grid">
+    <div>
+      <h2 class="section-title">Install</h2>
+      <p class="section-desc">
+        Pick the adapter for your stack. All packages share the same
+        path-syntax so switching is painless.
+      </p>
+    </div>
+    <div>
+      <span id="install-cmd" class="install-cmd">npm install @form2js/react</span>
+      <pre id="install-snippet" class="code-block">{`import { useForm2js } from '@form2js/react'
+
+const { ref, onSubmit, isSubmitting } = useForm2js(handler)
+
+// nested names just work:
+// <input name="user.email" />
+// → { user: { email: '…' } }`}</pre>
+    </div>
+  </div>
+</section>
+
+<script>
+  type VariantId = "react" | "form" | "jquery" | "js2form" | "core" | "form-data";
+  type VariantChangeDetail = { variantId: VariantId; packages: string[] };
+
+  const SNIPPETS = {
+    react: `import { useForm2js } from '@form2js/react'
+
+const { ref, onSubmit, isSubmitting } = useForm2js(handler)`,
+    form: `import { formToObject } from '@form2js/dom'
+
+const data = formToObject(formElement)`,
+    jquery: `import { installToObjectPlugin } from '@form2js/jquery'
+
+installToObjectPlugin($)
+const data = $('form').toObject()`,
+    "js2form": `import { objectToForm } from '@form2js/js2form'
+
+objectToForm(formElement, { user: { name: 'Alice' } })`,
+    core: `import { entriesToObject } from '@form2js/core'
+
+const data = entriesToObject([
+  { key: 'user.name', value: 'Alice' }
+])`,
+    "form-data": `import { formDataToObject } from '@form2js/form-data'
+
+const data = formDataToObject(new FormData(formElement))`,
+  };
+
+  const PACKAGES = {
+    react: "@form2js/react",
+    form: "@form2js/dom",
+    jquery: "@form2js/jquery",
+    "js2form": "@form2js/js2form",
+    core: "@form2js/core",
+    "form-data": "@form2js/form-data",
+  };
+
+  window.addEventListener("form2js:variant-change", (e) => {
+    const detail = (e as CustomEvent<VariantChangeDetail>).detail;
+    const cmdEl = document.getElementById("install-cmd");
+    const snippetEl = document.getElementById("install-snippet");
+    const pkg = PACKAGES[detail.variantId] ?? detail.packages[0];
+    const snippet = SNIPPETS[detail.variantId] ?? "";
+    if (cmdEl && pkg) cmdEl.textContent = `npm install ${pkg}`;
+    if (snippetEl && snippet) snippetEl.textContent = snippet;
+  });
+</script>

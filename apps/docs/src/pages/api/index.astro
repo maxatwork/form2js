@@ -1,0 +1,15 @@
+---
+import ApiDocsLayout from "../../layouts/ApiDocsLayout.astro";
+import { loadApiDocsSource } from "../../lib/api-docs-source";
+
+const apiDocsSource = await loadApiDocsSource({
+  basePath: import.meta.env.BASE_URL
+});
+---
+
+<ApiDocsLayout
+  bodyHtml={apiDocsSource.bodyHtml}
+  headings={apiDocsSource.headings}
+  introHtml={apiDocsSource.introHtml}
+  title={apiDocsSource.title}
+/>

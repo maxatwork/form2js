@@ -1,0 +1,16 @@
+/* apps/docs/src/styles/themes/editorial.css */
+:root {
+  color-scheme: light;
+  --c-bg: #faf9f6;
+  --c-panel: #f0ece0;
+  --c-panel-2: #1a1a1a;
+  --c-text: #1a1a1a;
+  --c-muted: #888888;
+  --c-accent: #ff6600;
+  --c-accent-2: #1a1a1a;
+  --c-accent-glow: transparent;
+  --c-border: #cccccc;
+  --f-ui: 'Libre Baskerville', Georgia, serif;
+  --f-mono: 'DM Mono', 'Fira Code', monospace;
+  --f-display: 'Bebas Neue', 'Arial Black', sans-serif;
+}

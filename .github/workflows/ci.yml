@@ -8,6 +8,7 @@ on:
 
 jobs:
   checks:
+    name: checks (node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -34,10 +35,36 @@ jobs:
         run: npm run typecheck
 
       - name: Test
-        run: npm run test
+        run: npm run test:packages && npm run test:integration
 
       - name: Build
         run: npm run build
 
       - name: Package Dry Run
         run: npm run pack:dry-run
+
+  docs-e2e:
+    name: docs-e2e (node 20)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npm -w @form2js/docs exec playwright install --with-deps chromium
+
+      - name: Build workspace packages
+        run: npm run build:packages
+
+      - name: Test Docs E2E
+        run: npm run test:docs

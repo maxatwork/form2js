@@ -1,0 +1,257 @@
+/* apps/docs/src/styles/landing.css */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--f-ui);
+}
+
+a {
+  color: inherit;
+}
+
+/* ── Nav ── */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2.5rem;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.site-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: var(--c-text);
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.site-brand__badge {
+  padding: 0.15rem 0.5rem;
+  background: var(--c-accent-glow);
+  border: 1px solid color-mix(in srgb, var(--c-accent) 35%, transparent);
+  color: var(--c-accent);
+  font-family: var(--f-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.site-nav a {
+  color: var(--c-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.15s;
+}
+.site-nav a:hover {
+  color: var(--c-text);
+}
+
+/* ── Hero ── */
+.hero {
+  width: min(76rem, calc(100% - 3rem));
+  margin: 0 auto;
+  padding: 5rem 0 3.5rem;
+}
+
+.hero__eyebrow {
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-accent);
+  margin-bottom: 1.25rem;
+}
+
+.hero__title {
+  font-family: var(--f-display);
+  font-size: clamp(3rem, 9vw, 6rem);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  color: var(--c-text);
+  margin-bottom: 1.25rem;
+}
+
+.hero__desc {
+  font-size: 0.95rem;
+  color: var(--c-muted);
+  line-height: 1.7;
+  max-width: 48ch;
+  margin-bottom: 2rem;
+  font-family: var(--f-ui);
+}
+
+.hero__actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.hero__install {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  background: var(--c-panel);
+  border: 1px solid var(--c-border);
+  font-family: var(--f-mono);
+  font-size: 0.8rem;
+  color: var(--c-text);
+}
+
+.hero__install-prefix {
+  color: var(--c-muted);
+}
+
+.btn-primary {
+  display: inline-block;
+  padding: 0.55rem 1.5rem;
+  background: var(--c-accent);
+  color: var(--c-bg);
+  font-family: var(--f-ui);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-primary:hover {
+  opacity: 0.85;
+}
+
+.btn-ghost {
+  display: inline-block;
+  padding: 0.55rem 1.5rem;
+  background: transparent;
+  color: var(--c-muted);
+  font-family: var(--f-ui);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--c-border);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.btn-ghost:hover {
+  color: var(--c-text);
+  border-color: var(--c-text);
+}
+
+/* ── Page sections ── */
+.content-wrap {
+  width: min(76rem, calc(100% - 3rem));
+  margin: 0 auto;
+}
+
+.section {
+  padding: 3rem 0;
+  border-top: 1px solid var(--c-border);
+}
+
+.section-eyebrow {
+  font-family: var(--f-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-accent);
+  margin-bottom: 0.75rem;
+}
+
+.section-title {
+  font-family: var(--f-display);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 900;
+  color: var(--c-text);
+  margin-bottom: 0.75rem;
+}
+
+.section-desc {
+  font-size: 0.9rem;
+  color: var(--c-muted);
+  line-height: 1.65;
+  max-width: 54ch;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Install section ── */
+.install-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+@media (max-width: 680px) {
+  .install-grid {
+    grid-template-columns: 1fr;
+  }
+  .hero {
+    padding: 3rem 0 2.5rem;
+  }
+  .site-header {
+    padding: 1rem 1.25rem;
+  }
+}
+
+.code-block {
+  background: var(--c-panel-2);
+  border: 1px solid var(--c-border);
+  padding: 1.25rem 1.5rem;
+  font-family: var(--f-mono);
+  font-size: 0.78rem;
+  line-height: 1.65;
+  overflow-x: auto;
+  color: var(--c-muted);
+}
+
+.code-block .kw {
+  color: var(--c-accent);
+}
+.code-block .fn {
+  color: var(--c-accent-2);
+}
+.code-block .str {
+  color: var(--c-text);
+  opacity: 0.7;
+}
+.code-block .cmt {
+  color: var(--c-muted);
+  font-style: italic;
+}
+
+.install-cmd {
+  font-family: var(--f-mono);
+  font-size: 0.82rem;
+  color: var(--c-accent);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+.install-cmd::before {
+  content: "$ ";
+  color: var(--c-muted);
+}

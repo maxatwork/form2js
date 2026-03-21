@@ -1,0 +1,16 @@
+/* apps/docs/src/styles/themes/dark-brutalism.css */
+:root {
+  color-scheme: dark;
+  --c-bg: #0c0c0c;
+  --c-panel: #111111;
+  --c-panel-2: #0a0a0a;
+  --c-text: #ffffff;
+  --c-muted: #555555;
+  --c-accent: #c6ff00;
+  --c-accent-2: #c6ff00;
+  --c-accent-glow: rgba(198, 255, 0, 0.18);
+  --c-border: #1e1e1e;
+  --f-ui: 'Syne', sans-serif;
+  --f-mono: 'DM Mono', 'Fira Code', monospace;
+  --f-display: 'Syne', sans-serif;
+}
