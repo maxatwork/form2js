@@ -227,6 +227,7 @@ export function form2js(
 - Checkbox and radio values follow native browser form submission semantics:
   - checked controls emit their string `value`
   - unchecked controls are omitted
+  - omitted indexed controls do not reserve compacted array slots; preserve row identity with another submitted field when it matters
 - Button-like inputs (`button`, `reset`, `submit`, `image`) are excluded from extraction.
 - Can merge multiple roots (`NodeList`, arrays, `HTMLCollection`) into one object.
 - If callback returns `SKIP_NODE`, that node is excluded from extraction entirely.

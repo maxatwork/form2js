@@ -275,6 +275,7 @@ These boundaries are intentional and are used for issue triage.
 
 - Sparse indexes are compacted in first-seen order (`items[5]`, `items[8]` -> `items[0]`, `items[1]`).
 - Type inference is minimal by design; DOM extraction keeps native string values instead of coercing checkbox/radio fields.
+- Unchecked indexed controls are omitted and therefore do not reserve compacted array slots; include another submitted field when row identity matters.
 - `formToObject` reads successful form control values, not option labels. Disabled controls (including disabled fieldset descendants) and button-like inputs are excluded unless you explicitly opt in to disabled values.
 - `extractPairs`/`formToObject` support `nodeCallback`; return `SKIP_NODE` to exclude a node entirely, or `{ name|key, value }` to inject a custom entry.
 - Parser inputs reject unsafe path segments by default. Use `allowUnsafePathSegments: true` only with trusted inputs.
