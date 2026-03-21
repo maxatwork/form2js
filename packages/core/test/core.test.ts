@@ -92,6 +92,72 @@ describe("entriesToObject", () => {
     });
   });
 
+  it("supports rails style keys with underscores and one-character names", () => {
+    const result = entriesToObject(
+      [
+        { key: "data[Topic][topic_id]", value: "1" },
+        { key: "person.ruby[field2][f]", value: "baz" }
+      ],
+      { skipEmpty: false }
+    );
+
+    expect(result).toEqual({
+      data: {
+        Topic: {
+          topic_id: "1"
+        }
+      },
+      person: {
+        ruby: {
+          field2: {
+            f: "baz"
+          }
+        }
+      }
+    });
+  });
+
+  it("supports single-bracket rails object segments at the root", () => {
+    const result = entriesToObject([{ key: "testitem[test_property]", value: "ok" }], {
+      skipEmpty: false
+    });
+
+    expect(result).toEqual({
+      testitem: {
+        test_property: "ok"
+      }
+    });
+  });
+
+  it("supports mixed indexed rails arrays and nested object traversal", () => {
+    const result = entriesToObject(
+      [
+        { key: "tables[1][features][0][title]", value: "Feature A" },
+        { key: "something[something][title]", value: "Nested" },
+        { key: "something[description]", value: "Test" }
+      ],
+      { skipEmpty: false }
+    );
+
+    expect(result).toEqual({
+      tables: [
+        {
+          features: [
+            {
+              title: "Feature A"
+            }
+          ]
+        }
+      ],
+      something: {
+        something: {
+          title: "Nested"
+        },
+        description: "Test"
+      }
+    });
+  });
+
   it("skips empty and null values by default", () => {
     const result = entriesToObject([
       { key: "a", value: "" },

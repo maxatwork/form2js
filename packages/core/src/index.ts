@@ -78,34 +78,32 @@ function splitNameIntoParts(name: string, delimiter: string): string[] {
   const nameParts: string[] = [];
 
   for (const rawPart of rawParts) {
-    const splitByRailsChunk = rawPart.split("][");
+    const bracketMatches = Array.from(rawPart.matchAll(/\[([^\]]*)\]/g));
+    if (bracketMatches.length === 0) {
+      nameParts.push(rawPart);
+      continue;
+    }
 
-    if (splitByRailsChunk.length > 1) {
-      for (let chunkIndex = 0; chunkIndex < splitByRailsChunk.length; chunkIndex += 1) {
-        let chunk = splitByRailsChunk[chunkIndex] ?? "";
+    let currentPart = rawPart.slice(0, bracketMatches[0]?.index ?? 0);
 
-        if (chunkIndex === 0) {
-          chunk = `${chunk}]`;
-        } else if (chunkIndex === splitByRailsChunk.length - 1) {
-          chunk = `[${chunk}`;
-        } else {
-          chunk = `[${chunk}]`;
-        }
+    for (const match of bracketMatches) {
+      const bracketContent = match[1] ?? "";
+      const isArraySegment = bracketContent === "" || /^\d+$/.test(bracketContent);
 
-        const railsMatch = chunk.match(/([a-z_]+)?\[([a-z_][a-z0-9_]+?)\]/i);
-        if (railsMatch) {
-          for (let matchIndex = 1; matchIndex < railsMatch.length; matchIndex += 1) {
-            const matchPart = railsMatch[matchIndex];
-            if (matchPart) {
-              nameParts.push(matchPart);
-            }
-          }
-        } else {
-          nameParts.push(chunk);
-        }
+      if (isArraySegment) {
+        currentPart = `${currentPart}[${bracketContent}]`;
+        continue;
       }
-    } else {
-      nameParts.push(...splitByRailsChunk);
+
+      if (currentPart !== "") {
+        nameParts.push(currentPart);
+      }
+
+      currentPart = bracketContent;
+    }
+
+    if (currentPart !== "") {
+      nameParts.push(currentPart);
     }
   }
 

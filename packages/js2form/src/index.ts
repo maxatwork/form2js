@@ -89,8 +89,46 @@ function shouldSkipNodeAssignment(node: Node, nodeCallback: ObjectToFormNodeCall
 }
 
 function normalizeName(name: string, delimiter: string, arrayIndexes: ArrayIndexesMap): string {
+  let nameToNormalize = name;
+  const rawChunks = name.split(delimiter);
+  const normalizedRawChunks: string[] = [];
+
+  for (const rawChunk of rawChunks) {
+    const bracketMatches = Array.from(rawChunk.matchAll(/\[([^\]]*)\]/g));
+    if (bracketMatches.length === 0) {
+      normalizedRawChunks.push(rawChunk);
+      continue;
+    }
+
+    let currentChunk = rawChunk.slice(0, bracketMatches[0]?.index ?? 0);
+
+    for (const match of bracketMatches) {
+      const bracketContent = match[1] ?? "";
+      const isArraySegment = bracketContent === "" || /^\d+$/.test(bracketContent);
+
+      if (isArraySegment) {
+        currentChunk = `${currentChunk}[${bracketContent}]`;
+        continue;
+      }
+
+      if (currentChunk !== "") {
+        normalizedRawChunks.push(currentChunk);
+      }
+
+      currentChunk = bracketContent;
+    }
+
+    if (currentChunk !== "") {
+      normalizedRawChunks.push(currentChunk);
+    }
+  }
+
+  if (normalizedRawChunks.length > 0) {
+    nameToNormalize = normalizedRawChunks.join(delimiter);
+  }
+
   const normalizedNameChunks: string[] = [];
-  const chunks = name.replace(ARRAY_OF_ARRAYS_REGEXP, "[$1].[$2]").split(delimiter);
+  const chunks = nameToNormalize.replace(ARRAY_OF_ARRAYS_REGEXP, "[$1].[$2]").split(delimiter);
 
   for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex += 1) {
     const currentChunk = chunks[chunkIndex] ?? "";

@@ -285,6 +285,25 @@ describe("objectToForm", () => {
     const input = customDocument.getElementById("person.name.first") as HTMLInputElement;
     expect(input.value).toBe("Neo");
   });
+
+  it("populates rails-style field names", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <input name="a[b][c]" />
+      </form>
+    `;
+
+    objectToForm("testForm", {
+      a: {
+        b: {
+          c: "value"
+        }
+      }
+    });
+
+    const input = document.querySelector("input[name='a[b][c]']") as HTMLInputElement;
+    expect(input.value).toBe("value");
+  });
 });
 
 describe("low-level helpers", () => {
