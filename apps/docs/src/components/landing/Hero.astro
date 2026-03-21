@@ -22,21 +22,31 @@ const basePath = import.meta.env.BASE_URL;
 </section>
 
 <script>
-  const HERO_INSTALL = {
-    react: "npm install @form2js/react react",
-    jquery: "npm install @form2js/jquery jquery",
-  };
+  window.addEventListener("form2js:variant-change", (event) => {
+    if (!(event instanceof CustomEvent)) return;
 
-  window.addEventListener("form2js:variant-change", (e) => {
-    const detail = e.detail ?? {};
+    const detail = event.detail;
+    const variantId = typeof detail?.variantId === "string" ? detail.variantId : null;
+    const firstPackage =
+      Array.isArray(detail?.packages) && typeof detail.packages[0] === "string"
+        ? detail.packages[0]
+        : null;
     const el = document.getElementById("hero-install-pkg");
-    if (el && detail.variantId && HERO_INSTALL[detail.variantId]) {
-      el.textContent = HERO_INSTALL[detail.variantId];
+
+    if (!el) return;
+
+    if (variantId === "react") {
+      el.textContent = "npm install @form2js/react react";
       return;
     }
 
-    if (el && detail.packages[0]) {
-      el.textContent = `npm install ${detail.packages[0]}`;
+    if (variantId === "jquery") {
+      el.textContent = "npm install @form2js/jquery jquery";
+      return;
+    }
+
+    if (firstPackage) {
+      el.textContent = `npm install ${firstPackage}`;
     }
   });
 </script>

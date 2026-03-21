@@ -28,66 +28,84 @@ const { onSubmit, isSubmitting } = useForm2js(handler)
 </section>
 
 <script>
-  const INSTALL_CONTENT = {
-    react: {
-      command: "npm install @form2js/react react",
-      snippet: `import { useForm2js } from '@form2js/react'
+  window.addEventListener("form2js:variant-change", (event) => {
+    if (!(event instanceof CustomEvent)) return;
 
-const { onSubmit, isSubmitting } = useForm2js(handler)`,
-    },
-    form: {
-      command: "npm install @form2js/dom",
-      snippet: `import { formToObject } from '@form2js/dom'
-
-const data = formToObject(formElement)`,
-      altLabel: "Browser global via <script>",
-      altSnippet: `<script src="https://unpkg.com/@form2js/dom/dist/standalone.global.js"><\/script>
-<script>
-  const data = formToObject(formElement)
-<\/script>`,
-    },
-    jquery: {
-      command: "npm install @form2js/jquery jquery",
-      snippet: `import { installToObjectPlugin } from '@form2js/jquery'
-
-installToObjectPlugin($)
-const data = $('form').toObject()`,
-      altLabel: "Browser global via <script>",
-      altSnippet: `<script src="https://code.jquery.com/jquery-3.7.1.min.js"><\/script>
-<script src="https://unpkg.com/@form2js/jquery/dist/standalone.global.js"><\/script>
-<script>
-  const data = $('form').toObject()
-<\/script>`,
-    },
-    "js2form": {
-      command: "npm install @form2js/js2form",
-      snippet: `import { objectToForm } from '@form2js/js2form'
-
-objectToForm(formElement, { user: { name: 'Alice' } })`,
-    },
-    core: {
-      command: "npm install @form2js/core",
-      snippet: `import { entriesToObject } from '@form2js/core'
-
-const data = entriesToObject([
-  { key: 'user.name', value: 'Alice' }
-])`,
-    },
-    "form-data": {
-      command: "npm install @form2js/form-data",
-      snippet: `import { formDataToObject } from '@form2js/form-data'
-
-const data = formDataToObject(new FormData(formElement))`,
-    },
-  };
-
-  window.addEventListener("form2js:variant-change", (e) => {
-    const detail = e.detail ?? {};
+    const detail = event.detail;
     const cmdEl = document.getElementById("install-cmd");
     const snippetEl = document.getElementById("install-snippet");
     const altLabelEl = document.getElementById("install-alt-label");
     const altSnippetEl = document.getElementById("install-alt-snippet");
-    const install = INSTALL_CONTENT[detail.variantId];
+    const variantId = typeof detail?.variantId === "string" ? detail.variantId : null;
+
+    let install = null;
+
+    switch (variantId) {
+      case "react":
+        install = {
+          command: "npm install @form2js/react react",
+          snippet: `import { useForm2js } from '@form2js/react'
+
+const { onSubmit, isSubmitting } = useForm2js(handler)`,
+        };
+        break;
+      case "form":
+        install = {
+          command: "npm install @form2js/dom",
+          snippet: `import { formToObject } from '@form2js/dom'
+
+const data = formToObject(formElement)`,
+          altLabel: "Browser global via <script>",
+          altSnippet: `<script src="https://unpkg.com/@form2js/dom/dist/standalone.global.js"><\/script>
+<script>
+  const data = formToObject(formElement)
+<\/script>`,
+        };
+        break;
+      case "jquery":
+        install = {
+          command: "npm install @form2js/jquery jquery",
+          snippet: `import { installToObjectPlugin } from '@form2js/jquery'
+
+installToObjectPlugin($)
+const data = $('form').toObject()`,
+          altLabel: "Browser global via <script>",
+          altSnippet: `<script src="https://code.jquery.com/jquery-3.7.1.min.js"><\/script>
+<script src="https://unpkg.com/@form2js/jquery/dist/standalone.global.js"><\/script>
+<script>
+  const data = $('form').toObject()
+<\/script>`,
+        };
+        break;
+      case "js2form":
+        install = {
+          command: "npm install @form2js/js2form",
+          snippet: `import { objectToForm } from '@form2js/js2form'
+
+objectToForm(formElement, { user: { name: 'Alice' } })`,
+        };
+        break;
+      case "core":
+        install = {
+          command: "npm install @form2js/core",
+          snippet: `import { entriesToObject } from '@form2js/core'
+
+const data = entriesToObject([
+  { key: 'user.name', value: 'Alice' }
+])`,
+        };
+        break;
+      case "form-data":
+        install = {
+          command: "npm install @form2js/form-data",
+          snippet: `import { formDataToObject } from '@form2js/form-data'
+
+const data = formDataToObject(new FormData(formElement))`,
+        };
+        break;
+      default:
+        install = null;
+    }
 
     if (cmdEl && install?.command) cmdEl.textContent = install.command;
     if (snippetEl && install?.snippet) snippetEl.textContent = install.snippet;
