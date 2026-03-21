@@ -6,7 +6,9 @@ export interface NodeCallbackResult {
   value: unknown;
 }
 
-export type FormToObjectNodeCallback = (node: Node) => NodeCallbackResult | false | null | undefined;
+export const SKIP_NODE = Symbol("form2js.skipNode");
+
+export type FormToObjectNodeCallback = (node: Node) => NodeCallbackResult | typeof SKIP_NODE | false | null | undefined;
 
 export interface ExtractOptions {
   nodeCallback?: FormToObjectNodeCallback;
@@ -261,20 +263,27 @@ function getSubFormValues(rootNode: Node, options: ExtractOptions): Entry[] {
   let currentNode: ChildNode | null = rootNode.firstChild;
 
   while (currentNode) {
-    result.push(...extractNodeValues(currentNode, options));
+    const extractedValues = extractNodeValues(currentNode, options);
+    if (extractedValues !== SKIP_NODE) {
+      result.push(...extractedValues);
+    }
     currentNode = currentNode.nextSibling;
   }
 
   return result;
 }
 
-function extractNodeValues(node: Node, options: ExtractOptions): Entry[] {
+function extractNodeValues(node: Node, options: ExtractOptions): Entry[] | typeof SKIP_NODE {
   if (isEffectivelyDisabledControl(node) && !options.getDisabled) {
     return [];
   }
 
   const fieldName = getFieldName(node, options.useIdIfEmptyName ?? false);
   const callbackResult = options.nodeCallback?.(node);
+
+  if (callbackResult === SKIP_NODE) {
+    return SKIP_NODE;
+  }
 
   if (callbackResult && (callbackResult.name || callbackResult.key)) {
     const key = callbackResult.key ?? callbackResult.name ?? "";
@@ -302,6 +311,10 @@ function extractNodeValues(node: Node, options: ExtractOptions): Entry[] {
 
 function getFormValues(rootNode: Node, options: ExtractOptions): Entry[] {
   const directResult = extractNodeValues(rootNode, options);
+  if (directResult === SKIP_NODE) {
+    return [];
+  }
+
   if (directResult.length > 0) {
     return directResult;
   }

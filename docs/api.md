@@ -170,7 +170,11 @@ export interface NodeCallbackResult {
   value: unknown;
 }
 
-export type FormToObjectNodeCallback = (node: Node) => NodeCallbackResult | false | null | undefined;
+export const SKIP_NODE: unique symbol;
+
+export type FormToObjectNodeCallback = (
+  node: Node
+) => NodeCallbackResult | typeof SKIP_NODE | false | null | undefined;
 
 export interface ExtractOptions {
   nodeCallback?: FormToObjectNodeCallback;
@@ -226,6 +230,7 @@ export function form2js(
   - checked `"false"` (radio/checkbox) -> `false`
 - Button-like inputs (`button`, `reset`, `submit`, `image`) are excluded from extraction.
 - Can merge multiple roots (`NodeList`, arrays, `HTMLCollection`) into one object.
+- If callback returns `SKIP_NODE`, that node is excluded from extraction entirely.
 - If callback returns `{ key|name, value }`, that value is used directly for that node.
 
 ### Quick example

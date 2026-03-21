@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { describe, expect, it } from "vitest";
-import { extractPairs, form2js, formToObject } from "../src/index";
+import { SKIP_NODE, extractPairs, form2js, formToObject } from "../src/index";
 
 describe("extractPairs", () => {
   it("extracts input/select values", () => {
@@ -61,6 +61,53 @@ describe("extractPairs", () => {
     });
 
     expect(result).toEqual([{ key: "person.callbackTest", value: "hello world" }]);
+  });
+
+  it("supports explicit callback exclusion without overloading falsy returns", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <input name="person.changed" value="yes" data-changed="true" />
+        <input name="person.unchanged" value="no" />
+      </form>
+    `;
+
+    const form = document.getElementById("testForm") as HTMLFormElement;
+    const result = extractPairs(form, {
+      nodeCallback(node) {
+        if (!(node instanceof HTMLInputElement)) {
+          return false;
+        }
+
+        if (node.dataset.changed === "true") {
+          return null;
+        }
+
+        return SKIP_NODE;
+      }
+    });
+
+    expect(result).toEqual([{ key: "person.changed", value: "yes" }]);
+  });
+
+  it("excludes an entire supplied root when the callback returns SKIP_NODE for that root", () => {
+    document.body.innerHTML = `
+      <section id="wrapper">
+        <input name="person.changed" value="yes" />
+      </section>
+    `;
+
+    const wrapper = document.getElementById("wrapper") as HTMLElement;
+    const result = extractPairs(wrapper, {
+      nodeCallback(node) {
+        if (node === wrapper) {
+          return SKIP_NODE;
+        }
+
+        return false;
+      }
+    });
+
+    expect(result).toEqual([]);
   });
 
   it("returns empty pairs when the root cannot be resolved", () => {
@@ -277,14 +324,17 @@ describe("standalone entry", () => {
     const scope = globalThis as typeof globalThis & {
       formToObject?: unknown;
       form2js?: unknown;
+      SKIP_NODE?: unknown;
     };
 
     Reflect.deleteProperty(scope, "formToObject");
     Reflect.deleteProperty(scope, "form2js");
+    Reflect.deleteProperty(scope, "SKIP_NODE");
 
     await import("../src/standalone");
 
     expect(typeof scope.formToObject).toBe("function");
     expect(typeof scope.form2js).toBe("function");
+    expect(typeof scope.SKIP_NODE).toBe("symbol");
   });
 });

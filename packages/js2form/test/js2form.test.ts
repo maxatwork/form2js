@@ -286,6 +286,39 @@ describe("objectToForm", () => {
     expect(input.value).toBe("Neo");
   });
 
+  it("handles literal name and id field names", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <input name="name" />
+        <input name="id" />
+      </form>
+    `;
+
+    objectToForm("testForm", {
+      name: "Form Name",
+      id: "form-id"
+    });
+
+    expect((document.querySelector("input[name='name']") as HTMLInputElement).value).toBe("Form Name");
+    expect((document.querySelector("input[name='id']") as HTMLInputElement).value).toBe("form-id");
+  });
+
+  it("writes empty strings for null values instead of the literal null string", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <input name="person.nickname" value="existing" />
+      </form>
+    `;
+
+    objectToForm("testForm", {
+      person: {
+        nickname: null
+      }
+    });
+
+    expect((document.querySelector("input[name='person.nickname']") as HTMLInputElement).value).toBe("");
+  });
+
   it("populates rails-style field names", () => {
     document.body.innerHTML = `
       <form id="testForm">
