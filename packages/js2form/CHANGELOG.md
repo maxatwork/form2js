@@ -1,5 +1,12 @@
 # @form2js/js2form
 
+## 3.1.2
+
+### Patch Changes
+
+- Updated dependencies [4d2f923]
+  - @form2js/core@3.2.0
+
 ## 3.1.1
 
 ### Patch Changes
