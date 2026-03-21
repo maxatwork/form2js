@@ -25,6 +25,23 @@ describe("extractPairs", () => {
     expect(result).toContainEqual({ key: "person.colors", value: ["red", "green"] });
   });
 
+  it("extracts nested form controls inside arbitrary container markup", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <div class="wrapper">
+          <section>
+            <input type="text" name="person.name.first" value="John" />
+          </section>
+        </div>
+      </form>
+    `;
+
+    const form = document.getElementById("testForm") as HTMLFormElement;
+    const result = extractPairs(form);
+
+    expect(result).toEqual([{ key: "person.name.first", value: "John" }]);
+  });
+
   it("supports callback extraction", () => {
     document.body.innerHTML = `
       <form id="testForm">
@@ -68,6 +85,23 @@ describe("formToObject", () => {
         agree: false,
         optOut: false
       }
+    });
+  });
+
+  it("does not coerce an empty checked radio option to false when true and false siblings exist", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <input type="radio" name="state" value="" checked />
+        <input type="radio" name="state" value="true" />
+        <input type="radio" name="state" value="false" />
+      </form>
+    `;
+
+    const form = document.getElementById("testForm") as HTMLFormElement;
+    const result = formToObject(form, { skipEmpty: false });
+
+    expect(result).toEqual({
+      state: ""
     });
   });
 

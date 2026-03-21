@@ -209,7 +209,17 @@ function getFieldValue(fieldNode: Node, getDisabled: boolean): unknown {
           if (fieldNode.checked && fieldNode.value === "false") {
             return false;
           }
-        // eslint-disable-next-line no-fallthrough
+
+          if (fieldNode.checked && fieldNode.value === "true") {
+            return true;
+          }
+
+          if (fieldNode.checked) {
+            return fieldNode.value;
+          }
+
+          return null;
+
         case "checkbox":
           if (fieldNode.checked && fieldNode.value === "true") {
             return true;
