@@ -158,6 +158,22 @@ describe("entriesToObject", () => {
     });
   });
 
+  it("supports consecutive indexed segments for nested arrays", () => {
+    const result = entriesToObject([{ key: "foo[0][1][bar]", value: "baz" }], {
+      skipEmpty: false
+    });
+
+    expect(result).toEqual({
+      foo: [
+        [
+          {
+            bar: "baz"
+          }
+        ]
+      ]
+    });
+  });
+
   it("skips empty and null values by default", () => {
     const result = entriesToObject([
       { key: "a", value: "" },

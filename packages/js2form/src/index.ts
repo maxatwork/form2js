@@ -100,26 +100,43 @@ function normalizeName(name: string, delimiter: string, arrayIndexes: ArrayIndex
       continue;
     }
 
-    let currentChunk = rawChunk.slice(0, bracketMatches[0]?.index ?? 0);
+    let currentChunk = "";
+    let cursor = 0;
 
     for (const match of bracketMatches) {
+      const literalText = rawChunk.slice(cursor, match.index ?? cursor);
+      if (literalText !== "") {
+        currentChunk += literalText;
+      }
+
       const bracketContent = match[1] ?? "";
       const isArraySegment = bracketContent === "" || /^\d+$/.test(bracketContent);
 
       if (isArraySegment) {
+        if (currentChunk !== "" && currentChunk.endsWith("]")) {
+          normalizedRawChunks.push(currentChunk);
+          currentChunk = "";
+        }
+
         currentChunk = `${currentChunk}[${bracketContent}]`;
-        continue;
+      } else {
+        if (currentChunk !== "") {
+          normalizedRawChunks.push(currentChunk);
+        }
+
+        currentChunk = bracketContent;
       }
 
-      if (currentChunk !== "") {
-        normalizedRawChunks.push(currentChunk);
-      }
+      cursor = (match.index ?? cursor) + match[0].length;
+    }
 
-      currentChunk = bracketContent;
+    const trailingText = rawChunk.slice(cursor);
+    if (trailingText !== "") {
+      currentChunk += trailingText;
     }
 
     if (currentChunk !== "") {
-      normalizedRawChunks.push(currentChunk);
+        normalizedRawChunks.push(currentChunk);
     }
   }
 

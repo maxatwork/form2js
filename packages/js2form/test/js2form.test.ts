@@ -343,4 +343,15 @@ describe("low-level helpers", () => {
     expect(Object.keys(fields)).not.toContain("person.colors[1]");
     expect(Object.keys(fields)).not.toContain("person.colors[2]");
   });
+
+  it("preserves literal suffixes around indexed bracket groups", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <input name="items[5]_id" value="alpha" />
+      </form>
+    `;
+
+    const fields = mapFieldsByName("testForm", { shouldClean: false });
+    expect(Object.keys(fields)).toContain("items[5]_id");
+  });
 });

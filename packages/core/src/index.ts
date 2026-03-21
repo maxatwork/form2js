@@ -84,26 +84,43 @@ function splitNameIntoParts(name: string, delimiter: string): string[] {
       continue;
     }
 
-    let currentPart = rawPart.slice(0, bracketMatches[0]?.index ?? 0);
+    let currentPart = "";
+    let cursor = 0;
 
     for (const match of bracketMatches) {
+      const literalText = rawPart.slice(cursor, match.index ?? cursor);
+      if (literalText !== "") {
+        currentPart += literalText;
+      }
+
       const bracketContent = match[1] ?? "";
       const isArraySegment = bracketContent === "" || /^\d+$/.test(bracketContent);
 
       if (isArraySegment) {
+        if (currentPart !== "" && currentPart.endsWith("]")) {
+          nameParts.push(currentPart);
+          currentPart = "";
+        }
+
         currentPart = `${currentPart}[${bracketContent}]`;
-        continue;
+      } else {
+        if (currentPart !== "") {
+          nameParts.push(currentPart);
+        }
+
+        currentPart = bracketContent;
       }
 
-      if (currentPart !== "") {
-        nameParts.push(currentPart);
-      }
+      cursor = (match.index ?? cursor) + match[0].length;
+    }
 
-      currentPart = bracketContent;
+    const trailingText = rawPart.slice(cursor);
+    if (trailingText !== "") {
+      currentPart += trailingText;
     }
 
     if (currentPart !== "") {
-      nameParts.push(currentPart);
+        nameParts.push(currentPart);
     }
   }
 
