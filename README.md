@@ -276,6 +276,7 @@ These boundaries are intentional and are used for issue triage.
 - Sparse indexes are compacted in first-seen order (`items[5]`, `items[8]` -> `items[0]`, `items[1]`).
 - Type inference is minimal by design; only legacy checkbox/radio `"true"` and `"false"` coercion is built in.
 - `formToObject` reads successful form control values, not option labels. Disabled controls (including disabled fieldset descendants) and button-like inputs are excluded unless you explicitly opt in to disabled values.
+- `extractPairs`/`formToObject` support `nodeCallback`; return `SKIP_NODE` to exclude a node entirely, or `{ name|key, value }` to inject a custom entry.
 - Parser inputs reject unsafe path segments by default. Use `allowUnsafePathSegments: true` only with trusted inputs.
 - `objectToForm` supports `nodeCallback`; returning `false` skips the default assignment for that node.
 - `objectToForm` sets form control state and values; it does not dispatch synthetic `change` or `input` events.

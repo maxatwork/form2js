@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { describe, expect, it } from "vitest";
-import { extractPairs, form2js, formToObject } from "../src/index";
+import { SKIP_NODE, extractPairs, form2js, formToObject } from "../src/index";
 
 describe("extractPairs", () => {
   it("extracts input/select values", () => {
@@ -61,6 +61,32 @@ describe("extractPairs", () => {
     });
 
     expect(result).toEqual([{ key: "person.callbackTest", value: "hello world" }]);
+  });
+
+  it("supports explicit callback exclusion without overloading falsy returns", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <input name="person.changed" value="yes" data-changed="true" />
+        <input name="person.unchanged" value="no" />
+      </form>
+    `;
+
+    const form = document.getElementById("testForm") as HTMLFormElement;
+    const result = extractPairs(form, {
+      nodeCallback(node) {
+        if (!(node instanceof HTMLInputElement)) {
+          return false;
+        }
+
+        if (node.dataset.changed === "true") {
+          return null;
+        }
+
+        return SKIP_NODE;
+      }
+    });
+
+    expect(result).toEqual([{ key: "person.changed", value: "yes" }]);
   });
 
   it("returns empty pairs when the root cannot be resolved", () => {

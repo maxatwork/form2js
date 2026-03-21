@@ -6,7 +6,9 @@ export interface NodeCallbackResult {
   value: unknown;
 }
 
-export type FormToObjectNodeCallback = (node: Node) => NodeCallbackResult | false | null | undefined;
+export const SKIP_NODE = Symbol("form2js.skipNode");
+
+export type FormToObjectNodeCallback = (node: Node) => NodeCallbackResult | typeof SKIP_NODE | false | null | undefined;
 
 export interface ExtractOptions {
   nodeCallback?: FormToObjectNodeCallback;
@@ -275,6 +277,10 @@ function extractNodeValues(node: Node, options: ExtractOptions): Entry[] {
 
   const fieldName = getFieldName(node, options.useIdIfEmptyName ?? false);
   const callbackResult = options.nodeCallback?.(node);
+
+  if (callbackResult === SKIP_NODE) {
+    return [];
+  }
 
   if (callbackResult && (callbackResult.name || callbackResult.key)) {
     const key = callbackResult.key ?? callbackResult.name ?? "";
