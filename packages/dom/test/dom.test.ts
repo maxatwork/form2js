@@ -155,6 +155,21 @@ describe("formToObject", () => {
     });
   });
 
+  it("compacts sparse indexed checkbox rows after omitting unchecked controls", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <input type="checkbox" name="items[0].selected" value="true" />
+        <input type="checkbox" name="items[1].selected" value="true" checked />
+      </form>
+    `;
+
+    const form = document.getElementById("testForm") as HTMLFormElement;
+
+    expect(formToObject(form)).toEqual({
+      items: [{ selected: "true" }]
+    });
+  });
+
   it("does not coerce an empty checked radio option to false when true and false siblings exist", () => {
     document.body.innerHTML = `
       <form id="testForm">
