@@ -17,8 +17,61 @@ const SUB_OBJECT_REGEXP = /^[a-zA-Z_][a-zA-Z_0-9]*/;
 const PATH_TOKEN_REGEXP = /[a-zA-Z_][a-zA-Z0-9_]*/g;
 const UNSAFE_PATH_SEGMENTS = new Set(["__proto__", "prototype", "constructor"]);
 
+interface BracketMatch {
+  content: string;
+  index: number;
+  text: string;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
+}
+
+function createIndexRecord(): Record<string, unknown> {
+  return Object.create(null) as Record<string, unknown>;
+}
+
+function hasOwnRecordValue(record: Record<string, unknown>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(record, key);
+}
+
+function getOwnRecordValue(record: Record<string, unknown>, key: string): unknown {
+  return hasOwnRecordValue(record, key) ? record[key] : undefined;
+}
+
+function setOwnRecordValue(record: Record<string, unknown>, key: string, value: unknown): void {
+  Object.defineProperty(record, key, {
+    configurable: true,
+    enumerable: true,
+    value,
+    writable: true
+  });
+}
+
+function findBracketMatches(input: string): BracketMatch[] {
+  const matches: BracketMatch[] = [];
+  let cursor = 0;
+
+  while (cursor < input.length) {
+    const startIndex = input.indexOf("[", cursor);
+    if (startIndex === -1) {
+      break;
+    }
+
+    const endIndex = input.indexOf("]", startIndex + 1);
+    if (endIndex === -1) {
+      break;
+    }
+
+    matches.push({
+      content: input.slice(startIndex + 1, endIndex),
+      index: startIndex,
+      text: input.slice(startIndex, endIndex + 1)
+    });
+    cursor = endIndex + 1;
+  }
+
+  return matches;
 }
 
 function normalizeEntry(entry: EntryInput): Entry {
@@ -78,7 +131,7 @@ function splitNameIntoParts(name: string, delimiter: string): string[] {
   const nameParts: string[] = [];
 
   for (const rawPart of rawParts) {
-    const bracketMatches = Array.from(rawPart.matchAll(/\[([^\]]*)\]/g));
+    const bracketMatches = findBracketMatches(rawPart);
     if (bracketMatches.length === 0) {
       nameParts.push(rawPart);
       continue;
@@ -93,7 +146,7 @@ function splitNameIntoParts(name: string, delimiter: string): string[] {
         currentPart += literalText;
       }
 
-      const bracketContent = match[1] ?? "";
+      const bracketContent = match.content;
       const isArraySegment = bracketContent === "" || /^\d+$/.test(bracketContent);
 
       if (isArraySegment) {
@@ -111,7 +164,7 @@ function splitNameIntoParts(name: string, delimiter: string): string[] {
         currentPart = bracketContent;
       }
 
-      cursor = (match.index ?? cursor) + match[0].length;
+      cursor = match.index + match.text.length;
     }
 
     const trailingText = rawPart.slice(cursor);
@@ -120,7 +173,7 @@ function splitNameIntoParts(name: string, delimiter: string): string[] {
     }
 
     if (currentPart !== "") {
-        nameParts.push(currentPart);
+      nameParts.push(currentPart);
     }
   }
 
@@ -136,13 +189,13 @@ function ensureNamedArray(container: unknown, arrayName: string): unknown[] {
     throw new TypeError("Expected object-like container when creating array path");
   }
 
-  const existingValue = container[arrayName];
+  const existingValue = getOwnRecordValue(container, arrayName);
   if (Array.isArray(existingValue)) {
     return existingValue;
   }
 
   const newArray: unknown[] = [];
-  container[arrayName] = newArray;
+  setOwnRecordValue(container, arrayName, newArray);
   return newArray;
 }
 
@@ -153,7 +206,7 @@ function pushToNamedArray(container: unknown, arrayName: string, value: unknown)
 }
 
 export function createMergeContext(): MergeContext {
-  return { arrays: {} };
+  return { arrays: createIndexRecord() as MergeContext["arrays"] };
 }
 
 export function setPathValue(
@@ -193,20 +246,24 @@ export function setPathValue(
         ensureNamedArray(currResult, arrayName);
       }
 
-      const arrayMap = (context.arrays[arrayNameFull] ??= {});
+      const existingArrayMap = getOwnRecordValue(context.arrays, arrayNameFull);
+      const arrayMap = isRecord(existingArrayMap) ? existingArrayMap : createIndexRecord();
+      if (!isRecord(existingArrayMap)) {
+        setOwnRecordValue(context.arrays, arrayNameFull, arrayMap);
+      }
 
       if (isLast) {
         const inserted = pushToNamedArray(currResult, arrayName, value);
-        arrayMap[arrayIndex] = inserted;
-      } else if (!arrayMap[arrayIndex]) {
+        setOwnRecordValue(arrayMap, arrayIndex, inserted);
+      } else if (getOwnRecordValue(arrayMap, arrayIndex) === undefined) {
         const nextNamePart = nameParts[partIndex + 1] ?? "";
         const nextContainer = /^[0-9a-z_]+\[?/i.test(nextNamePart) ? {} : [];
 
         const inserted = pushToNamedArray(currResult, arrayName, nextContainer);
-        arrayMap[arrayIndex] = inserted;
+        setOwnRecordValue(arrayMap, arrayIndex, inserted);
       }
 
-      currResult = arrayMap[arrayIndex];
+      currResult = getOwnRecordValue(arrayMap, arrayIndex);
       continue;
     }
 
@@ -217,13 +274,13 @@ export function setPathValue(
     }
 
     if (!isLast) {
-      if (!currResult[namePart]) {
-        currResult[namePart] = {};
+      if (getOwnRecordValue(currResult, namePart) === undefined) {
+        setOwnRecordValue(currResult, namePart, {});
       }
 
-      currResult = currResult[namePart];
+      currResult = getOwnRecordValue(currResult, namePart);
     } else {
-      currResult[namePart] = value;
+      setOwnRecordValue(currResult, namePart, value);
     }
   }
 
