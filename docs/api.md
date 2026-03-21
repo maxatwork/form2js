@@ -38,6 +38,14 @@ These rules apply across parser-based packages (`core`, `dom`, `form-data`):
 - Apply one path/value into an existing object (`setPathValue`)
 - Keep legacy `name/value` pair input (`processNameValues`)
 
+### Installation
+
+```bash
+npm install @form2js/core
+```
+
+Standalone/global build is not shipped for this package.
+
 ### API
 
 | Export | Kind | What it does |
@@ -125,6 +133,22 @@ const flat = objectToEntries(data);
 - Convert a form (or a subtree) into an object (`formToObject`)
 - Extract raw `{ key, value }` pairs before parsing (`extractPairs`)
 - Keep the legacy function signature (`form2js`)
+
+### Installation
+
+```bash
+npm install @form2js/dom
+```
+
+Standalone via `unpkg`:
+
+```html
+<script src="https://unpkg.com/@form2js/dom/dist/standalone.global.js"></script>
+<script>
+  const data = formToObject(formElement);
+  // or form2js(formElement)
+</script>
+```
 
 ### API
 
@@ -224,6 +248,14 @@ const result = formToObject(document.getElementById("profileForm"), {
 - Validate and transform payloads with schema `parse`
 - Reuse core parser options without importing `@form2js/core` directly
 
+### Installation
+
+```bash
+npm install @form2js/form-data
+```
+
+Standalone/global build is not shipped for this package.
+
 ### API
 
 | Export | Kind | What it does |
@@ -298,6 +330,14 @@ const result = formDataToObject([
 - Validate payloads with optional schema `parse`
 - Track async submit status (`isSubmitting`, `isError`, `error`, `isSuccess`)
 - Reset hook state after submit attempts
+
+### Installation
+
+```bash
+npm install @form2js/react react
+```
+
+Standalone/global build is not shipped for this package.
 
 ### API
 
@@ -402,6 +442,14 @@ export function SignupForm(): React.JSX.Element {
 - Flatten object data to path entries (`flattenDataForForm`)
 - Keep legacy wrapper call style (`js2form`)
 
+### Installation
+
+```bash
+npm install @form2js/js2form
+```
+
+Standalone/global build is not shipped for this package.
+
 ### API
 
 | Export | Kind | What it does |
@@ -493,6 +541,22 @@ objectToForm("profileForm", {
 - Install `toObject()` plugin on a jQuery instance
 - Read first match, all matches, or a combined result from matched roots
 - Auto-install the plugin from global `jQuery` in browser standalone usage
+
+### Installation
+
+```bash
+npm install @form2js/jquery jquery
+```
+
+Standalone via `unpkg`:
+
+```html
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://unpkg.com/@form2js/jquery/dist/standalone.global.js"></script>
+<script>
+  const data = $("#profileForm").toObject({ mode: "first" });
+</script>
+```
 
 ### API
 
