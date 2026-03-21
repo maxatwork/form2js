@@ -2,8 +2,22 @@
   "name": "@form2js/jquery",
   "version": "3.1.2",
   "description": "jQuery plugin adapter for form2js.",
+  "license": "MIT",
   "repository": "https://github.com/maxatwork/form2js",
   "homepage": "https://maxatwork.github.io/form2js/",
+  "bugs": {
+    "url": "https://github.com/maxatwork/form2js/issues"
+  },
+  "keywords": [
+    "form",
+    "forms",
+    "serialization",
+    "deserialization",
+    "form-data",
+    "json",
+    "jquery",
+    "jquery-plugin"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
