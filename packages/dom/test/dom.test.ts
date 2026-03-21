@@ -135,6 +135,22 @@ describe("formToObject", () => {
     });
   });
 
+  it("uses the browser default on value for checked checkboxes without an explicit value", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <input type="checkbox" name="enabled" checked />
+        <input type="checkbox" name="disabled" />
+      </form>
+    `;
+
+    const form = document.getElementById("testForm") as HTMLFormElement;
+
+    expect(extractPairs(form)).toEqual([{ key: "enabled", value: "on" }]);
+    expect(formToObject(form)).toEqual({
+      enabled: "on"
+    });
+  });
+
   it("does not coerce an empty checked radio option to false when true and false siblings exist", () => {
     document.body.innerHTML = `
       <form id="testForm">
