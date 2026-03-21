@@ -4,7 +4,7 @@
 
 Originally created in 2010, now rewritten for modern JavaScript, TypeScript, ESM, React, and modular usage.
 
-Legacy version is available in the [`legacy` branch](https://github.com/maxatwork/form2js/tree/legacy).
+Legacy version is available in the [legacy branch](https://github.com/maxatwork/form2js/tree/legacy).
 
 ## Description
 
