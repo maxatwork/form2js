@@ -167,6 +167,8 @@ describe("ReactVariant", () => {
     );
     const emailInput = view.container.querySelector<HTMLInputElement>('input[name="person.email"]');
 
+    expect(forceErrorButton).toBeDefined();
+
     act(() => {
       if (!emailInput) throw new Error("Missing email input.");
       emailInput.value = "bad-email";
