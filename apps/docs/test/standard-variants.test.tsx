@@ -74,7 +74,6 @@ describe("standard playground variants", () => {
       errorMessage: null,
       parsedPayload: {
         person: {
-          approved: false,
           city: "lancre",
           guild: "witches",
           name: { first: "Esme", last: "Weatherwax" },
