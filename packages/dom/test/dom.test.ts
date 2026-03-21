@@ -89,6 +89,27 @@ describe("extractPairs", () => {
     expect(result).toEqual([{ key: "person.changed", value: "yes" }]);
   });
 
+  it("excludes an entire supplied root when the callback returns SKIP_NODE for that root", () => {
+    document.body.innerHTML = `
+      <section id="wrapper">
+        <input name="person.changed" value="yes" />
+      </section>
+    `;
+
+    const wrapper = document.getElementById("wrapper") as HTMLElement;
+    const result = extractPairs(wrapper, {
+      nodeCallback(node) {
+        if (node === wrapper) {
+          return SKIP_NODE;
+        }
+
+        return false;
+      }
+    });
+
+    expect(result).toEqual([]);
+  });
+
   it("returns empty pairs when the root cannot be resolved", () => {
     expect(extractPairs("missing-form")).toEqual([]);
   });
@@ -303,14 +324,17 @@ describe("standalone entry", () => {
     const scope = globalThis as typeof globalThis & {
       formToObject?: unknown;
       form2js?: unknown;
+      SKIP_NODE?: unknown;
     };
 
     Reflect.deleteProperty(scope, "formToObject");
     Reflect.deleteProperty(scope, "form2js");
+    Reflect.deleteProperty(scope, "SKIP_NODE");
 
     await import("../src/standalone");
 
     expect(typeof scope.formToObject).toBe("function");
     expect(typeof scope.form2js).toBe("function");
+    expect(typeof scope.SKIP_NODE).toBe("symbol");
   });
 });

@@ -263,14 +263,17 @@ function getSubFormValues(rootNode: Node, options: ExtractOptions): Entry[] {
   let currentNode: ChildNode | null = rootNode.firstChild;
 
   while (currentNode) {
-    result.push(...extractNodeValues(currentNode, options));
+    const extractedValues = extractNodeValues(currentNode, options);
+    if (extractedValues !== SKIP_NODE) {
+      result.push(...extractedValues);
+    }
     currentNode = currentNode.nextSibling;
   }
 
   return result;
 }
 
-function extractNodeValues(node: Node, options: ExtractOptions): Entry[] {
+function extractNodeValues(node: Node, options: ExtractOptions): Entry[] | typeof SKIP_NODE {
   if (isEffectivelyDisabledControl(node) && !options.getDisabled) {
     return [];
   }
@@ -279,7 +282,7 @@ function extractNodeValues(node: Node, options: ExtractOptions): Entry[] {
   const callbackResult = options.nodeCallback?.(node);
 
   if (callbackResult === SKIP_NODE) {
-    return [];
+    return SKIP_NODE;
   }
 
   if (callbackResult && (callbackResult.name || callbackResult.key)) {
@@ -308,6 +311,10 @@ function extractNodeValues(node: Node, options: ExtractOptions): Entry[] {
 
 function getFormValues(rootNode: Node, options: ExtractOptions): Entry[] {
   const directResult = extractNodeValues(rootNode, options);
+  if (directResult === SKIP_NODE) {
+    return [];
+  }
+
   if (directResult.length > 0) {
     return directResult;
   }
