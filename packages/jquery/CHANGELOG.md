@@ -1,5 +1,13 @@
 # @form2js/jquery
 
+## 3.1.3
+
+### Patch Changes
+
+- Add npm package metadata (`license`, `bugs`, `keywords`) and publish package-level README files for all public packages.
+- Updated dependencies
+  - @form2js/dom@3.1.3
+
 ## 3.1.2
 
 ### Patch Changes

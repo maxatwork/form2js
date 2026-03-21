@@ -1,6 +1,6 @@
 {
   "name": "@form2js/react",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "React hook adapter for form2js.",
   "license": "MIT",
   "repository": "https://github.com/maxatwork/form2js",
@@ -41,7 +41,7 @@
     "react": ">=18.0.0"
   },
   "dependencies": {
-    "@form2js/form-data": "3.2.0"
+    "@form2js/form-data": "3.2.1"
   },
   "devDependencies": {
     "@types/react": "^19.1.12",
