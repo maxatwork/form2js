@@ -1,6 +1,6 @@
 {
   "name": "@form2js/jquery",
-  "version": "3.1.4",
+  "version": "3.1.5",
   "description": "jQuery plugin adapter for form2js.",
   "license": "MIT",
   "repository": "https://github.com/maxatwork/form2js",
@@ -43,7 +43,7 @@
     "jquery": ">=3.0.0"
   },
   "dependencies": {
-    "@form2js/dom": "3.1.4"
+    "@form2js/dom": "3.2.0"
   },
   "devDependencies": {
     "@types/jquery": "^3.5.32",

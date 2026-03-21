@@ -1,6 +1,6 @@
 {
   "name": "@form2js/dom",
-  "version": "3.1.4",
+  "version": "3.2.0",
   "description": "DOM extraction adapters for form2js.",
   "license": "MIT",
   "repository": "https://github.com/maxatwork/form2js",
@@ -41,7 +41,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@form2js/core": "3.2.2"
+    "@form2js/core": "3.3.0"
   },
   "scripts": {
     "build": "tsup --config tsup.config.ts",

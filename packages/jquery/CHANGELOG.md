@@ -1,5 +1,12 @@
 # @form2js/jquery
 
+## 3.1.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @form2js/dom@3.2.0
+
 ## 3.1.4
 
 ### Patch Changes

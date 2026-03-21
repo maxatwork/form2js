@@ -1,5 +1,11 @@
 # @form2js/react
 
+## 3.2.3
+
+### Patch Changes
+
+- @form2js/form-data@3.2.3
+
 ## 3.2.2
 
 ### Patch Changes

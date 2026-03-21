@@ -1,5 +1,16 @@
 # @form2js/js2form
 
+## 3.2.0
+
+### Minor Changes
+
+- Restore Rails-style bracket path compatibility across parsing and form population, align DOM checkbox and radio handling with native browser submission behavior, and add explicit `SKIP_NODE` callback support for DOM extraction.
+
+### Patch Changes
+
+- Updated dependencies
+  - @form2js/core@3.3.0
+
 ## 3.1.4
 
 ### Patch Changes
