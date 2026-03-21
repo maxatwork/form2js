@@ -2,8 +2,23 @@
   "name": "@form2js/react",
   "version": "3.2.0",
   "description": "React hook adapter for form2js.",
+  "license": "MIT",
   "repository": "https://github.com/maxatwork/form2js",
   "homepage": "https://maxatwork.github.io/form2js/",
+  "bugs": {
+    "url": "https://github.com/maxatwork/form2js/issues"
+  },
+  "keywords": [
+    "form",
+    "forms",
+    "serialization",
+    "deserialization",
+    "form-data",
+    "json",
+    "react",
+    "hook",
+    "submit"
+  ],
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.cjs",

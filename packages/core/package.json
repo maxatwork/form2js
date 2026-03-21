@@ -2,8 +2,22 @@
   "name": "@form2js/core",
   "version": "3.2.0",
   "description": "Core path parsing and object transformation logic for form2js.",
+  "license": "MIT",
   "repository": "https://github.com/maxatwork/form2js",
   "homepage": "https://maxatwork.github.io/form2js/",
+  "bugs": {
+    "url": "https://github.com/maxatwork/form2js/issues"
+  },
+  "keywords": [
+    "form",
+    "forms",
+    "serialization",
+    "deserialization",
+    "form-data",
+    "json",
+    "parser",
+    "object-transform"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
