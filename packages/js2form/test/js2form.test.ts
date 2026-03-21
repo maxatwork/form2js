@@ -304,6 +304,29 @@ describe("objectToForm", () => {
     const input = document.querySelector("input[name='a[b][c]']") as HTMLInputElement;
     expect(input.value).toBe("value");
   });
+
+  it("keeps sibling rails array object fields on the same synthetic index", () => {
+    document.body.innerHTML = `
+      <form id="testForm">
+        <input name="items[][title]" />
+        <input name="items[][description]" />
+      </form>
+    `;
+
+    objectToForm("testForm", {
+      items: [
+        {
+          title: "First",
+          description: "Desc"
+        }
+      ]
+    });
+
+    expect((document.querySelector("input[name='items[][title]']") as HTMLInputElement).value).toBe("First");
+    expect((document.querySelector("input[name='items[][description]']") as HTMLInputElement).value).toBe(
+      "Desc"
+    );
+  });
 });
 
 describe("low-level helpers", () => {

@@ -24,6 +24,10 @@ type ArrayIndexesMap = Record<
   {
     lastIndex: number;
     indexes: Record<string, number>;
+    emptyIndexGroup?: {
+      index: number;
+      seenSuffixes: Set<string>;
+    };
   }
 >;
 
@@ -165,12 +169,32 @@ function normalizeName(name: string, delimiter: string, arrayIndexes: ArrayIndex
       indexes: {}
     });
 
-    if (currentIndex === "" || arrayIndexInfo.indexes[currentIndex] === undefined) {
+    if (currentIndex === "") {
+      const remainingPath = chunks.slice(chunkIndex + 1).join(delimiter);
+      const currentGroup = arrayIndexInfo.emptyIndexGroup;
+
+      if (
+        !currentGroup ||
+        remainingPath === "" ||
+        currentGroup.seenSuffixes.has(remainingPath)
+      ) {
+        arrayIndexInfo.lastIndex += 1;
+        arrayIndexInfo.emptyIndexGroup = {
+          index: arrayIndexInfo.lastIndex,
+          seenSuffixes: new Set(remainingPath === "" ? [] : [remainingPath])
+        };
+      } else {
+        currentGroup.seenSuffixes.add(remainingPath);
+      }
+    } else if (arrayIndexInfo.indexes[currentIndex] === undefined) {
       arrayIndexInfo.lastIndex += 1;
       arrayIndexInfo.indexes[currentIndex] = arrayIndexInfo.lastIndex;
     }
 
-    const newIndex = arrayIndexInfo.indexes[currentIndex];
+    const newIndex =
+      currentIndex === ""
+        ? (arrayIndexInfo.emptyIndexGroup?.index ?? 0)
+        : arrayIndexInfo.indexes[currentIndex];
     normalizedNameChunks[normalizedNameChunks.length - 1] = currentChunk.replace(
       LAST_INDEXED_ARRAY_REGEXP,
       `$1$2${newIndex}$4`
