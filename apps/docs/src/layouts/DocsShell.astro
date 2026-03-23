@@ -1,6 +1,6 @@
 ---
 import "../styles/global.css";
-import { homepagePath } from "../lib/site-routes";
+import { homepagePath, migrationGuidePath } from "../lib/site-routes";
 
 interface Props {
   title?: string;
@@ -26,6 +26,7 @@ const basePath = import.meta.env.BASE_URL;
         </a>
         <nav class="site-nav" aria-label="Primary">
           <a href={homepagePath(basePath)}>Overview</a>
+          <a href={migrationGuidePath(basePath)}>Migration</a>
           <a href="https://github.com/maxatwork/form2js">Github</a>
         </nav>
       </header>

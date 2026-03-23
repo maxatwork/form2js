@@ -9,7 +9,12 @@ import {
   apiIndexMarkdownPath,
   getApiPackageByMarkdownBasename
 } from "./api-packages";
-import { apiDocsPath, apiPackageDocsPath, homepagePath } from "./site-routes";
+import {
+  apiDocsPath,
+  apiPackageDocsPath,
+  homepagePath,
+  migrationGuidePath
+} from "./site-routes";
 
 export interface ApiHeading {
   depth: 2 | 3;
@@ -75,6 +80,10 @@ function rewriteMarkdownLink(url: string, basePath: string): string {
     pathname === "../README.md"
   ) {
     return `${homepagePath(basePath)}${suffix}`;
+  }
+
+  if (normalizedPathname === "migrate.md") {
+    return `${migrationGuidePath(basePath)}${suffix}`;
   }
 
   if (normalizedPathname === "api.md" || normalizedPathname === "api-index.md") {

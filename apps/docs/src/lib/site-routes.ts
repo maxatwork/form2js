@@ -11,6 +11,10 @@ export function homepagePath(basePath: string): string {
   return normalizeBase(basePath);
 }
 
+export function migrationGuidePath(basePath: string): string {
+  return `${normalizeBase(basePath)}migrate/`;
+}
+
 export function apiDocsPath(basePath: string): string {
   return `${normalizeBase(basePath)}api/`;
 }

@@ -14,6 +14,7 @@ const apiFormDataMarkdown = readFileSync(path.resolve(testDir, "../../../docs/ap
 const apiJqueryMarkdown = readFileSync(path.resolve(testDir, "../../../docs/api-jquery.md"), "utf8");
 const apiJs2formMarkdown = readFileSync(path.resolve(testDir, "../../../docs/api-js2form.md"), "utf8");
 const apiReactMarkdown = readFileSync(path.resolve(testDir, "../../../docs/api-react.md"), "utf8");
+const migrationMarkdown = readFileSync(path.resolve(testDir, "../../../docs/migrate.md"), "utf8");
 const readmeMarkdown = readFileSync(path.resolve(testDir, "../../../README.md"), "utf8");
 
 describe("parseApiDocsMarkdown", () => {
@@ -114,5 +115,24 @@ Text.
     expect(apiJs2formMarkdown).toContain("### `useIdIfEmptyName`");
     expect(apiReactMarkdown).toContain("npm install @form2js/react react");
     expect(readmeMarkdown).toContain("[API Reference Source](docs/api-index.md)");
+  });
+
+  it("parses the migration guide markdown and rewrites package links", () => {
+    const source = parseApiDocsMarkdown(migrationMarkdown, {
+      basePath: "/form2js/"
+    });
+
+    expect(source.title).toBe("Migrate from Legacy form2js");
+    expect(source.introMarkdown).toContain("single `form2js` script");
+    expect(source.bodyHtml).toContain('href="/form2js/api/dom/"');
+    expect(source.bodyHtml).toContain('href="/form2js/api/jquery/"');
+    expect(source.bodyHtml).toContain('href="/form2js/api/form-data/"');
+    expect(source.headings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ slug: "quick-chooser", text: "Quick Chooser" }),
+        expect.objectContaining({ slug: "legacy-api-mapping", text: "Legacy API Mapping" }),
+        expect.objectContaining({ slug: "where-to-go-now", text: "Where To Go Now" })
+      ])
+    );
   });
 });
