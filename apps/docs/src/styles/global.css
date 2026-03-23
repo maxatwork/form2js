@@ -116,6 +116,10 @@ a {
   gap: 2rem;
 }
 
+.api-docs--content-sidebar {
+  grid-template-columns: minmax(0, 1fr) 18rem;
+}
+
 .api-docs__nav,
 .api-docs__sidebar {
   position: sticky;

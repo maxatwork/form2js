@@ -4,12 +4,15 @@ import {
   apiDocsPath,
   apiPackageDocsPath,
   homepagePath,
-  homepageVariantPath
+  homepageVariantPath,
+  migrationGuidePath
 } from "../src/lib/site-routes";
 
 describe("site routes", () => {
-  it("builds homepage and api paths under a base path", () => {
+  it("builds homepage, migration, and api paths under a base path", () => {
     expect(homepagePath("/form2js/")).toBe("/form2js/");
+    expect(migrationGuidePath("/form2js/")).toBe("/form2js/migrate/");
+    expect(migrationGuidePath("/")).toBe("/migrate/");
     expect(apiDocsPath("/form2js/")).toBe("/form2js/api/");
     expect(apiPackageDocsPath("/form2js/", "react")).toBe("/form2js/api/react/");
     expect(apiPackageDocsPath("/", "form-data")).toBe("/api/form-data/");

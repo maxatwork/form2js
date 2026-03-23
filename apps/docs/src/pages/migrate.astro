@@ -1,0 +1,32 @@
+---
+import path from "node:path";
+
+import { ApiToc } from "../components/api/ApiToc";
+import { loadApiDocsSource } from "../lib/api-docs-source";
+import DocsShell from "../layouts/DocsShell.astro";
+
+const migrationSource = await loadApiDocsSource({
+  basePath: import.meta.env.BASE_URL,
+  markdownPath: path.resolve(process.cwd(), "..", "..", "docs", "migrate.md")
+});
+---
+
+<DocsShell title={`${migrationSource.title} | form2js`}>
+  <section class="api-docs api-docs--content-sidebar">
+    <article class="api-docs__content">
+      <header class="api-docs__header">
+        <p class="hero__eyebrow">Migration Guide</p>
+        <h1>{migrationSource.title}</h1>
+        {migrationSource.introHtml ? (
+          <div class="api-docs__intro" set:html={migrationSource.introHtml} />
+        ) : null}
+      </header>
+      <div class="api-docs__body" set:html={migrationSource.bodyHtml} />
+    </article>
+    {migrationSource.headings.length > 0 ? (
+      <aside class="api-docs__sidebar">
+        <ApiToc client:load headings={migrationSource.headings} />
+      </aside>
+    ) : null}
+  </section>
+</DocsShell>

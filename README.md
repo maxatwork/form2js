@@ -6,6 +6,8 @@ Originally created in 2010, now rewritten for modern JavaScript, TypeScript, ESM
 
 Legacy version is available in the [legacy branch](https://github.com/maxatwork/form2js/tree/legacy).
 
+Migrating from legacy form2js? Start with the [migration guide](https://maxatwork.github.io/form2js/migrate/).
+
 ## Description
 
 A small family of packages for turning form-shaped data into objects, and objects back into forms.
@@ -15,7 +17,22 @@ It is not a serializer, not an ORM, and not a new religion. It just does this on
 ## Documentation
 
 - [Docs Site](https://maxatwork.github.io/form2js/) - overview, installation, unified playground, and published API reference.
+- [Migration Guide](https://maxatwork.github.io/form2js/migrate/) - map old `form2js` and `jquery.toObject` usage to the current package family.
 - [API Reference Source](docs/api-index.md) - markdown source for the published API docs page.
+
+## Migration from Legacy
+
+If you are moving from the archived single-package version, start with the [migration guide](https://maxatwork.github.io/form2js/migrate/).
+
+Quick package map:
+
+- Legacy browser `form2js(...)` usage -> `@form2js/dom`
+- Legacy jQuery `$("#form").toObject()` usage -> `@form2js/jquery`
+- Server or pipeline `FormData` parsing -> `@form2js/form-data`
+- React submit handling -> `@form2js/react`
+- Object back into fields -> `@form2js/js2form`
+
+The current project keeps the naming rules and core parsing model, but splits the old browser-era API into environment-specific packages.
 
 ## Packages
 

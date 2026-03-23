@@ -10,6 +10,8 @@ const installSectionSource = readFileSync(
   path.resolve(testDir, "../src/components/landing/InstallSection.astro"),
   "utf8"
 );
+const docsShellSource = readFileSync(path.resolve(testDir, "../src/layouts/DocsShell.astro"), "utf8");
+const readmeSource = readFileSync(path.resolve(testDir, "../../../README.md"), "utf8");
 
 describe("docs homepage shell", () => {
   it("wires the landing page sections together", () => {
@@ -26,5 +28,13 @@ describe("docs homepage shell", () => {
     expect(installSectionSource).toContain("npm install @form2js/react react");
     expect(installSectionSource).toContain("https://unpkg.com/@form2js/dom/dist/standalone.global.js");
     expect(installSectionSource).toContain("https://unpkg.com/@form2js/jquery/dist/standalone.global.js");
+  });
+
+  it("surfaces the migration guide in the shared docs chrome and the README", () => {
+    expect(docsShellSource).toContain("migrationGuidePath");
+    expect(docsShellSource).toContain(">Migration<");
+    expect(readmeSource).toContain("Migrating from legacy form2js?");
+    expect(readmeSource).toContain("https://maxatwork.github.io/form2js/migrate/");
+    expect(readmeSource).toContain("## Migration from Legacy");
   });
 });
