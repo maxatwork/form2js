@@ -136,12 +136,11 @@ declare global {
 
 let container: HTMLDivElement;
 let root: ReturnType<typeof createRoot>;
-let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
 beforeEach(() => {
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;
   resetMockVariants();
-  consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+  vi.spyOn(console, "error").mockImplementation(() => undefined);
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -154,8 +153,7 @@ afterEach(() => {
   });
   container.remove();
   resetMockVariants();
-  consoleErrorSpy.mockRestore();
-  vi.clearAllMocks();
+  vi.restoreAllMocks();
 });
 
 function renderShell(): void {
