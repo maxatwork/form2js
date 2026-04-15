@@ -70,6 +70,30 @@ function isVulnerableVersion(name: string, version: string): boolean {
     return compareSemver(version, "1.6.1") < 0;
   }
 
+  if (name === "vite") {
+    if (major === 6) {
+      return compareSemver(version, "6.4.2") < 0;
+    }
+
+    if (major === 7) {
+      return compareSemver(version, "7.3.2") < 0;
+    }
+
+    if (major === 8) {
+      return compareSemver(version, "8.0.5") < 0;
+    }
+
+    return false;
+  }
+
+  if (name === "defu") {
+    if (major === 6) {
+      return compareSemver(version, "6.1.5") < 0;
+    }
+
+    return false;
+  }
+
   if (name === "yaml" && major === 2) {
     return compareSemver(version, "2.8.3") < 0;
   }
@@ -81,7 +105,7 @@ describe("dependency security", () => {
   it("does not leave known vulnerable dependency versions in the lockfile", () => {
     const lockfile = readLockfile();
     const packages = lockfile.packages ?? {};
-    const vulnerablePackages = ["brace-expansion", "picomatch", "smol-toml", "yaml"];
+    const vulnerablePackages = ["brace-expansion", "defu", "picomatch", "smol-toml", "vite", "yaml"];
 
     for (const [packagePath, packageInfo] of Object.entries(packages)) {
       const packageName = packagePath.split("/").at(-1);
