@@ -31,6 +31,17 @@ function compareSemver(left: string, right: string): number {
   return 0;
 }
 
+function packageNameFromPath(packagePath: string): string | undefined {
+  const segments = packagePath.split("/");
+  const lastSegment = segments.at(-1);
+
+  if (segments.at(-2)?.startsWith("@") && lastSegment) {
+    return `${segments.at(-2)}/${lastSegment}`;
+  }
+
+  return lastSegment;
+}
+
 function isVulnerableVersion(name: string, version: string): boolean {
   const [major = 0] = version.split(".", 1).map(Number);
 
@@ -98,6 +109,50 @@ function isVulnerableVersion(name: string, version: string): boolean {
     return compareSemver(version, "2.8.3") < 0;
   }
 
+  if (name === "postcss") {
+    return compareSemver(version, "8.5.23") < 0;
+  }
+
+  if (name === "esbuild") {
+    return compareSemver(version, "0.28.1") < 0;
+  }
+
+  if (name === "js-yaml") {
+    if (major === 3) {
+      return compareSemver(version, "3.15.0") < 0;
+    }
+
+    if (major === 4) {
+      return compareSemver(version, "4.3.0") < 0;
+    }
+
+    return false;
+  }
+
+  if (name === "sharp") {
+    return compareSemver(version, "0.35.0") < 0;
+  }
+
+  if (name === "svgo") {
+    return compareSemver(version, "4.0.2") < 0;
+  }
+
+  if (name === "@babel/core") {
+    return compareSemver(version, "7.29.6") < 0;
+  }
+
+  if (name === "ws") {
+    return compareSemver(version, "8.21.0") < 0;
+  }
+
+  if (name === "turbo") {
+    return compareSemver(version, "2.9.14") < 0;
+  }
+
+  if (name === "astro") {
+    return major < 7 || (major === 7 && compareSemver(version, "7.1.0") < 0);
+  }
+
   return false;
 }
 
@@ -105,10 +160,26 @@ describe("dependency security", () => {
   it("does not leave known vulnerable dependency versions in the lockfile", () => {
     const lockfile = readLockfile();
     const packages = lockfile.packages ?? {};
-    const vulnerablePackages = ["brace-expansion", "defu", "picomatch", "smol-toml", "vite", "yaml"];
+    const vulnerablePackages = [
+      "@babel/core",
+      "astro",
+      "brace-expansion",
+      "defu",
+      "esbuild",
+      "js-yaml",
+      "picomatch",
+      "postcss",
+      "sharp",
+      "smol-toml",
+      "svgo",
+      "turbo",
+      "vite",
+      "ws",
+      "yaml"
+    ];
 
     for (const [packagePath, packageInfo] of Object.entries(packages)) {
-      const packageName = packagePath.split("/").at(-1);
+      const packageName = packageNameFromPath(packagePath);
       const version = packageInfo.version;
 
       if (!packageName || !version || !vulnerablePackages.includes(packageName)) {
