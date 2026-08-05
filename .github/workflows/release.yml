@@ -23,7 +23,6 @@ jobs:
         with:
           node-version: 22.14.0
           registry-url: https://registry.npmjs.org
-          cache: npm
 
       - name: Use npm 11
         run: npm install --global npm@11.6.2
