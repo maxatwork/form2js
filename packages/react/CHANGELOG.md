@@ -1,5 +1,13 @@
 # @form2js/react
 
+## 3.4.1
+
+### Patch Changes
+
+- 058bcd2: Hardened the repository and documentation toolchain against known dependency security advisories and refreshed the lockfile. This is a maintenance release with no public API changes.
+- Updated dependencies [058bcd2]
+  - @form2js/form-data@3.4.1
+
 ## 3.2.3
 
 ### Patch Changes
