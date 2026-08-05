@@ -1,5 +1,13 @@
 # @form2js/dom
 
+## 3.4.1
+
+### Patch Changes
+
+- 058bcd2: Hardened the repository and documentation toolchain against known dependency security advisories and refreshed the lockfile. This is a maintenance release with no public API changes.
+- Updated dependencies [058bcd2]
+  - @form2js/core@3.4.1
+
 ## 3.2.0
 
 ### Minor Changes
