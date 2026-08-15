@@ -119,14 +119,18 @@ function isVulnerableVersion(name: string, version: string): boolean {
 
   if (name === "js-yaml") {
     if (major === 3) {
-      return compareSemver(version, "3.15.0") < 0;
+      return compareSemver(version, "3.15.1") < 0;
     }
 
     if (major === 4) {
-      return compareSemver(version, "4.3.0") < 0;
+      return compareSemver(version, "4.3.1") < 0;
     }
 
     return false;
+  }
+
+  if (name === "nanoid") {
+    return compareSemver(version, "3.3.18") < 0;
   }
 
   if (name === "sharp") {
@@ -167,6 +171,7 @@ describe("dependency security", () => {
       "defu",
       "esbuild",
       "js-yaml",
+      "nanoid",
       "picomatch",
       "postcss",
       "sharp",
