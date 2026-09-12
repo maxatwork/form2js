@@ -45,6 +45,22 @@ function packageNameFromPath(packagePath: string): string | undefined {
 function isVulnerableVersion(name: string, version: string): boolean {
   const [major = 0] = version.split(".", 1).map(Number);
 
+  if (name === "@humanfs/node") {
+    return compareSemver(version, "0.16.8") < 0;
+  }
+
+  if (name === "@vitest/mocker" || name === "vitest") {
+    return compareSemver(version, "2.1.0") >= 0 && compareSemver(version, "4.1.11") < 0;
+  }
+
+  if (name === "baseline-browser-mapping") {
+    return compareSemver(version, "2.0.0") >= 0 && compareSemver(version, "2.11.0") < 0;
+  }
+
+  if (name === "browserslist") {
+    return compareSemver(version, "4.28.7") < 0;
+  }
+
   if (name === "brace-expansion") {
     if (major === 1) {
       return compareSemver(version, "1.1.13") < 0;
@@ -78,7 +94,7 @@ function isVulnerableVersion(name: string, version: string): boolean {
   }
 
   if (name === "smol-toml") {
-    return compareSemver(version, "1.6.1") < 0;
+    return compareSemver(version, "1.7.1") < 0;
   }
 
   if (name === "vite") {
@@ -119,11 +135,11 @@ function isVulnerableVersion(name: string, version: string): boolean {
 
   if (name === "js-yaml") {
     if (major === 3) {
-      return compareSemver(version, "3.15.1") < 0;
+      return compareSemver(version, "3.15.2") < 0;
     }
 
     if (major === 4) {
-      return compareSemver(version, "4.3.1") < 0;
+      return compareSemver(version, "4.3.2") < 0;
     }
 
     return false;
@@ -134,11 +150,11 @@ function isVulnerableVersion(name: string, version: string): boolean {
   }
 
   if (name === "sharp") {
-    return compareSemver(version, "0.35.0") < 0;
+    return compareSemver(version, "0.35.4") < 0;
   }
 
   if (name === "svgo") {
-    return compareSemver(version, "4.0.2") < 0;
+    return compareSemver(version, "4.1.0") < 0;
   }
 
   if (name === "@babel/core") {
@@ -154,7 +170,7 @@ function isVulnerableVersion(name: string, version: string): boolean {
   }
 
   if (name === "astro") {
-    return major < 7 || (major === 7 && compareSemver(version, "7.1.0") < 0);
+    return major < 7 || (major === 7 && compareSemver(version, "7.2.8") < 0);
   }
 
   return false;
@@ -166,7 +182,11 @@ describe("dependency security", () => {
     const packages = lockfile.packages ?? {};
     const vulnerablePackages = [
       "@babel/core",
+      "@humanfs/node",
+      "@vitest/mocker",
       "astro",
+      "baseline-browser-mapping",
+      "browserslist",
       "brace-expansion",
       "defu",
       "esbuild",
@@ -179,6 +199,7 @@ describe("dependency security", () => {
       "svgo",
       "turbo",
       "vite",
+      "vitest",
       "ws",
       "yaml"
     ];
