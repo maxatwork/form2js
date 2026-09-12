@@ -53,15 +53,15 @@
     "tsup": {
       "esbuild": "0.28.1"
     },
-    "js-yaml": "4.3.1",
+    "js-yaml": "4.3.2",
     "read-yaml-file": {
-      "js-yaml": "3.15.1"
+      "js-yaml": "3.15.2"
     },
-    "sharp": "0.35.0",
-    "svgo": "4.0.2",
+    "sharp": "0.35.4",
+    "svgo": "4.1.0",
     "@babel/core": "7.29.6",
     "ws": "8.21.0",
-    "smol-toml": "1.6.1",
+    "smol-toml": "1.7.1",
     "yaml": "2.8.3"
   },
   "devDependencies": {

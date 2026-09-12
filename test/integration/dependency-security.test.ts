@@ -16,8 +16,10 @@ function readLockfile(): Lockfile {
 }
 
 function compareSemver(left: string, right: string): number {
-  const leftParts = left.split("-", 1)[0].split(".").map(Number);
-  const rightParts = right.split("-", 1)[0].split(".").map(Number);
+  const [leftBase = ""] = left.split("-", 1);
+  const [rightBase = ""] = right.split("-", 1);
+  const leftParts = leftBase.split(".").map(Number);
+  const rightParts = rightBase.split(".").map(Number);
   const length = Math.max(leftParts.length, rightParts.length);
 
   for (let index = 0; index < length; index += 1) {
@@ -31,12 +33,25 @@ function compareSemver(left: string, right: string): number {
   return 0;
 }
 
+function isVulnerableVitestPrerelease(version: string): boolean {
+  const betaMatch = /^5\.0\.0-beta\.(\d+)$/.exec(version);
+
+  if (betaMatch) {
+    return Number(betaMatch[1]) >= 1;
+  }
+
+  const releaseCandidateMatch = /^5\.0\.0-rc\.(\d+)$/.exec(version);
+
+  return releaseCandidateMatch !== null && Number(releaseCandidateMatch[1]) < 2;
+}
+
 function packageNameFromPath(packagePath: string): string | undefined {
   const segments = packagePath.split("/");
-  const lastSegment = segments.at(-1);
+  const lastSegment = segments[segments.length - 1];
+  const parentSegment = segments[segments.length - 2];
 
-  if (segments.at(-2)?.startsWith("@") && lastSegment) {
-    return `${segments.at(-2)}/${lastSegment}`;
+  if (parentSegment?.startsWith("@") && lastSegment) {
+    return `${parentSegment}/${lastSegment}`;
   }
 
   return lastSegment;
@@ -44,6 +59,40 @@ function packageNameFromPath(packagePath: string): string | undefined {
 
 function isVulnerableVersion(name: string, version: string): boolean {
   const [major = 0] = version.split(".", 1).map(Number);
+
+  if (name === "@humanfs/node") {
+    return compareSemver(version, "0.16.8") < 0;
+  }
+
+  if (name === "@vitest/mocker") {
+    // GHSA-82fw-gwwq-j7x9 covers stable releases from 2.1.0 through 4.1.10 and 5.0.0 prereleases before rc.2.
+    return (
+      (compareSemver(version, "2.1.0") >= 0 && compareSemver(version, "4.1.11") < 0) ||
+      isVulnerableVitestPrerelease(version)
+    );
+  }
+
+  if (name === "vitest") {
+    // GHSA-9crc-q9x8-hgqq has per-major RCE ranges; GHSA-82fw-gwwq-j7x9 adds the broader file-disclosure range.
+    const affectedByRemoteCodeExecution =
+      compareSemver(version, "0.0.125") <= 0 ||
+      (compareSemver(version, "1.0.0") >= 0 && compareSemver(version, "1.6.1") < 0) ||
+      (compareSemver(version, "2.0.0") >= 0 && compareSemver(version, "2.1.9") < 0) ||
+      (compareSemver(version, "3.0.0") >= 0 && compareSemver(version, "3.0.5") < 0);
+    const affectedByFileDisclosure =
+      (compareSemver(version, "2.1.0") >= 0 && compareSemver(version, "4.1.11") < 0) ||
+      isVulnerableVitestPrerelease(version);
+
+    return affectedByRemoteCodeExecution || affectedByFileDisclosure;
+  }
+
+  if (name === "baseline-browser-mapping") {
+    return compareSemver(version, "2.0.0") >= 0 && compareSemver(version, "2.11.0") < 0;
+  }
+
+  if (name === "browserslist") {
+    return compareSemver(version, "4.28.7") < 0;
+  }
 
   if (name === "brace-expansion") {
     if (major === 1) {
@@ -78,7 +127,7 @@ function isVulnerableVersion(name: string, version: string): boolean {
   }
 
   if (name === "smol-toml") {
-    return compareSemver(version, "1.6.1") < 0;
+    return compareSemver(version, "1.7.1") < 0;
   }
 
   if (name === "vite") {
@@ -119,11 +168,11 @@ function isVulnerableVersion(name: string, version: string): boolean {
 
   if (name === "js-yaml") {
     if (major === 3) {
-      return compareSemver(version, "3.15.1") < 0;
+      return compareSemver(version, "3.15.2") < 0;
     }
 
     if (major === 4) {
-      return compareSemver(version, "4.3.1") < 0;
+      return compareSemver(version, "4.3.2") < 0;
     }
 
     return false;
@@ -134,11 +183,11 @@ function isVulnerableVersion(name: string, version: string): boolean {
   }
 
   if (name === "sharp") {
-    return compareSemver(version, "0.35.0") < 0;
+    return compareSemver(version, "0.35.4") < 0;
   }
 
   if (name === "svgo") {
-    return compareSemver(version, "4.0.2") < 0;
+    return compareSemver(version, "4.1.0") < 0;
   }
 
   if (name === "@babel/core") {
@@ -154,19 +203,46 @@ function isVulnerableVersion(name: string, version: string): boolean {
   }
 
   if (name === "astro") {
-    return major < 7 || (major === 7 && compareSemver(version, "7.1.0") < 0);
+    return major < 7 || (major === 7 && compareSemver(version, "7.2.8") < 0);
   }
 
   return false;
 }
 
 describe("dependency security", () => {
+  it.each([
+    { name: "vitest", version: "0.0.125", vulnerable: true },
+    { name: "vitest", version: "0.0.126", vulnerable: false },
+    { name: "vitest", version: "1.6.0", vulnerable: true },
+    { name: "vitest", version: "1.6.1", vulnerable: false },
+    { name: "vitest", version: "2.0.0", vulnerable: true },
+    { name: "vitest", version: "2.1.9", vulnerable: true },
+    { name: "vitest", version: "3.0.5", vulnerable: true },
+    { name: "vitest", version: "3.1.0", vulnerable: true },
+    { name: "vitest", version: "4.1.10", vulnerable: true },
+    { name: "vitest", version: "4.1.11", vulnerable: false },
+    { name: "vitest", version: "5.0.0-beta.1", vulnerable: true },
+    { name: "vitest", version: "5.0.0-rc.2", vulnerable: false },
+    { name: "@vitest/mocker", version: "2.0.0", vulnerable: false },
+    { name: "@vitest/mocker", version: "2.1.0", vulnerable: true },
+    { name: "@vitest/mocker", version: "4.1.10", vulnerable: true },
+    { name: "@vitest/mocker", version: "4.1.11", vulnerable: false },
+    { name: "@vitest/mocker", version: "5.0.0-beta.1", vulnerable: true },
+    { name: "@vitest/mocker", version: "5.0.0-rc.2", vulnerable: false }
+  ])("classifies known Vitest advisory range boundaries", ({ name, version, vulnerable }) => {
+    expect(isVulnerableVersion(name, version)).toBe(vulnerable);
+  });
+
   it("does not leave known vulnerable dependency versions in the lockfile", () => {
     const lockfile = readLockfile();
     const packages = lockfile.packages ?? {};
     const vulnerablePackages = [
       "@babel/core",
+      "@humanfs/node",
+      "@vitest/mocker",
       "astro",
+      "baseline-browser-mapping",
+      "browserslist",
       "brace-expansion",
       "defu",
       "esbuild",
@@ -179,6 +255,7 @@ describe("dependency security", () => {
       "svgo",
       "turbo",
       "vite",
+      "vitest",
       "ws",
       "yaml"
     ];
