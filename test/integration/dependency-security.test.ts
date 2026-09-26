@@ -154,6 +154,10 @@ function isVulnerableVersion(name: string, version: string): boolean {
     return false;
   }
 
+  if (name === "devalue") {
+    return compareSemver(version, "5.9.2") < 0;
+  }
+
   if (name === "yaml" && major === 2) {
     return compareSemver(version, "2.8.3") < 0;
   }
@@ -233,6 +237,13 @@ describe("dependency security", () => {
     expect(isVulnerableVersion(name, version)).toBe(vulnerable);
   });
 
+  it.each([
+    { name: "devalue", version: "5.9.1", vulnerable: true },
+    { name: "devalue", version: "5.9.2", vulnerable: false }
+  ])("classifies the devalue advisory boundary", ({ name, version, vulnerable }) => {
+    expect(isVulnerableVersion(name, version)).toBe(vulnerable);
+  });
+
   it("does not leave known vulnerable dependency versions in the lockfile", () => {
     const lockfile = readLockfile();
     const packages = lockfile.packages ?? {};
@@ -244,6 +255,7 @@ describe("dependency security", () => {
       "baseline-browser-mapping",
       "browserslist",
       "brace-expansion",
+      "devalue",
       "defu",
       "esbuild",
       "js-yaml",
