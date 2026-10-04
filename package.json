@@ -62,7 +62,8 @@
     "@babel/core": "7.29.6",
     "ws": "8.21.0",
     "smol-toml": "1.7.1",
-    "yaml": "2.8.3"
+    "yaml": "2.8.3",
+    "devalue": "5.9.2"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.7",
