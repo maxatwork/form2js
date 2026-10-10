@@ -96,11 +96,11 @@ function isVulnerableVersion(name: string, version: string): boolean {
 
   if (name === "brace-expansion") {
     if (major === 1) {
-      return compareSemver(version, "1.1.13") < 0;
+      return compareSemver(version, "1.1.21") < 0;
     }
 
     if (major === 2) {
-      return compareSemver(version, "2.0.3") < 0;
+      return compareSemver(version, "2.1.7") < 0;
     }
 
     if (major === 4) {
@@ -108,7 +108,7 @@ function isVulnerableVersion(name: string, version: string): boolean {
     }
 
     if (major === 5) {
-      return compareSemver(version, "5.0.5") < 0;
+      return compareSemver(version, "5.0.12") < 0;
     }
 
     return false;
@@ -127,7 +127,7 @@ function isVulnerableVersion(name: string, version: string): boolean {
   }
 
   if (name === "smol-toml") {
-    return compareSemver(version, "1.7.1") < 0;
+    return compareSemver(version, "1.9.0") < 0;
   }
 
   if (name === "vite") {
@@ -155,7 +155,7 @@ function isVulnerableVersion(name: string, version: string): boolean {
   }
 
   if (name === "devalue") {
-    return compareSemver(version, "5.9.2") < 0;
+    return compareSemver(version, "5.9.3") < 0;
   }
 
   if (name === "yaml" && major === 2) {
@@ -187,7 +187,11 @@ function isVulnerableVersion(name: string, version: string): boolean {
   }
 
   if (name === "sharp") {
-    return compareSemver(version, "0.35.4") < 0;
+    return compareSemver(version, "0.35.5") < 0;
+  }
+
+  if (name === "source-map-js") {
+    return compareSemver(version, "1.2.2") < 0;
   }
 
   if (name === "svgo") {
@@ -239,8 +243,32 @@ describe("dependency security", () => {
 
   it.each([
     { name: "devalue", version: "5.9.1", vulnerable: true },
-    { name: "devalue", version: "5.9.2", vulnerable: false }
+    { name: "devalue", version: "5.9.2", vulnerable: true },
+    { name: "devalue", version: "5.9.3", vulnerable: false }
   ])("classifies the devalue advisory boundary", ({ name, version, vulnerable }) => {
+    expect(isVulnerableVersion(name, version)).toBe(vulnerable);
+  });
+
+  it.each([
+    { name: "brace-expansion", version: "1.1.20", vulnerable: true },
+    { name: "brace-expansion", version: "1.1.21", vulnerable: false },
+    { name: "brace-expansion", version: "2.1.6", vulnerable: true },
+    { name: "brace-expansion", version: "2.1.7", vulnerable: false },
+    { name: "brace-expansion", version: "4.0.0", vulnerable: true },
+    { name: "brace-expansion", version: "5.0.11", vulnerable: true },
+    { name: "brace-expansion", version: "5.0.12", vulnerable: false }
+  ])("classifies the brace-expansion advisory boundaries", ({ name, version, vulnerable }) => {
+    expect(isVulnerableVersion(name, version)).toBe(vulnerable);
+  });
+
+  it.each([
+    { name: "sharp", version: "0.35.4", vulnerable: true },
+    { name: "sharp", version: "0.35.5", vulnerable: false },
+    { name: "smol-toml", version: "1.8.0", vulnerable: true },
+    { name: "smol-toml", version: "1.9.0", vulnerable: false },
+    { name: "source-map-js", version: "1.2.1", vulnerable: true },
+    { name: "source-map-js", version: "1.2.2", vulnerable: false }
+  ])("classifies the patch-level security boundaries", ({ name, version, vulnerable }) => {
     expect(isVulnerableVersion(name, version)).toBe(vulnerable);
   });
 
@@ -264,6 +292,7 @@ describe("dependency security", () => {
       "postcss",
       "sharp",
       "smol-toml",
+      "source-map-js",
       "svgo",
       "turbo",
       "vite",
