@@ -16,8 +16,8 @@ function readLockfile(): Lockfile {
 }
 
 function compareSemver(left: string, right: string): number {
-  const [leftBase = ""] = left.split("-", 1);
-  const [rightBase = ""] = right.split("-", 1);
+  const [leftBase = "", leftPrerelease] = left.split("-", 2);
+  const [rightBase = "", rightPrerelease] = right.split("-", 2);
   const leftParts = leftBase.split(".").map(Number);
   const rightParts = rightBase.split(".").map(Number);
   const length = Math.max(leftParts.length, rightParts.length);
@@ -28,6 +28,56 @@ function compareSemver(left: string, right: string): number {
     if (difference !== 0) {
       return difference;
     }
+  }
+
+  if (leftPrerelease === rightPrerelease) {
+    return 0;
+  }
+
+  if (leftPrerelease === undefined) {
+    return 1;
+  }
+
+  if (rightPrerelease === undefined) {
+    return -1;
+  }
+
+  const leftIdentifiers = leftPrerelease.split(".");
+  const rightIdentifiers = rightPrerelease.split(".");
+  const prereleaseLength = Math.max(leftIdentifiers.length, rightIdentifiers.length);
+
+  for (let index = 0; index < prereleaseLength; index += 1) {
+    const leftIdentifier = leftIdentifiers[index];
+    const rightIdentifier = rightIdentifiers[index];
+
+    if (leftIdentifier === undefined) {
+      return -1;
+    }
+
+    if (rightIdentifier === undefined) {
+      return 1;
+    }
+
+    if (leftIdentifier === rightIdentifier) {
+      continue;
+    }
+
+    const leftNumber = /^\d+$/.test(leftIdentifier) ? Number(leftIdentifier) : undefined;
+    const rightNumber = /^\d+$/.test(rightIdentifier) ? Number(rightIdentifier) : undefined;
+
+    if (leftNumber !== undefined && rightNumber !== undefined) {
+      return leftNumber - rightNumber;
+    }
+
+    if (leftNumber !== undefined) {
+      return -1;
+    }
+
+    if (rightNumber !== undefined) {
+      return 1;
+    }
+
+    return leftIdentifier < rightIdentifier ? -1 : 1;
   }
 
   return 0;
@@ -267,6 +317,7 @@ describe("dependency security", () => {
     { name: "smol-toml", version: "1.8.0", vulnerable: true },
     { name: "smol-toml", version: "1.9.0", vulnerable: false },
     { name: "source-map-js", version: "1.2.1", vulnerable: true },
+    { name: "source-map-js", version: "1.2.2-beta.1", vulnerable: true },
     { name: "source-map-js", version: "1.2.2", vulnerable: false }
   ])("classifies the patch-level security boundaries", ({ name, version, vulnerable }) => {
     expect(isVulnerableVersion(name, version)).toBe(vulnerable);
