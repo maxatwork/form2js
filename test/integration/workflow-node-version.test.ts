@@ -20,4 +20,17 @@ describe("workflow node versions", () => {
     expect(ciWorkflow).toContain("node-version: 22.22.0");
     expect(pagesWorkflow).toContain("node-version: 22.22.0");
   });
+
+  it("uses action majors compatible with the current GitHub runner", () => {
+    const ciWorkflow = readWorkflow(".github/workflows/ci.yml");
+    const pagesWorkflow = readWorkflow(".github/workflows/pages.yml");
+    const releaseWorkflow = readWorkflow(".github/workflows/release.yml");
+
+    expect(ciWorkflow).toContain("uses: actions/checkout@v7");
+    expect(ciWorkflow).toContain("uses: actions/setup-node@v7");
+    expect(pagesWorkflow).toContain("uses: actions/configure-pages@v6");
+    expect(pagesWorkflow).toContain("uses: actions/upload-pages-artifact@v5");
+    expect(pagesWorkflow).toContain("uses: actions/deploy-pages@v5");
+    expect(releaseWorkflow).toContain("uses: changesets/action@v2");
+  });
 });
