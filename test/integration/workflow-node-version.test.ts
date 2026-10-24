@@ -32,5 +32,7 @@ describe("workflow node versions", () => {
     expect(pagesWorkflow).toContain("uses: actions/upload-pages-artifact@v5");
     expect(pagesWorkflow).toContain("uses: actions/deploy-pages@v5");
     expect(releaseWorkflow).toContain("uses: changesets/action@v2");
+    expect(releaseWorkflow).toContain("version-script: npx changeset version");
+    expect(releaseWorkflow).toContain("publish-script: npm run release");
   });
 });
