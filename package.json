@@ -46,7 +46,13 @@
       "picomatch": "2.3.2"
     },
     "vitest": {
-      "vite": "7.3.6"
+      "vite": "7.3.7"
+    },
+    "@astrojs/react": {
+      "vite": "8.2.4"
+    },
+    "astro": {
+      "vite": "8.3.3"
     },
     "postcss": "8.5.23",
     "nanoid": "3.3.18",
@@ -72,6 +78,7 @@
     "@types/jsdom": "^21.1.7",
     "eslint": "^9.22.0",
     "jsdom": "^26.0.0",
+    "lightningcss": "^1.33.0",
     "picomatch": "^4.0.5",
     "rimraf": "^6.0.1",
     "tsup": "^8.5.0",
@@ -79,6 +86,6 @@
     "turbo": "^2.10.7",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.35.1",
-    "vitest": "^4.1.2"
+    "vitest": "^4.1.12"
   }
 }

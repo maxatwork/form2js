@@ -115,9 +115,9 @@ function isVulnerableVersion(name: string, version: string): boolean {
   }
 
   if (name === "@vitest/mocker") {
-    // GHSA-82fw-gwwq-j7x9 covers stable releases from 2.1.0 through 4.1.10 and 5.0.0 prereleases before rc.2.
+    // GHSA-82fw-gwwq-j7x9 and the follow-up advisories cover stable releases from 2.1.0 through 4.1.11 and 5.0.0 prereleases before rc.2.
     return (
-      (compareSemver(version, "2.1.0") >= 0 && compareSemver(version, "4.1.11") < 0) ||
+      (compareSemver(version, "2.1.0") >= 0 && compareSemver(version, "4.1.12") < 0) ||
       isVulnerableVitestPrerelease(version)
     );
   }
@@ -130,7 +130,7 @@ function isVulnerableVersion(name: string, version: string): boolean {
       (compareSemver(version, "2.0.0") >= 0 && compareSemver(version, "2.1.9") < 0) ||
       (compareSemver(version, "3.0.0") >= 0 && compareSemver(version, "3.0.5") < 0);
     const affectedByFileDisclosure =
-      (compareSemver(version, "2.1.0") >= 0 && compareSemver(version, "4.1.11") < 0) ||
+      (compareSemver(version, "2.1.0") >= 0 && compareSemver(version, "4.1.12") < 0) ||
       isVulnerableVitestPrerelease(version);
 
     return affectedByRemoteCodeExecution || affectedByFileDisclosure;
@@ -186,11 +186,18 @@ function isVulnerableVersion(name: string, version: string): boolean {
     }
 
     if (major === 7) {
-      return compareSemver(version, "7.3.2") < 0;
+      return compareSemver(version, "7.3.7") < 0;
     }
 
     if (major === 8) {
-      return compareSemver(version, "8.0.5") < 0;
+      if (compareSemver(version, "8.0.5") < 0) {
+        return true;
+      }
+
+      return (
+        (compareSemver(version, "8.2.0") >= 0 && compareSemver(version, "8.2.4") < 0) ||
+        (compareSemver(version, "8.3.0") >= 0 && compareSemver(version, "8.3.3") < 0)
+      );
     }
 
     return false;
@@ -278,13 +285,15 @@ describe("dependency security", () => {
     { name: "vitest", version: "3.0.5", vulnerable: true },
     { name: "vitest", version: "3.1.0", vulnerable: true },
     { name: "vitest", version: "4.1.10", vulnerable: true },
-    { name: "vitest", version: "4.1.11", vulnerable: false },
+    { name: "vitest", version: "4.1.11", vulnerable: true },
+    { name: "vitest", version: "4.1.12", vulnerable: false },
     { name: "vitest", version: "5.0.0-beta.1", vulnerable: true },
     { name: "vitest", version: "5.0.0-rc.2", vulnerable: false },
     { name: "@vitest/mocker", version: "2.0.0", vulnerable: false },
     { name: "@vitest/mocker", version: "2.1.0", vulnerable: true },
     { name: "@vitest/mocker", version: "4.1.10", vulnerable: true },
-    { name: "@vitest/mocker", version: "4.1.11", vulnerable: false },
+    { name: "@vitest/mocker", version: "4.1.11", vulnerable: true },
+    { name: "@vitest/mocker", version: "4.1.12", vulnerable: false },
     { name: "@vitest/mocker", version: "5.0.0-beta.1", vulnerable: true },
     { name: "@vitest/mocker", version: "5.0.0-rc.2", vulnerable: false }
   ])("classifies known Vitest advisory range boundaries", ({ name, version, vulnerable }) => {
@@ -308,6 +317,21 @@ describe("dependency security", () => {
     { name: "brace-expansion", version: "5.0.11", vulnerable: true },
     { name: "brace-expansion", version: "5.0.12", vulnerable: false }
   ])("classifies the brace-expansion advisory boundaries", ({ name, version, vulnerable }) => {
+    expect(isVulnerableVersion(name, version)).toBe(vulnerable);
+  });
+
+  it.each([
+    { name: "vite", version: "6.4.1", vulnerable: true },
+    { name: "vite", version: "6.4.2", vulnerable: false },
+    { name: "vite", version: "7.3.6", vulnerable: true },
+    { name: "vite", version: "7.3.7", vulnerable: false },
+    { name: "vite", version: "8.0.4", vulnerable: true },
+    { name: "vite", version: "8.0.5", vulnerable: false },
+    { name: "vite", version: "8.2.3", vulnerable: true },
+    { name: "vite", version: "8.2.4", vulnerable: false },
+    { name: "vite", version: "8.3.2", vulnerable: true },
+    { name: "vite", version: "8.3.3", vulnerable: false }
+  ])("classifies the Vite advisory boundaries", ({ name, version, vulnerable }) => {
     expect(isVulnerableVersion(name, version)).toBe(vulnerable);
   });
 
