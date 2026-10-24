@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [22.14.0]
+        node-version: [22.22.0]
 
     steps:
       - name: Checkout
@@ -46,7 +46,7 @@ jobs:
         run: npm run pack:dry-run
 
   docs-e2e:
-    name: docs-e2e (node 22.14.0)
+    name: docs-e2e (node 22.22.0)
     runs-on: ubuntu-latest
 
     steps:
@@ -56,7 +56,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22.14.0
+          node-version: 22.22.0
 
       - name: Install
         run: npm ci

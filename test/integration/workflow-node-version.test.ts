@@ -15,9 +15,9 @@ describe("workflow node versions", () => {
     const ciWorkflow = readWorkflow(".github/workflows/ci.yml");
     const pagesWorkflow = readWorkflow(".github/workflows/pages.yml");
 
-    expect(ciWorkflow).toContain("node-version: [22.14.0]");
-    expect(ciWorkflow).toContain("name: docs-e2e (node 22.14.0)");
-    expect(ciWorkflow).toContain("node-version: 22.14.0");
-    expect(pagesWorkflow).toContain("node-version: 22.14.0");
+    expect(ciWorkflow).toContain("node-version: [22.22.0]");
+    expect(ciWorkflow).toContain("name: docs-e2e (node 22.22.0)");
+    expect(ciWorkflow).toContain("node-version: 22.22.0");
+    expect(pagesWorkflow).toContain("node-version: 22.22.0");
   });
 });
