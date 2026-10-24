@@ -30,16 +30,16 @@
   },
   "overrides": {
     "minimatch": {
-      "brace-expansion": "1.1.18"
+      "brace-expansion": "1.1.21"
     },
     "@typescript-eslint/typescript-estree": {
       "minimatch": {
-        "brace-expansion": "2.1.4"
+        "brace-expansion": "2.1.7"
       }
     },
     "glob": {
       "minimatch": {
-        "brace-expansion": "5.0.9"
+        "brace-expansion": "5.0.12"
       }
     },
     "micromatch": {
@@ -50,6 +50,7 @@
     },
     "postcss": "8.5.23",
     "nanoid": "3.3.18",
+    "source-map-js": "1.2.2",
     "tsup": {
       "esbuild": "0.28.1"
     },
@@ -57,13 +58,13 @@
     "read-yaml-file": {
       "js-yaml": "3.15.2"
     },
-    "sharp": "0.35.4",
+    "sharp": "0.35.5",
     "svgo": "4.1.0",
     "@babel/core": "7.29.6",
     "ws": "8.21.0",
-    "smol-toml": "1.7.1",
+    "smol-toml": "1.9.1",
     "yaml": "2.8.3",
-    "devalue": "5.9.2"
+    "devalue": "5.9.3"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.7",
