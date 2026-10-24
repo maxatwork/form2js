@@ -34,5 +34,8 @@ describe("workflow node versions", () => {
     expect(releaseWorkflow).toContain("uses: changesets/action@v2");
     expect(releaseWorkflow).toContain("version-script: npx changeset version");
     expect(releaseWorkflow).toContain("publish-script: npm run release");
+    expect(ciWorkflow).toContain("runs-on: ubuntu-24.04");
+    expect(pagesWorkflow).toContain("runs-on: ubuntu-24.04");
+    expect(releaseWorkflow).toContain("runs-on: ubuntu-24.04");
   });
 });

@@ -12,7 +12,7 @@ permissions:
 jobs:
   checks:
     name: checks (node ${{ matrix.node-version }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -47,7 +47,7 @@ jobs:
 
   docs-e2e:
     name: docs-e2e (node 22.22.0)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
