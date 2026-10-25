@@ -22,7 +22,7 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "browser": "./dist/standalone.js",
+  "browser": "./dist/standalone.global.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -30,7 +30,7 @@
       "require": "./dist/index.cjs"
     },
     "./standalone": {
-      "default": "./dist/standalone.js"
+      "default": "./dist/standalone.global.js"
     }
   },
   "files": [

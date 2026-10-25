@@ -1,7 +1,7 @@
 import { objectToEntries, type Entry } from "@form2js/core";
 
 const ARRAY_ITEM_REGEXP = /\[[0-9]+?\]$/;
-const LAST_INDEXED_ARRAY_REGEXP = /(.*)(\[)([0-9]*)(\])$/;
+const LAST_INDEXED_ARRAY_REGEXP = /\[([0-9]*)\]$/;
 const ARRAY_OF_ARRAYS_REGEXP = /\[([0-9]+)\]\[([0-9]+)\]/g;
 
 export type RootNodeInput = string | Node | null | undefined;
@@ -34,30 +34,22 @@ type ArrayIndexesMap = Record<
 interface BracketMatch {
   content: string;
   index: number;
-  text: string;
+  end: number;
 }
 
 function findBracketMatches(input: string): BracketMatch[] {
   const matches: BracketMatch[] = [];
   let cursor = 0;
 
+  // Stop at the first unmatched opening bracket instead of rescanning its suffix.
   while (cursor < input.length) {
-    const startIndex = input.indexOf("[", cursor);
-    if (startIndex === -1) {
-      break;
-    }
+    const index = input.indexOf("[", cursor);
+    if (index === -1) break;
+    const end = input.indexOf("]", index + 1);
+    if (end === -1) break;
 
-    const endIndex = input.indexOf("]", startIndex + 1);
-    if (endIndex === -1) {
-      break;
-    }
-
-    matches.push({
-      content: input.slice(startIndex + 1, endIndex),
-      index: startIndex,
-      text: input.slice(startIndex, endIndex + 1)
-    });
-    cursor = endIndex + 1;
+    matches.push({ content: input.slice(index + 1, end), index, end: end + 1 });
+    cursor = end + 1;
   }
 
   return matches;
@@ -140,7 +132,7 @@ function normalizeName(name: string, delimiter: string, arrayIndexes: ArrayIndex
     let cursor = 0;
 
     for (const match of bracketMatches) {
-      const literalText = rawChunk.slice(cursor, match.index ?? cursor);
+      const literalText = rawChunk.slice(cursor, match.index);
       if (literalText !== "") {
         currentChunk += literalText;
       }
@@ -163,7 +155,7 @@ function normalizeName(name: string, delimiter: string, arrayIndexes: ArrayIndex
         currentChunk = bracketContent;
       }
 
-      cursor = match.index + match.text.length;
+      cursor = match.end;
     }
 
     const trailingText = rawChunk.slice(cursor);
@@ -181,7 +173,10 @@ function normalizeName(name: string, delimiter: string, arrayIndexes: ArrayIndex
   }
 
   const normalizedNameChunks: string[] = [];
-  const chunks = nameToNormalize.replace(ARRAY_OF_ARRAYS_REGEXP, "[$1].[$2]").split(delimiter);
+  const chunks = nameToNormalize.replace(
+    ARRAY_OF_ARRAYS_REGEXP,
+    (_match, first: string, second: string) => `[${first}]${delimiter}[${second}]`
+  ).split(delimiter);
 
   for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex += 1) {
     const currentChunk = chunks[chunkIndex] ?? "";
@@ -192,9 +187,8 @@ function normalizeName(name: string, delimiter: string, arrayIndexes: ArrayIndex
       continue;
     }
 
-    let currentNormalizedName = normalizedNameChunks.join(delimiter);
-    const currentIndex = currentNormalizedName.replace(LAST_INDEXED_ARRAY_REGEXP, "$3");
-    currentNormalizedName = currentNormalizedName.replace(LAST_INDEXED_ARRAY_REGEXP, "$1");
+    const currentIndex = nameMatches[1] ?? "";
+    const currentNormalizedName = normalizedNameChunks.join(delimiter).slice(0, -nameMatches[0].length);
 
     const arrayIndexInfo = (arrayIndexes[currentNormalizedName] ??= {
       lastIndex: -1,
@@ -227,13 +221,11 @@ function normalizeName(name: string, delimiter: string, arrayIndexes: ArrayIndex
       currentIndex === ""
         ? (arrayIndexInfo.emptyIndexGroup?.index ?? 0)
         : arrayIndexInfo.indexes[currentIndex];
-    normalizedNameChunks[normalizedNameChunks.length - 1] = currentChunk.replace(
-      LAST_INDEXED_ARRAY_REGEXP,
-      `$1$2${newIndex}$4`
-    );
+    normalizedNameChunks[normalizedNameChunks.length - 1] =
+      `${currentChunk.slice(0, -nameMatches[0].length)}[${newIndex}]`;
   }
 
-  return normalizedNameChunks.join(delimiter).replace("].[", "][");
+  return normalizedNameChunks.join(delimiter).split(`]${delimiter}[`).join("][");
 }
 
 function mergeField(result: FieldMap, key: string, value: SupportedFieldCollection): void {
@@ -391,15 +383,8 @@ function setValue(
   }
 }
 
-function toPathEntries(data: unknown): Entry[] {
-  return objectToEntries(data).map((entry) => ({
-    key: entry.key,
-    value: entry.value
-  }));
-}
-
 export function flattenDataForForm(data: unknown): Entry[] {
-  return toPathEntries(data);
+  return objectToEntries(data);
 }
 
 export function mapFieldsByName(
@@ -428,7 +413,7 @@ export function objectToForm(rootNode: RootNodeInput, data: unknown, options: Ob
 
   const delimiter = options.delimiter ?? ".";
   const nodeCallback = options.nodeCallback ?? null;
-  const fieldValues = toPathEntries(data);
+  const fieldValues = objectToEntries(data, { delimiter });
   const formFieldsByName = getFields(
     resolvedRoot,
     options.useIdIfEmptyName ?? false,

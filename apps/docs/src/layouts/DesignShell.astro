@@ -6,26 +6,11 @@ import "../styles/playground.css";
 
 interface Props {
   title?: string;
-  theme: "dark-brutalism" | "outrun-sunset" | "terminal-noir" | "linear-dark" | "editorial";
 }
 
-const { title = "form2js", theme } = Astro.props;
+const { title = "form2js" } = Astro.props;
 const basePath = import.meta.env.BASE_URL;
 
-const THEME_FONTS: Record<string, string> = {
-  "dark-brutalism":
-    "https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800;900&family=DM+Mono:wght@300;400;500&display=swap",
-  "outrun-sunset":
-    "https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Syne:wght@700;900&family=DM+Mono:wght@300;400;500&display=swap",
-  "terminal-noir":
-    "https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap",
-  "linear-dark":
-    "https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;900&family=DM+Mono:wght@300;400;500&display=swap",
-  editorial:
-    "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap",
-};
-
-const fontsHref = THEME_FONTS[theme];
 ---
 
 <!doctype html>
@@ -36,7 +21,7 @@ const fontsHref = THEME_FONTS[theme];
     <title>{title} — form2js</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    {fontsHref && <link href={fontsHref} rel="stylesheet" />}
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
   </head>
   <body>
     <header class="site-header">

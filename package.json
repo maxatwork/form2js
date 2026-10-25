@@ -18,7 +18,7 @@
     "test": "npm run test:packages && npm run test:integration && npm run test:docs",
     "test:docs": "npm run build:packages && DOCS_E2E_PORT=4329 npm -w @form2js/docs run test:e2e",
     "test:packages": "turbo run test",
-    "test:integration": "vitest run test/integration",
+    "test:integration": "vitest run test/integration --exclude '.worktrees/**'",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "clean": "turbo run clean && rimraf node_modules .turbo",

@@ -1,15 +1,9 @@
-import { form2js, type FormToObjectNodeCallback, type RootNodeInput } from "@form2js/dom";
+import { formToObject, type FormToObjectOptions, type RootNodeInput } from "@form2js/dom";
 
 export type ToObjectMode = "first" | "all" | "combine";
 
-export interface ToObjectOptions {
+export interface ToObjectOptions extends Omit<FormToObjectOptions, "document"> {
   mode?: ToObjectMode;
-  delimiter?: string;
-  skipEmpty?: boolean;
-  allowUnsafePathSegments?: boolean;
-  nodeCallback?: FormToObjectNodeCallback;
-  useIdIfEmptyName?: boolean;
-  getDisabled?: boolean;
 }
 
 interface JQueryCollectionLike {
@@ -26,37 +20,6 @@ function isNodeObject(value: unknown): value is Node {
   return typeof value === "object" && value !== null && "nodeType" in value && "nodeName" in value;
 }
 
-function getFnObject($: JQueryLike): Record<string, unknown> {
-  return $.fn as Record<string, unknown>;
-}
-
-interface ResolvedToObjectOptions {
-  mode: ToObjectMode;
-  delimiter: string;
-  skipEmpty: boolean;
-  allowUnsafePathSegments: boolean;
-  nodeCallback?: FormToObjectNodeCallback;
-  useIdIfEmptyName: boolean;
-  getDisabled: boolean;
-}
-
-function applySettings(options?: ToObjectOptions): ResolvedToObjectOptions {
-  const settings: ResolvedToObjectOptions = {
-    mode: options?.mode ?? "first",
-    delimiter: options?.delimiter ?? ".",
-    skipEmpty: options?.skipEmpty ?? true,
-    allowUnsafePathSegments: options?.allowUnsafePathSegments ?? false,
-    useIdIfEmptyName: options?.useIdIfEmptyName ?? false,
-    getDisabled: options?.getDisabled ?? false
-  };
-
-  if (options?.nodeCallback) {
-    settings.nodeCallback = options.nodeCallback;
-  }
-
-  return settings;
-}
-
 function isJQueryLike(value: unknown): value is JQueryLike {
   return typeof value === "function" || (typeof value === "object" && value !== null && "fn" in value);
 }
@@ -66,30 +29,18 @@ export function installToObjectPlugin($: JQueryLike): void {
     throw new TypeError("jQuery-like object with fn is required");
   }
 
-  const fnObject = getFnObject($);
+  const fnObject = $.fn as Record<string, unknown>;
 
   if (typeof fnObject.toObject === "function") {
     return;
   }
 
   fnObject.toObject = function toObject(this: JQueryCollectionLike, options?: ToObjectOptions): unknown {
-    const settings = applySettings(options);
-
-    switch (settings.mode) {
+    switch (options?.mode) {
       case "all": {
         const result: unknown[] = [];
         this.each(function eachMatched() {
-          result.push(
-            form2js(
-              this as RootNodeInput,
-              settings.delimiter,
-              settings.skipEmpty,
-              settings.nodeCallback,
-              settings.useIdIfEmptyName,
-              settings.getDisabled,
-              settings.allowUnsafePathSegments
-            )
-          );
+          result.push(formToObject(this as RootNodeInput, options));
         });
 
         return result;
@@ -103,28 +54,12 @@ export function installToObjectPlugin($: JQueryLike): void {
           }
         });
 
-        return form2js(
-          roots,
-          settings.delimiter,
-          settings.skipEmpty,
-          settings.nodeCallback,
-          settings.useIdIfEmptyName,
-          settings.getDisabled,
-          settings.allowUnsafePathSegments
-        );
+        return formToObject(roots, options);
       }
 
       case "first":
       default:
-        return form2js(
-          this.get(0) as RootNodeInput,
-          settings.delimiter,
-          settings.skipEmpty,
-          settings.nodeCallback,
-          settings.useIdIfEmptyName,
-          settings.getDisabled,
-          settings.allowUnsafePathSegments
-        );
+        return formToObject(this.get(0) as RootNodeInput, options);
     }
   };
 }

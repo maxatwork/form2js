@@ -2,6 +2,31 @@ import { describe, expect, it } from "vitest";
 import { entriesToObject, objectToEntries, processNameValues, setPathValue } from "../src/index";
 
 describe("entriesToObject", () => {
+  it("handles a long unmatched bracket suffix without repeated scanning", () => {
+    const name = `data${"[".repeat(100_000)}`;
+    const start = Date.now();
+    const result = entriesToObject([[name, "value"]]);
+    const elapsed = Date.now() - start;
+
+    expect(result).toEqual({ data: ["value"] });
+    expect(elapsed).toBeLessThan(1000);
+  });
+
+  it("handles deeply nested matched indexes without quadratic array bookkeeping", () => {
+    const depth = 20_000;
+    const start = Date.now();
+    const result = entriesToObject([[`data${"[0]".repeat(depth)}`, "value"]]);
+    const elapsed = Date.now() - start;
+
+    let node: unknown = result.data;
+    for (let level = 1; level < depth; level += 1) {
+      node = (node as unknown[])[0];
+    }
+
+    expect(node).toEqual(["value"]);
+    expect(elapsed).toBeLessThan(1000);
+  });
+
   it("accepts tuple entries directly", () => {
     const result = entriesToObject([
       ["person.name.first", "John"],
@@ -73,6 +98,29 @@ describe("entriesToObject", () => {
       person: {
         friends: [{ name: "Neo" }, { name: "Smith" }]
       }
+    });
+  });
+
+  it.each([false, true])("keeps distinct nested array paths isolated (reverse: %s)", (reverse) => {
+    const entries: [string, string][] = [
+      ["a.b.c[0].x", "A"],
+      ["ab.c[0].y", "B"]
+    ];
+
+    expect(entriesToObject(reverse ? entries.reverse() : entries)).toEqual({
+      a: { b: { c: [{ x: "A" }] } },
+      ab: { c: [{ y: "B" }] }
+    });
+  });
+
+  it("does not confuse underscores in names with array path boundaries", () => {
+    expect(entriesToObject([
+      ["a_b.c[5].x", "A"],
+      ["a.b_c[5].y", "B"],
+      ["a_b[c][5][z]", "C"]
+    ])).toEqual({
+      a_b: { c: [{ x: "A", z: "C" }] },
+      a: { b_c: [{ y: "B" }] }
     });
   });
 
@@ -306,6 +354,18 @@ describe("processNameValues", () => {
 });
 
 describe("objectToEntries", () => {
+  it("uses custom delimiters without rewriting literal dots in property names", () => {
+    const data = { person: { "first.last": "Neo", roles: ["watch"] } };
+    const options = { delimiter: "/" };
+    const entries = objectToEntries(data, options);
+
+    expect(entries).toEqual([
+      { key: "person/first.last", value: "Neo" },
+      { key: "person/roles[0]", value: "watch" }
+    ]);
+    expect(entriesToObject(entries, options)).toEqual(data);
+  });
+
   it("flattens nested objects and arrays", () => {
     const result = objectToEntries({
       person: {

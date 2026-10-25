@@ -12,17 +12,7 @@ export type KeyValueEntryInput = EntryInput;
 
 export interface FormDataToObjectOptions extends ParseOptions {}
 
-export function entriesToObject(entries: Iterable<KeyValueEntryInput>, options?: ParseOptions): ObjectTree;
-export function entriesToObject<TSchema extends SchemaValidator>(
-  entries: Iterable<KeyValueEntryInput>,
-  options: ParseOptions & { schema: TSchema }
-): InferSchemaOutput<TSchema>;
-export function entriesToObject(
-  entries: Iterable<KeyValueEntryInput>,
-  options: ParseOptions & ValidationOptions = {}
-): unknown {
-  return coreEntriesToObject(entries, options);
-}
+export { entriesToObject } from "@form2js/core";
 
 export function formDataToObject(
   formData: FormData | Iterable<readonly [string, FormDataEntryValue]>,
