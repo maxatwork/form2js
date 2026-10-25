@@ -9,6 +9,23 @@ import {
 } from "../src/index";
 
 describe("objectToForm", () => {
+  it.each([".", "/", "::", "$&"])("populates three-dimensional arrays with delimiter %s", (delimiter) => {
+    document.body.innerHTML = `
+      <form id="cube">
+        <input name="data${delimiter}cube[8][3][5]" />
+        <input name="data${delimiter}cube[8][3][9]" />
+        <input name="data${delimiter}cube[8][7][4]" />
+        <input name="data${delimiter}cube[2][1][8]" />
+      </form>
+    `;
+
+    objectToForm("cube", { data: { cube: [[["A", "B"], ["C"]], [["D"]]] } }, { delimiter });
+
+    expect(Array.from(document.querySelectorAll("input")).map((input) => input.value)).toEqual([
+      "A", "B", "C", "D"
+    ]);
+  });
+
   it.each(["/", "::", "$&"])("populates nested fields and arrays with delimiter %s", (delimiter) => {
     document.body.innerHTML = `
       <form id="customDelimiter">
@@ -398,6 +415,19 @@ describe("objectToForm", () => {
 });
 
 describe("low-level helpers", () => {
+  it("preserves long unmatched field names without repeated scanning", () => {
+    const form = document.createElement("form");
+    const input = document.createElement("input");
+    input.name = `filters${"[".repeat(100_000)}value`;
+    form.append(input);
+    const start = Date.now();
+    const fields = mapFieldsByName(form, { shouldClean: false });
+    const elapsed = Date.now() - start;
+
+    expect(Object.keys(fields)).toEqual([input.name]);
+    expect(elapsed).toBeLessThan(1000);
+  });
+
   it("maps fields by normalized names", () => {
     document.body.innerHTML = `
       <form id="testForm">

@@ -1,7 +1,7 @@
 import { objectToEntries, type Entry } from "@form2js/core";
 
 const ARRAY_ITEM_REGEXP = /\[[0-9]+?\]$/;
-const LAST_INDEXED_ARRAY_REGEXP = /(.*)(\[)([0-9]*)(\])$/;
+const LAST_INDEXED_ARRAY_REGEXP = /\[([0-9]*)\]$/;
 const ARRAY_OF_ARRAYS_REGEXP = /\[([0-9]+)\]\[([0-9]+)\]/g;
 
 export type RootNodeInput = string | Node | null | undefined;
@@ -30,6 +30,30 @@ type ArrayIndexesMap = Record<
     };
   }
 >;
+
+interface BracketMatch {
+  content: string;
+  index: number;
+  end: number;
+}
+
+function findBracketMatches(input: string): BracketMatch[] {
+  const matches: BracketMatch[] = [];
+  let cursor = 0;
+
+  // Stop at the first unmatched opening bracket instead of rescanning its suffix.
+  while (cursor < input.length) {
+    const index = input.indexOf("[", cursor);
+    if (index === -1) break;
+    const end = input.indexOf("]", index + 1);
+    if (end === -1) break;
+
+    matches.push({ content: input.slice(index + 1, end), index, end: end + 1 });
+    cursor = end + 1;
+  }
+
+  return matches;
+}
 
 function isNodeObject(value: unknown): value is Node {
   return typeof value === "object" && value !== null && "nodeType" in value && "nodeName" in value;
@@ -98,7 +122,7 @@ function normalizeName(name: string, delimiter: string, arrayIndexes: ArrayIndex
   const normalizedRawChunks: string[] = [];
 
   for (const rawChunk of rawChunks) {
-    const bracketMatches = Array.from(rawChunk.matchAll(/\[([^\]]*)\]/g));
+    const bracketMatches = findBracketMatches(rawChunk);
     if (bracketMatches.length === 0) {
       normalizedRawChunks.push(rawChunk);
       continue;
@@ -113,7 +137,7 @@ function normalizeName(name: string, delimiter: string, arrayIndexes: ArrayIndex
         currentChunk += literalText;
       }
 
-      const bracketContent = match[1] ?? "";
+      const bracketContent = match.content;
       const isArraySegment = bracketContent === "" || /^\d+$/.test(bracketContent);
 
       if (isArraySegment) {
@@ -131,7 +155,7 @@ function normalizeName(name: string, delimiter: string, arrayIndexes: ArrayIndex
         currentChunk = bracketContent;
       }
 
-      cursor = match.index + match[0].length;
+      cursor = match.end;
     }
 
     const trailingText = rawChunk.slice(cursor);
@@ -163,9 +187,8 @@ function normalizeName(name: string, delimiter: string, arrayIndexes: ArrayIndex
       continue;
     }
 
-    let currentNormalizedName = normalizedNameChunks.join(delimiter);
-    const currentIndex = currentNormalizedName.replace(LAST_INDEXED_ARRAY_REGEXP, "$3");
-    currentNormalizedName = currentNormalizedName.replace(LAST_INDEXED_ARRAY_REGEXP, "$1");
+    const currentIndex = nameMatches[1] ?? "";
+    const currentNormalizedName = normalizedNameChunks.join(delimiter).slice(0, -nameMatches[0].length);
 
     const arrayIndexInfo = (arrayIndexes[currentNormalizedName] ??= {
       lastIndex: -1,
@@ -198,13 +221,11 @@ function normalizeName(name: string, delimiter: string, arrayIndexes: ArrayIndex
       currentIndex === ""
         ? (arrayIndexInfo.emptyIndexGroup?.index ?? 0)
         : arrayIndexInfo.indexes[currentIndex];
-    normalizedNameChunks[normalizedNameChunks.length - 1] = currentChunk.replace(
-      LAST_INDEXED_ARRAY_REGEXP,
-      `$1$2${newIndex}$4`
-    );
+    normalizedNameChunks[normalizedNameChunks.length - 1] =
+      `${currentChunk.slice(0, -nameMatches[0].length)}[${newIndex}]`;
   }
 
-  return normalizedNameChunks.join(delimiter).replace(`]${delimiter}[`, "][");
+  return normalizedNameChunks.join(delimiter).split(`]${delimiter}[`).join("][");
 }
 
 function mergeField(result: FieldMap, key: string, value: SupportedFieldCollection): void {

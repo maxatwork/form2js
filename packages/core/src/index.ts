@@ -17,6 +17,30 @@ const SUB_OBJECT_REGEXP = /^[a-zA-Z_][a-zA-Z_0-9]*/;
 const PATH_TOKEN_REGEXP = /[a-zA-Z_][a-zA-Z0-9_]*/g;
 const UNSAFE_PATH_SEGMENTS = new Set(["__proto__", "prototype", "constructor"]);
 
+interface BracketMatch {
+  content: string;
+  index: number;
+  end: number;
+}
+
+function findBracketMatches(input: string): BracketMatch[] {
+  const matches: BracketMatch[] = [];
+  let cursor = 0;
+
+  // Stop at the first unmatched opening bracket instead of rescanning its suffix.
+  while (cursor < input.length) {
+    const index = input.indexOf("[", cursor);
+    if (index === -1) break;
+    const end = input.indexOf("]", index + 1);
+    if (end === -1) break;
+
+    matches.push({ content: input.slice(index + 1, end), index, end: end + 1 });
+    cursor = end + 1;
+  }
+
+  return matches;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -99,7 +123,7 @@ function splitNameIntoParts(name: string, delimiter: string): string[] {
   const nameParts: string[] = [];
 
   for (const rawPart of rawParts) {
-    const bracketMatches = Array.from(rawPart.matchAll(/\[([^\]]*)\]/g));
+    const bracketMatches = findBracketMatches(rawPart);
     if (bracketMatches.length === 0) {
       nameParts.push(rawPart);
       continue;
@@ -114,7 +138,7 @@ function splitNameIntoParts(name: string, delimiter: string): string[] {
         currentPart += literalText;
       }
 
-      const bracketContent = match[1] ?? "";
+      const bracketContent = match.content;
       const isArraySegment = bracketContent === "" || /^\d+$/.test(bracketContent);
 
       if (isArraySegment) {
@@ -132,7 +156,7 @@ function splitNameIntoParts(name: string, delimiter: string): string[] {
         currentPart = bracketContent;
       }
 
-      cursor = match.index + match[0].length;
+      cursor = match.end;
     }
 
     const trailingText = rawPart.slice(cursor);

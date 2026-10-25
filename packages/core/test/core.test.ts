@@ -2,6 +2,16 @@ import { describe, expect, it } from "vitest";
 import { entriesToObject, objectToEntries, processNameValues, setPathValue } from "../src/index";
 
 describe("entriesToObject", () => {
+  it("handles a long unmatched bracket suffix without repeated scanning", () => {
+    const name = `data${"[".repeat(100_000)}`;
+    const start = Date.now();
+    const result = entriesToObject([[name, "value"]]);
+    const elapsed = Date.now() - start;
+
+    expect(result).toEqual({ data: ["value"] });
+    expect(elapsed).toBeLessThan(1000);
+  });
+
   it("accepts tuple entries directly", () => {
     const result = entriesToObject([
       ["person.name.first", "John"],

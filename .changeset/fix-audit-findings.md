@@ -7,4 +7,4 @@
 "@form2js/react": patch
 ---
 
-Keep distinct indexed array paths isolated, honor custom delimiters when populating forms, and point browser standalone exports at the emitted bundles. Simplify adapters while preserving their public entry points and defaults.
+Keep distinct indexed array paths isolated, honor custom delimiters and deeply nested arrays when populating forms, and point browser standalone exports at the emitted bundles. Keep bracket scanning linear on malformed names. Simplify adapters while preserving their public entry points and defaults.
