@@ -1,5 +1,13 @@
 # @form2js/js2form
 
+## 3.4.2
+
+### Patch Changes
+
+- 8995c5d: Keep distinct indexed array paths isolated, honor custom delimiters and deeply nested arrays when populating forms, and point browser standalone exports at the emitted bundles. Keep bracket scanning linear on malformed names. Simplify adapters while preserving their public entry points and defaults.
+- Updated dependencies [8995c5d]
+  - @form2js/core@3.4.2
+
 ## 3.4.1
 
 ### Patch Changes
