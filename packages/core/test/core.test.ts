@@ -12,6 +12,21 @@ describe("entriesToObject", () => {
     expect(elapsed).toBeLessThan(1000);
   });
 
+  it("handles deeply nested matched indexes without quadratic array bookkeeping", () => {
+    const depth = 20_000;
+    const start = Date.now();
+    const result = entriesToObject([[`data${"[0]".repeat(depth)}`, "value"]]);
+    const elapsed = Date.now() - start;
+
+    let node: unknown = result.data;
+    for (let level = 1; level < depth; level += 1) {
+      node = (node as unknown[])[0];
+    }
+
+    expect(node).toEqual(["value"]);
+    expect(elapsed).toBeLessThan(1000);
+  });
+
   it("accepts tuple entries directly", () => {
     const result = entriesToObject([
       ["person.name.first", "John"],

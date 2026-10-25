@@ -197,6 +197,21 @@ function pushToNamedArray(container: unknown, arrayName: string, value: unknown)
   return targetArray[targetArray.length - 1];
 }
 
+const arrayKeys = new WeakMap<unknown[], string>();
+let nextArrayKey = 0;
+
+// Key index maps by array identity: path-derived keys can collide and grow with path depth.
+function getArrayKey(array: unknown[]): string {
+  let key = arrayKeys.get(array);
+  if (key === undefined) {
+    key = String(nextArrayKey);
+    nextArrayKey += 1;
+    arrayKeys.set(array, key);
+  }
+
+  return key;
+}
+
 export function createMergeContext(): MergeContext {
   return { arrays: createIndexRecord() as MergeContext["arrays"] };
 }
@@ -229,16 +244,12 @@ export function setPathValue(
       const arrayName = namePart.slice(0, namePart.indexOf("["));
       const arrayIndex = namePart.replace(/(^([a-z_]+)?\[)|(\]$)/gi, "");
 
-      const arrayPath = JSON.stringify(nameParts.slice(0, partIndex + 1));
+      const arrayKey = getArrayKey(ensureNamedArray(currResult, arrayName));
 
-      if (arrayName !== "") {
-        ensureNamedArray(currResult, arrayName);
-      }
-
-      const existingArrayMap = getOwnRecordValue(context.arrays, arrayPath);
+      const existingArrayMap = getOwnRecordValue(context.arrays, arrayKey);
       const arrayMap = isRecord(existingArrayMap) ? existingArrayMap : createIndexRecord();
       if (!isRecord(existingArrayMap)) {
-        setOwnRecordValue(context.arrays, arrayPath, arrayMap);
+        setOwnRecordValue(context.arrays, arrayKey, arrayMap);
       }
 
       if (isLast) {
