@@ -17,12 +17,6 @@ const SUB_OBJECT_REGEXP = /^[a-zA-Z_][a-zA-Z_0-9]*/;
 const PATH_TOKEN_REGEXP = /[a-zA-Z_][a-zA-Z0-9_]*/g;
 const UNSAFE_PATH_SEGMENTS = new Set(["__proto__", "prototype", "constructor"]);
 
-interface BracketMatch {
-  content: string;
-  index: number;
-  text: string;
-}
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -46,32 +40,6 @@ function setOwnRecordValue(record: Record<string, unknown>, key: string, value: 
     value,
     writable: true
   });
-}
-
-function findBracketMatches(input: string): BracketMatch[] {
-  const matches: BracketMatch[] = [];
-  let cursor = 0;
-
-  while (cursor < input.length) {
-    const startIndex = input.indexOf("[", cursor);
-    if (startIndex === -1) {
-      break;
-    }
-
-    const endIndex = input.indexOf("]", startIndex + 1);
-    if (endIndex === -1) {
-      break;
-    }
-
-    matches.push({
-      content: input.slice(startIndex + 1, endIndex),
-      index: startIndex,
-      text: input.slice(startIndex, endIndex + 1)
-    });
-    cursor = endIndex + 1;
-  }
-
-  return matches;
 }
 
 function normalizeEntry(entry: EntryInput): Entry {
@@ -131,7 +99,7 @@ function splitNameIntoParts(name: string, delimiter: string): string[] {
   const nameParts: string[] = [];
 
   for (const rawPart of rawParts) {
-    const bracketMatches = findBracketMatches(rawPart);
+    const bracketMatches = Array.from(rawPart.matchAll(/\[([^\]]*)\]/g));
     if (bracketMatches.length === 0) {
       nameParts.push(rawPart);
       continue;
@@ -141,12 +109,12 @@ function splitNameIntoParts(name: string, delimiter: string): string[] {
     let cursor = 0;
 
     for (const match of bracketMatches) {
-      const literalText = rawPart.slice(cursor, match.index ?? cursor);
+      const literalText = rawPart.slice(cursor, match.index);
       if (literalText !== "") {
         currentPart += literalText;
       }
 
-      const bracketContent = match.content;
+      const bracketContent = match[1] ?? "";
       const isArraySegment = bracketContent === "" || /^\d+$/.test(bracketContent);
 
       if (isArraySegment) {
@@ -164,7 +132,7 @@ function splitNameIntoParts(name: string, delimiter: string): string[] {
         currentPart = bracketContent;
       }
 
-      cursor = match.index + match.text.length;
+      cursor = match.index + match[0].length;
     }
 
     const trailingText = rawPart.slice(cursor);
@@ -222,7 +190,6 @@ export function setPathValue(
   assertPathIsSafe(nameParts, allowUnsafePathSegments);
 
   let currResult: unknown = target;
-  let arrayNameFull = "";
 
   for (let partIndex = 0; partIndex < nameParts.length; partIndex += 1) {
     const namePart = nameParts[partIndex] ?? "";
@@ -230,8 +197,6 @@ export function setPathValue(
 
     if (namePart.includes("[]") && isLast) {
       const arrayName = namePart.slice(0, namePart.indexOf("["));
-      arrayNameFull += arrayName;
-
       pushToNamedArray(currResult, arrayName, value);
       continue;
     }
@@ -240,16 +205,16 @@ export function setPathValue(
       const arrayName = namePart.slice(0, namePart.indexOf("["));
       const arrayIndex = namePart.replace(/(^([a-z_]+)?\[)|(\]$)/gi, "");
 
-      arrayNameFull += `_${arrayName}_${arrayIndex}`;
+      const arrayPath = JSON.stringify(nameParts.slice(0, partIndex + 1));
 
       if (arrayName !== "") {
         ensureNamedArray(currResult, arrayName);
       }
 
-      const existingArrayMap = getOwnRecordValue(context.arrays, arrayNameFull);
+      const existingArrayMap = getOwnRecordValue(context.arrays, arrayPath);
       const arrayMap = isRecord(existingArrayMap) ? existingArrayMap : createIndexRecord();
       if (!isRecord(existingArrayMap)) {
-        setOwnRecordValue(context.arrays, arrayNameFull, arrayMap);
+        setOwnRecordValue(context.arrays, arrayPath, arrayMap);
       }
 
       if (isLast) {
@@ -266,8 +231,6 @@ export function setPathValue(
       currResult = getOwnRecordValue(arrayMap, arrayIndex);
       continue;
     }
-
-    arrayNameFull += namePart;
 
     if (!isRecord(currResult)) {
       throw new TypeError("Expected object-like container while setting nested path");
@@ -323,7 +286,7 @@ export function entriesToObject(
   return result;
 }
 
-function objectToNameValues(obj: unknown): NameValuePair[] {
+function objectToNameValues(obj: unknown, delimiter: string): NameValuePair[] {
   const result: NameValuePair[] = [];
 
   if (obj === null || obj === undefined) {
@@ -339,23 +302,23 @@ function objectToNameValues(obj: unknown): NameValuePair[] {
   if (Array.isArray(obj)) {
     for (let index = 0; index < obj.length; index += 1) {
       const name = `[${index}]`;
-      result.push(...getSubValues(obj[index], name));
+      result.push(...getSubValues(obj[index], name, delimiter));
     }
     return result;
   }
 
   if (isRecord(obj)) {
     for (const key of Object.keys(obj)) {
-      result.push(...getSubValues(obj[key], key));
+      result.push(...getSubValues(obj[key], key, delimiter));
     }
   }
 
   return result;
 }
 
-function getSubValues(subObject: unknown, name: string): NameValuePair[] {
+function getSubValues(subObject: unknown, name: string, delimiter: string): NameValuePair[] {
   const result: NameValuePair[] = [];
-  const tempResult = objectToNameValues(subObject);
+  const tempResult = objectToNameValues(subObject, delimiter);
 
   for (const item of tempResult) {
     let itemName = name;
@@ -363,7 +326,7 @@ function getSubValues(subObject: unknown, name: string): NameValuePair[] {
     if (SUB_ARRAY_REGEXP.test(item.name)) {
       itemName += item.name;
     } else if (SUB_OBJECT_REGEXP.test(item.name)) {
-      itemName += `.${item.name}`;
+      itemName += `${delimiter}${item.name}`;
     }
 
     result.push({ name: itemName, value: item.value });
@@ -372,8 +335,8 @@ function getSubValues(subObject: unknown, name: string): NameValuePair[] {
   return result;
 }
 
-export function objectToEntries(value: unknown): Entry[] {
-  return objectToNameValues(value).map((item) => ({
+export function objectToEntries(value: unknown, options: Pick<ParseOptions, "delimiter"> = {}): Entry[] {
+  return objectToNameValues(value, options.delimiter ?? ".").map((item) => ({
     key: item.name,
     value: item.value
   }));

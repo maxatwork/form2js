@@ -52,7 +52,7 @@ export function entriesToObject<TSchema extends SchemaValidator>(
   options: ParseOptions & { schema: TSchema }
 ): InferSchemaOutput<TSchema>;
 
-export function objectToEntries(value: unknown): Entry[];
+export function objectToEntries(value: unknown, options?: Pick<ParseOptions, "delimiter">): Entry[];
 
 export function processNameValues(
   nameValues: Iterable<NameValuePair>,
@@ -65,7 +65,7 @@ export function processNameValues(
 
 | Option | Default | Where | Why this matters |
 | --- | --- | --- | --- |
-| `delimiter` | `"."` | `entriesToObject`, `setPathValue`, `processNameValues` | Controls how dot-like path chunks are split. |
+| `delimiter` | `"."` | `entriesToObject`, `setPathValue`, `processNameValues`, `objectToEntries` | Controls how path chunks are split or joined. |
 | `skipEmpty` | `true` | `entriesToObject`, `processNameValues` | Drops `""` and `null` values unless you opt out. |
 | `allowUnsafePathSegments` | `false` | `entriesToObject`, `setPathValue` | Blocks prototype-pollution path segments unless you explicitly trust the source. |
 | `schema` | unset | `entriesToObject` | Runs `schema.parse(parsedObject)` and returns schema output type. |

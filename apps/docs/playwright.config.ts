@@ -20,8 +20,8 @@ export default defineConfig({
   ],
   webServer: {
     command:
-      `PUBLIC_DOCS_E2E_FAULTS=1 npm -w @form2js/docs run build && npm -w @form2js/docs run preview -- --host ${docsE2eHost} --port ${docsE2ePort}`,
+      `PUBLIC_DOCS_E2E_FAULTS=1 npm -w @form2js/docs run build && npm -w @form2js/docs run preview -- --ignore-lock --host ${docsE2eHost} --port ${docsE2ePort}`,
     url: docsE2eUrl,
-    reuseExistingServer: !process.env.CI
+    reuseExistingServer: false
   }
 });

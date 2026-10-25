@@ -76,6 +76,29 @@ describe("entriesToObject", () => {
     });
   });
 
+  it.each([false, true])("keeps distinct nested array paths isolated (reverse: %s)", (reverse) => {
+    const entries: [string, string][] = [
+      ["a.b.c[0].x", "A"],
+      ["ab.c[0].y", "B"]
+    ];
+
+    expect(entriesToObject(reverse ? entries.reverse() : entries)).toEqual({
+      a: { b: { c: [{ x: "A" }] } },
+      ab: { c: [{ y: "B" }] }
+    });
+  });
+
+  it("does not confuse underscores in names with array path boundaries", () => {
+    expect(entriesToObject([
+      ["a_b.c[5].x", "A"],
+      ["a.b_c[5].y", "B"],
+      ["a_b[c][5][z]", "C"]
+    ])).toEqual({
+      a_b: { c: [{ x: "A", z: "C" }] },
+      a: { b_c: [{ y: "B" }] }
+    });
+  });
+
   it("supports rails style object paths", () => {
     const result = entriesToObject([
       { key: "rails[field1][foo]", value: "baz" },
@@ -306,6 +329,18 @@ describe("processNameValues", () => {
 });
 
 describe("objectToEntries", () => {
+  it("uses custom delimiters without rewriting literal dots in property names", () => {
+    const data = { person: { "first.last": "Neo", roles: ["watch"] } };
+    const options = { delimiter: "/" };
+    const entries = objectToEntries(data, options);
+
+    expect(entries).toEqual([
+      { key: "person/first.last", value: "Neo" },
+      { key: "person/roles[0]", value: "watch" }
+    ]);
+    expect(entriesToObject(entries, options)).toEqual(data);
+  });
+
   it("flattens nested objects and arrays", () => {
     const result = objectToEntries({
       person: {

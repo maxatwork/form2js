@@ -45,11 +45,6 @@
   min-height: 340px;
 }
 
-@media (max-width: 760px) {
-  .pg-body { grid-template-columns: 1fr; }
-  .pg-form-col { border-right: none; }
-}
-
 .pg-form-col {
   padding: 1.5rem;
   border-right: 1px solid var(--c-border);
@@ -61,6 +56,11 @@
   padding: 1.5rem;
   background: var(--c-panel-2);
   overflow-y: auto;
+}
+
+@media (max-width: 760px) {
+  .pg-body { grid-template-columns: 1fr; }
+  .pg-form-col { border-right: none; }
 }
 
 /* ── Form fields ── */

@@ -1,5 +1,46 @@
 import { expect, test } from "@playwright/test";
 
+test("landing page renders its sections and updates install guidance for each browser adapter", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Turn forms");
+  await expect(page.getByRole("heading", { name: "Try it live" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Install", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "API Documentation" })).toBeVisible();
+  await expect(page.locator("#install-cmd")).toHaveText("npm install @form2js/react react");
+  await expect(page.locator("#install-alt-snippet")).toBeHidden();
+
+  for (const variant of [
+    { id: "form", command: "npm install @form2js/dom", bundle: "@form2js/dom" },
+    { id: "jquery", command: "npm install @form2js/jquery jquery", bundle: "@form2js/jquery" }
+  ]) {
+    await page.locator(`button[data-variant-id="${variant.id}"]`).click();
+    await expect(page.locator("#hero-install-pkg")).toHaveText(variant.command);
+    await expect(page.locator("#install-cmd")).toHaveText(variant.command);
+    await expect(page.locator("#install-alt-snippet")).toBeVisible();
+    await expect(page.locator("#install-alt-snippet")).toContainText(
+      `https://unpkg.com/${variant.bundle}/dist/standalone.global.js`
+    );
+  }
+});
+
+test("playground stacks its columns and removes the divider on mobile", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/");
+  const formColumn = page.locator(".pg-form-col");
+  const outputColumn = page.locator(".pg-output-col");
+
+  await expect(formColumn).toHaveCSS("border-right-width", "1px");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(formColumn).toHaveCSS("border-right-width", "0px");
+  const formBounds = await formColumn.boundingBox();
+  const outputBounds = await outputColumn.boundingBox();
+  expect(formBounds).not.toBeNull();
+  expect(outputBounds).not.toBeNull();
+  if (!formBounds || !outputBounds) throw new Error("Playground columns are missing");
+  expect(outputBounds.y).toBeGreaterThanOrEqual(formBounds.y + formBounds.height);
+});
+
 test("homepage switcher supports keyboard navigation and preserves parser output", async ({ page }) => {
   await page.goto("/");
 

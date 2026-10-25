@@ -99,7 +99,7 @@ describe("installToObjectPlugin", () => {
     expect(typeof $.fn.toObject).toBe("function");
   });
 
-  it("forwards parsing options through the plugin", () => {
+  it.each([undefined, "first", "all", "combine"] as const)("forwards parsing options in %s mode", (mode) => {
     document.body.innerHTML = `
       <form id="profile">
         <input id="person/name" name="" value="Neo" />
@@ -112,19 +112,21 @@ describe("installToObjectPlugin", () => {
     installToObjectPlugin($);
 
     const result = $("#profile").toObject?.({
+      ...(mode ? { mode } : {}),
       delimiter: "/",
       skipEmpty: false,
       useIdIfEmptyName: true,
       getDisabled: true
     });
 
-    expect(result).toEqual({
+    const expected = {
       person: {
         name: "Neo",
         nickname: "",
         role: "captain"
       }
-    });
+    };
+    expect(result).toEqual(mode === "all" ? [expected] : expected);
   });
 
   it("forwards nodeCallback and allowUnsafePathSegments through the plugin", () => {

@@ -9,6 +9,41 @@ import {
 } from "../src/index";
 
 describe("objectToForm", () => {
+  it.each(["/", "::", "$&"])("populates nested fields and arrays with delimiter %s", (delimiter) => {
+    document.body.innerHTML = `
+      <form id="customDelimiter">
+        <input name="person${delimiter}first.last" value="existing" />
+        <input name="person${delimiter}items[5][title]" />
+        <input name="person${delimiter}items[8][title]" />
+        <input name="person${delimiter}matrix[8][3]" />
+        <input name="person${delimiter}matrix[8][9]" />
+        <input type="checkbox" name="person${delimiter}roles[]" value="watch" />
+        <select name="person${delimiter}colors[]" multiple>
+          <option value="red">Red</option><option value="blue">Blue</option>
+        </select>
+      </form>
+    `;
+
+    objectToForm("customDelimiter", {
+      person: {
+        "first.last": "Neo",
+        items: [{ title: "First" }, { title: "Second" }],
+        matrix: [["north", "south"]],
+        roles: ["watch"],
+        colors: ["blue"]
+      }
+    }, { delimiter });
+
+    const inputs = Array.from(document.querySelectorAll<HTMLInputElement>("input"));
+    expect(inputs.map((input) => input.value)).toEqual([
+      "Neo", "First", "Second", "north", "south", "watch"
+    ]);
+    expect(inputs[5]?.checked).toBe(true);
+    expect(Array.from(document.querySelectorAll("option")).map((option) => option.selected)).toEqual([
+      false, true
+    ]);
+  });
+
   it("populates text, checkbox, radio and select fields", () => {
     document.body.innerHTML = `
       <form id="testForm">
