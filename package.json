@@ -8,7 +8,7 @@
     "apps/*"
   ],
   "engines": {
-    "node": ">=22.22.0"
+    "node": ">=22.23.4"
   },
   "scripts": {
     "build": "turbo run build",
@@ -34,7 +34,8 @@
     },
     "@typescript-eslint/typescript-estree": {
       "minimatch": {
-        "brace-expansion": "2.1.7"
+        ".": "11.0.5",
+        "brace-expansion": "5.0.12"
       }
     },
     "glob": {
@@ -80,12 +81,12 @@
     "jsdom": "^26.0.0",
     "lightningcss": "^1.33.0",
     "picomatch": "^4.0.5",
-    "rimraf": "^6.0.1",
+    "rimraf": "^6.1.4",
     "tsup": "^8.5.0",
     "tsx": "^4.23.7",
     "turbo": "^2.10.7",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.35.1",
+    "typescript-eslint": "^8.72.1",
     "vitest": "^4.1.12"
   }
 }
