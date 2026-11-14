@@ -381,6 +381,27 @@ describe("objectToEntries", () => {
     expect(result).toContainEqual({ key: "person.emails[1]", value: "b@example.com" });
   });
 
+  it("preserves nested keys that are not JavaScript identifiers", () => {
+    const data = {
+      person: {
+        "10": "ten",
+        "1st": "first",
+        "é": "accented",
+        "$id": "dollar"
+      }
+    };
+
+    const entries = objectToEntries(data);
+
+    expect(entries).toEqual([
+      { key: "person.10", value: "ten" },
+      { key: "person.1st", value: "first" },
+      { key: "person.é", value: "accented" },
+      { key: "person.$id", value: "dollar" }
+    ]);
+    expect(entriesToObject(entries)).toEqual(data);
+  });
+
   it("only serializes own enumerable properties", () => {
     const value = Object.create({ leaked: "secret" }) as Record<string, unknown>;
     value.safe = "ok";

@@ -13,7 +13,6 @@ import type {
 } from "./types";
 
 const SUB_ARRAY_REGEXP = /^\[\d+?\]/;
-const SUB_OBJECT_REGEXP = /^[a-zA-Z_][a-zA-Z_0-9]*/;
 const PATH_TOKEN_REGEXP = /[a-zA-Z_][a-zA-Z0-9_]*/g;
 const UNSAFE_PATH_SEGMENTS = new Set(["__proto__", "prototype", "constructor"]);
 
@@ -360,7 +359,7 @@ function getSubValues(subObject: unknown, name: string, delimiter: string): Name
 
     if (SUB_ARRAY_REGEXP.test(item.name)) {
       itemName += item.name;
-    } else if (SUB_OBJECT_REGEXP.test(item.name)) {
+    } else if (item.name !== "") {
       itemName += `${delimiter}${item.name}`;
     }
 
