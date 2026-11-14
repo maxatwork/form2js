@@ -61,6 +61,30 @@ describe("objectToForm", () => {
     ]);
   });
 
+  it("populates fields whose nested keys are not JavaScript identifiers", () => {
+    document.body.innerHTML = `
+      <form id="specialKeys">
+        <input name="person.10" />
+        <input name="person.1st" />
+        <input name="person.é" />
+        <input name="person.$id" />
+      </form>
+    `;
+
+    objectToForm("specialKeys", {
+      person: {
+        "10": "ten",
+        "1st": "first",
+        "é": "accented",
+        "$id": "dollar"
+      }
+    });
+
+    expect(Array.from(document.querySelectorAll("input")).map((input) => input.value)).toEqual([
+      "ten", "first", "accented", "dollar"
+    ]);
+  });
+
   it("populates text, checkbox, radio and select fields", () => {
     document.body.innerHTML = `
       <form id="testForm">
