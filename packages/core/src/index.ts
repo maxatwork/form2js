@@ -359,7 +359,7 @@ function getSubValues(subObject: unknown, name: string, delimiter: string): Name
 
     if (SUB_ARRAY_REGEXP.test(item.name)) {
       itemName += item.name;
-    } else if (item.name !== "") {
+    } else if (item.name !== "" && !item.name.startsWith("[")) {
       itemName += `${delimiter}${item.name}`;
     }
 
