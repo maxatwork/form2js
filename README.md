@@ -281,7 +281,8 @@ Compatibility with the old project is intentional.
 
 - Name paths define output shape (`person.name.first`).
 - Array and indexed syntax is preserved (`items[]`, `items[5].name`).
-- Rails-style names are supported (`rails[field][value]`).
+- Rails-style names are supported (`rails[field][value]`). Brackets and the configured delimiter are reserved in field paths.
+- Numeric keys in objects map to paths such as `tags.0`. Use an array to populate a checkbox group or multi-select named `tags` or `tags[]`.
 - DOM extraction follows native browser form submission semantics for checkbox and radio values.
 - Unsafe key path segments (`__proto__`, `prototype`, `constructor`) are rejected by default.
 - This library does data shaping, not JSON/XML serialization.

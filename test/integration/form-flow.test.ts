@@ -32,6 +32,26 @@ describe("integration: full data flow", () => {
     expect(roundTripped).toEqual(sourceObject);
   });
 
+  it("round-trips non-identifier field names inside array rows", () => {
+    document.body.innerHTML = `
+      <form id="source">
+        <input name="rows[0].é" value="first" />
+        <input name="rows[1].$id" value="second" />
+      </form>
+      <form id="target">
+        <input name="rows[0].é" />
+        <input name="rows[1].$id" />
+      </form>
+    `;
+
+    const source = formToObject(document.getElementById("source"));
+    const target = document.getElementById("target");
+
+    expect(source).toEqual({ rows: [{ "é": "first" }, { "$id": "second" }] });
+    objectToForm(target, source);
+    expect(formToObject(target)).toEqual(source);
+  });
+
   it("accepts FormData with same path semantics", () => {
     const formData = new FormData();
     formData.append("items[8].name", "A");

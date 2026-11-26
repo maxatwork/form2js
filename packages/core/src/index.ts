@@ -13,8 +13,6 @@ import type {
 } from "./types";
 
 const SUB_ARRAY_REGEXP = /^\[\d+?\]/;
-const SUB_OBJECT_REGEXP = /^[a-zA-Z_][a-zA-Z_0-9]*/;
-const PATH_TOKEN_REGEXP = /[a-zA-Z_][a-zA-Z0-9_]*/g;
 const UNSAFE_PATH_SEGMENTS = new Set(["__proto__", "prototype", "constructor"]);
 
 interface BracketMatch {
@@ -87,31 +85,17 @@ function shouldSkipValue(value: EntryValue, skipEmpty: boolean): boolean {
   return skipEmpty && (value === "" || value === null);
 }
 
-function findUnsafePathToken(part: string): string | null {
-  const tokens = part.match(PATH_TOKEN_REGEXP);
-  if (!tokens) {
-    return null;
-  }
-
-  for (const token of tokens) {
-    if (UNSAFE_PATH_SEGMENTS.has(token)) {
-      return token;
-    }
-  }
-
-  return null;
-}
-
 function assertPathIsSafe(nameParts: string[], allowUnsafePathSegments: boolean): void {
   if (allowUnsafePathSegments) {
     return;
   }
 
   for (const namePart of nameParts) {
-    const unsafeToken = findUnsafePathToken(namePart);
-    if (unsafeToken) {
+    const bracketIndex = namePart.indexOf("[");
+    const key = bracketIndex === -1 ? namePart : namePart.slice(0, bracketIndex);
+    if (UNSAFE_PATH_SEGMENTS.has(key)) {
       throw new TypeError(
-        `Unsafe path segment "${unsafeToken}" is not allowed. ` +
+        `Unsafe path segment "${key}" is not allowed. ` +
           "Pass allowUnsafePathSegments: true only for trusted input."
       );
     }
@@ -257,7 +241,7 @@ export function setPathValue(
         setOwnRecordValue(arrayMap, arrayIndex, inserted);
       } else if (getOwnRecordValue(arrayMap, arrayIndex) === undefined) {
         const nextNamePart = nameParts[partIndex + 1] ?? "";
-        const nextContainer = /^[0-9a-z_]+\[?/i.test(nextNamePart) ? {} : [];
+        const nextContainer = nextNamePart.startsWith("[") || nextNamePart === "" ? [] : {};
 
         const inserted = pushToNamedArray(currResult, arrayName, nextContainer);
         setOwnRecordValue(arrayMap, arrayIndex, inserted);
@@ -360,7 +344,7 @@ function getSubValues(subObject: unknown, name: string, delimiter: string): Name
 
     if (SUB_ARRAY_REGEXP.test(item.name)) {
       itemName += item.name;
-    } else if (SUB_OBJECT_REGEXP.test(item.name)) {
+    } else if (item.name !== "" && !item.name.startsWith("[")) {
       itemName += `${delimiter}${item.name}`;
     }
 
