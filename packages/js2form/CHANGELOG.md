@@ -1,5 +1,13 @@
 # @form2js/js2form
 
+## 3.4.3
+
+### Patch Changes
+
+- 38d8d5e: Preserve nested numeric, Unicode, and punctuation-prefixed object keys when parsing and populating forms, including keys on objects inside arrays. Numeric object keys map to literal fields such as `tags.0`. Use an array for checkbox groups or multi-selects named `tags` or `tags[]`.
+- Updated dependencies [38d8d5e]
+  - @form2js/core@3.4.3
+
 ## 3.4.2
 
 ### Patch Changes

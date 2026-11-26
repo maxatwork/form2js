@@ -1,5 +1,11 @@
 # @form2js/jquery
 
+## 3.4.3
+
+### Patch Changes
+
+- @form2js/dom@3.4.3
+
 ## 3.4.2
 
 ### Patch Changes
