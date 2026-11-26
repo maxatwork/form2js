@@ -249,12 +249,10 @@ describe("entriesToObject", () => {
     });
   });
 
-  it("rejects unsafe path segments by default", () => {
-    expect(() =>
-      entriesToObject([{ key: "__proto__.polluted", value: "yes" }], {
-        skipEmpty: false
-      })
-    ).toThrow(/Unsafe path segment/);
+  it.each(["__proto__", "prototype", "constructor"])("rejects the unsafe path segment %s", (key) => {
+    for (const path of [`record.${key}.field`, `record[${key}].field`, `${key}[0]`]) {
+      expect(() => entriesToObject([[path, "blocked"]])).toThrow(/Unsafe path segment/);
+    }
   });
 
   it("can opt into unsafe path segments for trusted inputs", () => {
@@ -379,6 +377,42 @@ describe("objectToEntries", () => {
     expect(result).toContainEqual({ key: "person.name.first", value: "John" });
     expect(result).toContainEqual({ key: "person.emails[0]", value: "a@example.com" });
     expect(result).toContainEqual({ key: "person.emails[1]", value: "b@example.com" });
+  });
+
+  it("preserves nested keys that are not JavaScript identifiers", () => {
+    const data = {
+      person: {
+        "10": "ten",
+        "1st": "first",
+        "é": "accented",
+        "$id": "dollar"
+      }
+    };
+
+    const entries = objectToEntries(data);
+
+    expect(entries).toEqual([
+      { key: "person.10", value: "ten" },
+      { key: "person.1st", value: "first" },
+      { key: "person.é", value: "accented" },
+      { key: "person.$id", value: "dollar" }
+    ]);
+    expect(entriesToObject(entries)).toEqual(data);
+  });
+
+  it("round-trips non-identifier keys in objects inside arrays", () => {
+    const data = {
+      rows: [
+        { "é": "accented", label: "first" },
+        { "$id": "dollar", labels: ["second"] },
+        { "1constructor": ["literal key"] }
+      ]
+    };
+
+    const result = entriesToObject(objectToEntries(data));
+
+    expect(result).toEqual(data);
+    expect(JSON.stringify(result)).toBe(JSON.stringify(data));
   });
 
   it("only serializes own enumerable properties", () => {
