@@ -11,12 +11,7 @@ permissions:
 
 jobs:
   checks:
-    name: checks (node ${{ matrix.node-version }})
     runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version: [22.22.0]
 
     steps:
       - name: Checkout
@@ -25,7 +20,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22.23.5
 
       - name: Install
         run: npm ci
@@ -46,7 +41,6 @@ jobs:
         run: npm run pack:dry-run
 
   docs-e2e:
-    name: docs-e2e (node 22.22.0)
     runs-on: ubuntu-24.04
 
     steps:
@@ -56,7 +50,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
-          node-version: 22.22.0
+          node-version: 22.23.5
 
       - name: Install
         run: npm ci
