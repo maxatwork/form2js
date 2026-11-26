@@ -1,5 +1,12 @@
 # @form2js/dom
 
+## 3.4.3
+
+### Patch Changes
+
+- Updated dependencies [38d8d5e]
+  - @form2js/core@3.4.3
+
 ## 3.4.2
 
 ### Patch Changes
